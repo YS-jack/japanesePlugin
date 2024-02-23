@@ -1,4 +1,5 @@
-package net.runelite.client.plugins.japanese;
+package com.japanese;
+
 
 public class JapaneseOverlay {
 }
