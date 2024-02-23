@@ -16,12 +16,13 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.game.ChatIconManager;
 import net.runelite.client.util.ImageUtil;
 import java.awt.image.BufferedImage;
-
+import com.japanese.JapChar;
+import java.util.HashMap;
 @Slf4j
 @PluginDescriptor(
         name = "Japanese",
         description = "plugin to translate game texts into Japanese",
-        tags = {"japan", "translate", "日本","にほ"},
+        tags = {"japan", "translate", "日本","にほ","niho","nippo"},
         enabledByDefault = false
 )
 
@@ -32,34 +33,35 @@ public class JapanesePlugin extends Plugin{
     private ChatIconManager chatIconManager;
     @Inject
     private JapaneseConfig config;
-    private int[] japCharIds;
-    private String[] charPath;
+    @Inject
+    private JapChar japChar;
+    private HashMap<String, Integer> japCharIds = new HashMap<>();    // colour-char(key) <-> CharIds(val)
+
     private void loadJapChar()
     {
-        if (japCharIds != null){return;}
-        if (charPath != null){return;}
-        int japCharNum = 2;
-        japCharIds = new int[japCharNum];
-        charPath = new String[japCharNum];
-        charPath[0] = "char/blue/動.png";
-        charPath[1] = "char/yellow/人.png";
-        for (int i = 0; i < japCharNum; i++) {
-            final BufferedImage image = ImageUtil.loadImageResource(getClass(), charPath[i]);
-            japCharIds[i] = chatIconManager.registerChatIcon(image);
-            log.info("japCharid["+i+"] = " +japCharIds[i]);
+        String[] japCharArray = japChar.getCharList(); //list of all characters e.g.　black+JapChar.separator+面
+        log.info("japCharArray[44] = " + japCharArray[44]);
+        for (int i = 0; i < japCharArray.length; i++) {
+            String filePath = getCharPath(japCharArray[i]);
+            final BufferedImage image = ImageUtil.loadImageResource(getClass(), filePath);
+            final int charID = chatIconManager.registerChatIcon(image);
+            japCharIds.put(japCharArray[i], charID);
         }
+    }
+    protected String getCharPath(String colChar) {
+        return "char/" + colChar;
     }
     @Override
     protected void startUp() throws Exception
     {
-        log.info("プラグイン開始");
+        log.info("start of plugin");
         loadJapChar();
     }
 
     @Override
     protected  void shutDown() throws  Exception
     {
-        log.info("プラグイン停止");
+        log.info("start of plugin");
     }
 
     @Subscribe
@@ -81,7 +83,7 @@ public class JapanesePlugin extends Plugin{
             String newEnTarget = "";
             if (enTarget.isEmpty()) {
                 //todo- translate the option to japanese
-                event.getMenuEntry().setOption(event.getOption().replace(enOption,"<img="+chatIconManager.chatIconIndex(japCharIds[0])+">"));
+                event.getMenuEntry().setOption(event.getOption().replace(enOption,"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"));
             }
             else {
                 newEnOption = enTarget;
@@ -89,14 +91,14 @@ public class JapanesePlugin extends Plugin{
                 //todo - translate the new* to japanese
                 //event.getMenuEntry().setOption(event.getOption().replace(enOption,newEnOption));
                 //event.getMenuEntry().setTarget(event.getTarget().replace(enTarget, newEnTarget));
-                event.getMenuEntry().setOption(event.getOption().replace(enOption,"<img="+chatIconManager.chatIconIndex(japCharIds[0])+">"));
-                event.getMenuEntry().setTarget(event.getTarget().replace(enTarget,"<img="+chatIconManager.chatIconIndex(japCharIds[1])+">"));
+                event.getMenuEntry().setOption(event.getOption().replace(enOption,"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"));
+                event.getMenuEntry().setTarget(event.getTarget().replace(enTarget,"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"));
             }
 
 
         }
         catch (Exception e){
-            log.error(e.getMessage());
+            //System.out.print(e.getMessage());
     }
     }
     @Subscribe
