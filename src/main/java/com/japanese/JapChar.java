@@ -1,13 +1,8 @@
 package com.japanese;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
-
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
-import java.nio.file.*;
-import java.util.stream.Stream;
 
 @Slf4j
 public class JapChar {

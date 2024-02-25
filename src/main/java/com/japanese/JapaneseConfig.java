@@ -176,22 +176,22 @@ public interface JapaneseConfig extends Config {
             section = gameTextTransformChoice
     )
     default GameTextProcessChoice otherMessageConfig() {return GameTextProcessChoice.簡易翻訳;}
-    @ConfigItem(
-            position = 43,
-            keyName = "NpcNameOVRConfig",
-            name = "NPC名オーバーレイ",
-            description = "マウスの横にNPC名を表示するか否か",
-            section = gameTextTransformChoice
-    )
-    default boolean npcNameOVRConfig() {return true;}
-    @ConfigItem(
-            position = 44,
-            keyName = "ItemNameOVRConfig",
-            name = "アイテム名オーバーレイ",
-            description = "マウスの横にアイテム名を表示するか否か",
-            section = gameTextTransformChoice
-    )
-    default boolean itemNameOVRConfig() {return true;}
+//    @ConfigItem(
+//            position = 43,
+//            keyName = "NpcNameOVRConfig",
+//            name = "NPC名オーバーレイ",
+//            description = "マウスの横にNPC名を表示するか否か",
+//            section = gameTextTransformChoice
+//    )
+//    default boolean npcNameOVRConfig() {return true;}
+//    @ConfigItem(
+//            position = 44,
+//            keyName = "ItemNameOVRConfig",
+//            name = "アイテム名オーバーレイ",
+//            description = "マウスの横にアイテム名を表示するか否か",
+//            section = gameTextTransformChoice
+//    )
+//    default boolean itemNameOVRConfig() {return true;}
 //////////////////
     @ConfigItem(
             position = 99,
