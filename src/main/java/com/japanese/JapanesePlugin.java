@@ -14,7 +14,9 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.game.ChatIconManager;
+import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.ImageUtil;
+import net.runelite.client.ui.overlay.Overlay;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Objects;
@@ -38,11 +40,16 @@ public class JapanesePlugin extends Plugin{
     private JapaneseConfig config;
     @Inject
     private JapChar japChar;
-
+    @Inject
+    private OverlayManager overlayManager;
+    @Inject
+    private JapaneseOverlay japaneseOverlay;
     private Player player;
     private final JapTransforms japTransforms = new JapTransforms();
     public final String separator = "--";
     protected final HashMap<String, Integer> japCharIds = new HashMap<>();    // colour-char(key) <-> CharIds(val)
+    public String dialogueText;
+    public String dialogueNPC;
     private void loadJapChar()
     {
         String[] japCharArray = japChar.getCharList(); //list of all characters e.g.　black+JapChar.separator+面
@@ -94,9 +101,8 @@ public class JapanesePlugin extends Plugin{
     {
         log.info("start of plugin");
         japTransforms.initTransHash();
+        overlayManager.add(japaneseOverlay);
         loadJapChar();
-
-
     }
 
     @Override
@@ -149,11 +155,23 @@ public class JapanesePlugin extends Plugin{
     // get dialog content when talking with npc
     public void onChatMessage(ChatMessage event){
         if (event.getType() == ChatMessageType.DIALOG) {
-            String dialogueText = event.getMessage();
-            String sender = event.getSender();
-            String name = event.getName();
+            log.info("dialog's event.getMessage() = " + event.getMessage());
+            log.info("dialog's event.getSender() = " + event.getSender());
+            log.info("dialog's event.getname() = " + event.getName());
+            String dialogEn = event.getMessage();
+            dialogueNPC = dialogEn.split("\\|")[0];
+            dialogueText = dialogEn.split("\\|")[1];
+            //String npcNameJp = japTransforms.getTransformWithColors(npcName, transformOptions.wordToWord, japCharIds, chatIconManager);
+            //String dialogTextJp = japTransforms.getTransformWithColors(dialogText, transformOptions.wordToWord, japCharIds, chatIconManager);
+            //event.setMessage(event.getMessage().replace(dialogEn, npcNameJp+"|"+dialogTextJp));
+            //event.setMessage(event.getMessage().replace(dialogEn, "me|whats up?"));
+            //client.refreshChat();
 
-            log.info("dialogue text = " + dialogueText);
+            //String senderJap = japTransforms.getTransformWithColors(event.getSender(), transformOptions.wordToWord, japCharIds, chatIconManager);
+            //event.setSender(senderJap);
+
+            //String nameJap = japTransforms.getTransformWithColors(event.getName(), transformOptions.wordToWord, japCharIds, chatIconManager);
+
         }
     }
 
@@ -161,4 +179,5 @@ public class JapanesePlugin extends Plugin{
     JapaneseConfig provideConfig(ConfigManager configManager) {
         return configManager.getConfig(JapaneseConfig.class);
     }
+
 }

@@ -164,7 +164,7 @@ public interface JapaneseConfig extends Config {
             position = 41,
             keyName = "GameMessageConfig",
             name = "ゲーム情報",
-            description = "NPCとの会話の翻訳設定",
+            description = "ゲーム情報の翻訳設定",
             section = gameTextTransformChoice
     )
     default GameTextProcessChoice gameMessageConfig() {return GameTextProcessChoice.簡易翻訳;}
@@ -177,10 +177,10 @@ public interface JapaneseConfig extends Config {
     )
     default GameTextProcessChoice otherMessageConfig() {return GameTextProcessChoice.簡易翻訳;}
 //    @ConfigItem(
-//            position = 43,
-//            keyName = "NpcNameOVRConfig",
-//            name = "NPC名オーバーレイ",
-//            description = "マウスの横にNPC名を表示するか否か",
+//            position = 41,
+//            keyName = "DialogOvlConfig",
+//            name = "ダイアログオーバーレイ",
+//            description = "会話する際に表示されるダイアログにオーバーレイを表示するか否か",
 //            section = gameTextTransformChoice
 //    )
 //    default boolean npcNameOVRConfig() {return true;}

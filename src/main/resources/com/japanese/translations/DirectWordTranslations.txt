@@ -67239,3 +67239,8 @@ zymase,ザイマーゼ
 zymosis,醗酵
 zymotic,ザイモティック
 zymurgy,ジムルジー
+gielinor, ギレノー
+XP,経験値
+Wiki,Wiki
+hitpoints,ライフ
+Mining,

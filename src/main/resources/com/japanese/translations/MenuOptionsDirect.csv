@@ -3,7 +3,7 @@ Follow,の後を追う
 Trade with,と交換
 Report,を通報
 Examine,を調べる
-Attack,を攻撃
+Attack,攻撃
 Pickpocket,から盗む
 Enter,に入る
 Take,を取る
@@ -61,3 +61,9 @@ Lookup,を検索する
 Equipment,装備
 Gielinor,ギレノー
 Net, 網
+inventory,カバン
+toggle,切り替え
+look north,北を向く
+look south,南を向く
+look east,東を向く
+look west,西を向く

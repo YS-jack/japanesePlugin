@@ -41,9 +41,11 @@ public class JapTransforms {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(dir), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
+                String[] parts = line.split("[,、]+");
                 if (parts.length == 2) {
                     dictHash.put(parts[0].trim().toLowerCase(), parts[1].trim().toLowerCase());
+//                    if(dictHash.containsKey("gielinor"))
+//                        log.info("added gielinor to hash");
                     ////log.info("parts[1] = " + parts[1].trim() +", equal to 調理する?:"+parts[1].trim().equals("調理する"));
                 }
             }
@@ -75,6 +77,8 @@ public class JapTransforms {
                 String imgName = colorWords[i][0] + "--" + codePoint + ".png";
                 int hash = hashMap.getOrDefault(imgName, -99);
                 if (hash == -99) {
+                    String imgName2 = colorWords[i][0] + "--" + "?".codePointAt(0) + ".png";
+                    hash = hashMap.getOrDefault(imgName2, -99);
                     //log.info("error creating hash for character : " + codePoint + ", with img name : " + imgName);
                 }
                 imgTagStrings.append(chatIconManager.chatIconIndex(hash));
@@ -161,11 +165,7 @@ public class JapTransforms {
 
     private String getW2WTranslation(String en) {
         //log.info("transforming : " + en);
-        en = en.toLowerCase();
-        if (knownDeepL.containsKey(en)) {
-            //log.info("found in knownDeepl");
-            return knownDeepL.get(en);
-        } else if (knownDirect.containsKey(en)) {
+        if (knownDirect.containsKey(en)) {
             //log.info("found in knownDirect");
             return knownDirect.get(en);
         } else if (menuOptionTran.containsKey(en)) {
@@ -175,11 +175,14 @@ public class JapTransforms {
         } else if (itemNpcTran.containsKey((en))) {
             //log.info("found in ItemNpcTran");
             return itemNpcTran.get(en);
-        }  else {
-
-            String[] wordArray = en.split(" ");
+        } else  if (knownDeepL.containsKey(en)) {
+            //log.info("found in knownDeepl");
+            return knownDeepL.get(en);
+        } else {
+            String[] wordArray = en.split("[ ,.;:]+");
             StringBuilder resultBuilder = new StringBuilder();
             for (String word : wordArray) {
+                word = word.trim();
                 if (directWord.containsKey(word)) {
                     //log.info("found in directWord");
                     resultBuilder.append(directWord.get(word));
@@ -191,10 +194,11 @@ public class JapTransforms {
                         } else if (directWord.containsKey(enNoS)){
                             resultBuilder.append(directWord.get(enNoS));
                         } else {
-                            resultBuilder.append(transliterationMap.getOrDefault(word,"?"));
+                            log.info("couldnt find translation of " + word + ", transliterating");
+                            resultBuilder.append(transliterte(word));
                         }
                     }else{
-                        //log.info("couldn't find word, transliterating");
+                        log.info("couldnt find translation of " + word + ", transliterating");
                         resultBuilder.append(transliterte(word));
                     }
                 }
