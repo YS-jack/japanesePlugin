@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
+import net.runelite.api.events.BeforeRender;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.GameStateChanged;
@@ -20,6 +21,7 @@ import net.runelite.client.ui.overlay.Overlay;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Objects;
+import com.japanese.JapWidgets;
 
 import com.japanese.JapTransforms.transformOptions;
 
@@ -34,7 +36,7 @@ import com.japanese.JapTransforms.transformOptions;
 public class JapanesePlugin extends Plugin{
     @Inject
     private Client client;
-    @Inject
+    @Inject @Getter
     public ChatIconManager chatIconManager;
     @Inject
     private JapaneseConfig config;
@@ -42,30 +44,46 @@ public class JapanesePlugin extends Plugin{
     private JapChar japChar;
     @Inject
     private OverlayManager overlayManager;
+//    @Inject
+//    private JapaneseOverlay japaneseOverlay;
     @Inject
-    private JapaneseOverlay japaneseOverlay;
+    private JapWidgets japWidgets;
     private Player player;
     private final JapTransforms japTransforms = new JapTransforms();
     public final String separator = "--";
+    @Getter
     protected final HashMap<String, Integer> japCharIds = new HashMap<>();    // colour-char(key) <-> CharIds(val)
+    @Getter
+    protected final HashMap<String,Integer> chatButtonsIds = new HashMap<>(); //button name (allSelected.png ...) <-> img Ids
     public String dialogueText;
     public String dialogueNPC;
     private void loadJapChar()
     {
         String[] japCharArray = japChar.getCharList(); //list of all characters e.g.　black+JapChar.separator+面
-        for (int i = 0; i < japCharArray.length; i++) {
-            String filePath = getCharPath(japCharArray[i]);
+        for (String s : japCharArray) {
+            String filePath = getCharPath(s);
             final BufferedImage image = ImageUtil.loadImageResource(getClass(), filePath);
             final int charID = chatIconManager.registerChatIcon(image);
-            japCharIds.put(japCharArray[i], charID);
+            japCharIds.put(s, charID);
         }
         log.info("end of making character image hashmap");
     }
+//    private  void loadChatButtons()
+//    {
+//        String[] chatButtonsArray = japChar.getChatButtonList(); //list of all characters e.g.　black+JapChar.separator+面
+//        for (String chatButtonsId : chatButtonsArray) {
+//            String filePath = getCharPath(chatButtonsId);
+//            final BufferedImage image = ImageUtil.loadImageResource(getClass(), filePath);
+//            final int charID = chatIconManager.registerChatIcon(image);
+//            chatButtonsIds.put(chatButtonsId,charID);
+//        }
+//        log.info("end of making character image hashmap");
+//    }
 
     private String[] getNewMenuEntryString(MenuEntry event) {
         String[] newOptTar = new String[2];
         transformOptions targetTranOption;
-        if(event.getTarget().isEmpty()) {
+        if(event.getTarget().isEmpty()) {//the event is for walk here or cancel
             newOptTar[1] = null;
             transformOptions optionTranOption;
             optionTranOption = transformOptions.wordToWord;  // todo:get from config
@@ -74,7 +92,7 @@ public class JapanesePlugin extends Plugin{
         } else {
 //            targetTranOption = transformOptions.doNothing;
             //log.info("inside getNewMenuEntryString"); target = ,ffffff>MorvranChunk,ff7000>  (level-35)
-            if (event.getTarget().split("<col=").length == 3){
+            if (event.getTarget().split("<col=").length == 3){//todo meant to detect a player, but currently detects anything with cmb lv
                 targetTranOption = transformOptions.doNothing;
                 //log.info("target " +event.getTarget()+ " is a player");
             } else {
@@ -101,8 +119,9 @@ public class JapanesePlugin extends Plugin{
     {
         log.info("start of plugin");
         japTransforms.initTransHash();
-        overlayManager.add(japaneseOverlay);
+//        overlayManager.add(japaneseOverlay);
         loadJapChar();
+//        loadChatButtons();
     }
 
     @Override
@@ -150,6 +169,12 @@ public class JapanesePlugin extends Plugin{
         catch (Exception e){
             //System.out.print(e.getMessage());
         }
+    }
+
+    @Subscribe
+    private void onBeforeRender(BeforeRender event) {
+        //null to look through everything, otherwise specify widget parent not to search through for texts
+        japWidgets.changeWidgetTexts(null);
     }
     @Subscribe
     // get dialog content when talking with npc

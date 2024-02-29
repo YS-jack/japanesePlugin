@@ -1,5 +1,6 @@
 package com.japanese;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.client.game.ChatIconManager;
 
@@ -9,7 +10,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
-//for testing
 
 
 @Slf4j
@@ -20,7 +20,6 @@ public class JapTransforms {
     private HashMap<String, String> menuOptionTran;
     private HashMap<String, String> itemNpcTran;
     private HashMap<String, String> transliterationMap;
-    // didnt work : src/main/resources/com/japanese/translations
     public void initTransHash() throws Exception {
         String transDataDir = "src/main/resources/com/japanese/translations";
         knownDeepL = new HashMap<>();
@@ -60,9 +59,9 @@ public class JapTransforms {
         //transliterate : similar to alpToJap, but output will all be Katakana form
     }
     //returns concat of "img<color--##.png>"
-
+    //input String enWithColors example : <col=ffffff>Mama Layla<col=ffff00>  (level-3)
     public String getTransformWithColors(String enWithColors, transformOptions transOpt,HashMap<String, Integer> hashMap, ChatIconManager chatIconManager) {
-        if (enWithColors.contains("<img=")){
+        if (enWithColors.contains("<img=")){//ignore if its already in japanese
             return enWithColors;
         }
         String[][] colorWords = getColorWordArray(enWithColors, transOpt);// = {{"ffffff","White string"},{"ff0000","red"},...}
@@ -119,7 +118,7 @@ public class JapTransforms {
         return colorWords;
     }
 
-    private String[] getColorArray(String wordAndColor) {
+    private String[] getColorArray(String wordAndColor) {//turns color tags into color names like "white" for all tags, return as list
         String[] parts = wordAndColor.split("<col=");
         String[] colorArray = new String[parts.length - 1];
 
@@ -164,6 +163,7 @@ public class JapTransforms {
     }
 
     private String getW2WTranslation(String en) {
+        //first, search if the whole sentence has been translated before
         //log.info("transforming : " + en);
         if (knownDirect.containsKey(en)) {
             //log.info("found in knownDirect");
@@ -178,7 +178,10 @@ public class JapTransforms {
         } else  if (knownDeepL.containsKey(en)) {
             //log.info("found in knownDeepl");
             return knownDeepL.get(en);
-        } else {
+        } else {//if not translated before,
+            //1. use api translator on the whole sentence if enabled
+              //todo
+            //2.if api translation not enabled, split up into words and translate each of them and concat them
             String[] wordArray = en.split("[ ,.;:]+");
             StringBuilder resultBuilder = new StringBuilder();
             for (String word : wordArray) {
@@ -186,7 +189,7 @@ public class JapTransforms {
                 if (directWord.containsKey(word)) {
                     //log.info("found in directWord");
                     resultBuilder.append(directWord.get(word));
-                } else {
+                } else {//remove s from plural then search for direct translation because they dont exist in "DirectWordTranslations"
                     if (word.endsWith("s")){
                         String enNoS = word.substring(0,word.length()-1);
                         if (knownDirect.containsKey(enNoS)) {

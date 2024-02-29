@@ -17,7 +17,7 @@ import java.util.EnumSet;
 
 @Slf4j
 @ParametersAreNonnullByDefault
-public class JapaneseOverlay extends Overlay
+class JapaneseOverlay extends Overlay //remove abstract when actually making overlays with this
 {
     private Client client;
     private JapaneseConfig config;
@@ -31,7 +31,7 @@ public class JapaneseOverlay extends Overlay
         this.config = config;
         this.plugin = plugin;
     }
-
+//
     @Override
     public Dimension render(Graphics2D graphics) {
         if (config.npcDialogueConfig() == GameTextProcessChoice.そのまま
@@ -40,43 +40,43 @@ public class JapaneseOverlay extends Overlay
             panelComponent.getChildren().clear();
             return panelComponent.render(graphics);
         }
-        else {
-            panelComponent.getChildren().clear();
-            String overlayTitle = "NPC Dialog";
-            // Build overlay title
-            panelComponent.getChildren().add(TitleComponent.builder()
-                    .text(plugin.dialogueNPC)
-                    .color(Color.RED)
-                    .build());
-
-            // Set the size of the overlay (width)
-            panelComponent.setPreferredSize(new Dimension(
-                    graphics.getFontMetrics().stringWidth(overlayTitle) + 30,
-                    0));
-
-            // Add a line on the overlay for world number
-            panelComponent.getChildren().add(LineComponent.builder()
-                    .right(plugin.dialogueText)
-                    .rightColor(Color.black)
-                    .build());
-            Color bgColor = new Color(210,193,156);
-            panelComponent.setBackgroundColor(bgColor);
-            // Show world type goes here ...
-            EnumSet<WorldType> worldType = client.getWorldType();
-            String currentWorldType;
-
-//            if (worldType.contains(WorldType.MEMBERS)) {
-//                currentWorldType = "Members";
-//            } else {
-//                currentWorldType = "Free";
-//            }
-//
-//            panelComponent.getChildren().add(LineComponent.builder()
-//                    .left("Type:")
-//                    .right(currentWorldType)
+//        else {
+//            panelComponent.getChildren().clear();
+//            String overlayTitle = "NPC Dialog";
+//            // Build overlay title
+//            panelComponent.getChildren().add(TitleComponent.builder()
+//                    .text(plugin.dialogueNPC)
+//                    .color(Color.RED)
 //                    .build());
+//
+//            // Set the size of the overlay (width)
+//            panelComponent.setPreferredSize(new Dimension(
+//                    graphics.getFontMetrics().stringWidth(overlayTitle) + 30,
+//                    0));
+//
+//            // Add a line on the overlay for world number
+//            panelComponent.getChildren().add(LineComponent.builder()
+//                    .right(plugin.dialogueText)
+//                    .rightColor(Color.black)
+//                    .build());
+//            Color bgColor = new Color(210,193,156);
+//            panelComponent.setBackgroundColor(bgColor);
+//            // Show world type goes here ...
+//            EnumSet<WorldType> worldType = client.getWorldType();
+//            String currentWorldType;
+//
+////            if (worldType.contains(WorldType.MEMBERS)) {
+////                currentWorldType = "Members";
+////            } else {
+////                currentWorldType = "Free";
+////            }
+////
+////            panelComponent.getChildren().add(LineComponent.builder()
+////                    .left("Type:")
+////                    .right(currentWorldType)
+////                    .build());
 
             return panelComponent.render(graphics);
-        }
+//        }
     }
 }

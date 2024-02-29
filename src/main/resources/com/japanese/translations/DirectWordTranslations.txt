@@ -67243,4 +67243,4 @@ gielinor, ギレノー
 XP,経験値
 Wiki,Wiki
 hitpoints,ライフ
-Mining,
+Mining,採掘
