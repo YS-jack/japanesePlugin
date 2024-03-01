@@ -1,5 +1,6 @@
 package com.japanese;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.ComponentID;
@@ -10,8 +11,7 @@ import net.runelite.api.Client;
 import java.util.Arrays;
 
 import javax.inject.Inject;
-import com.japanese.JapTransforms;
-import com.japanese.JapTransforms.*;
+import com.japanese.JapTransforms.transformOptions;
 import com.japanese.JapanesePlugin;
 import net.runelite.api.widgets.WidgetTextAlignment;
 import net.runelite.client.game.ChatIconManager;
@@ -22,7 +22,8 @@ import java.util.HashMap;
 public class JapWidgets {
     //for every widget with no child, if it has widget, translate and replace it
     private List<Widget> widgetWithText;
-    private final JapTransforms japTransforms = new JapTransforms();
+    @Setter
+    private JapTransforms japTransforms;
 
     @Inject
     Client client;

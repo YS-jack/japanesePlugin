@@ -1,10 +1,12 @@
 package com.japanese;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.awt.*;
 
 @Getter
+@Slf4j
 enum Colors {
     black("000000","black"),
     black2("0","black"),
@@ -53,6 +55,7 @@ enum Colors {
             colorInts[i] = hexToInt(Colors.values()[i].getHex());
         }
         int j = findClosest(hexToInt(hex),colorInts);
+        //log.info("color = " + Colors.values()[j]);
         return Colors.values()[j]; // or throw an exception
     }
     private static int findClosest(int target, int[] numbers) {

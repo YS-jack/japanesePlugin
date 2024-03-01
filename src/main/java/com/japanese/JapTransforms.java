@@ -14,11 +14,16 @@ import java.util.List;
 
 @Slf4j
 public class JapTransforms {
+    @Inject
     private HashMap<String, String> knownDeepL;
+    @Inject
     private HashMap<String, String> knownDirect;
     private HashMap<String, String> directWord;
+    @Inject
     private HashMap<String, String> menuOptionTran;
+    @Inject
     private HashMap<String, String> itemNpcTran;
+    @Inject
     private HashMap<String, String> transliterationMap;
     public void initTransHash() throws Exception {
         String transDataDir = "src/main/resources/com/japanese/translations";
@@ -34,6 +39,8 @@ public class JapTransforms {
         putToDictHash(itemNpcTran, transDataDir + "/ItemAndNPCTranslations.csv");
         transliterationMap = new HashMap<>();
         putToDictHash(transliterationMap, transDataDir + "/transliteration.csv");
+        log.info("end of making hashmap for translations");
+        log.info("directWord translation for apple = " + directWord.get("apple"));
     }
     private void putToDictHash(HashMap<String, String> dictHash, String dir) {
 
@@ -46,9 +53,12 @@ public class JapTransforms {
 //                    if(dictHash.containsKey("gielinor"))
 //                        log.info("added gielinor to hash");
                     ////log.info("parts[1] = " + parts[1].trim() +", equal to 調理する?:"+parts[1].trim().equals("調理する"));
+                }else{
+                    log.info("no pair found");
                 }
             }
         } catch (IOException e) {
+            log.info("error creating hashmap for transform dict, for type : " + dir);
             e.printStackTrace();
         }
     }
@@ -152,7 +162,8 @@ public class JapTransforms {
             case doNothing:
                 return enString;
             case wordToWord:
-                ////log.info("option = " + transOpt);
+                log.info("option = " + transOpt);
+                log.info("enword = " + enStringLower);
                 return getW2WTranslation(enStringLower);
             case DeepL:
             case transliterate:
@@ -165,8 +176,10 @@ public class JapTransforms {
     private String getW2WTranslation(String en) {
         //first, search if the whole sentence has been translated before
         //log.info("transforming : " + en);
-        if (knownDirect.containsKey(en)) {
-            //log.info("found in knownDirect");
+        if (!knownDirect.isEmpty()) {
+            if (knownDirect.containsKey(en)) {
+                log.info("knownDirect[0]=" + knownDirect.get("apple"));
+            }
             return knownDirect.get(en);
         } else if (menuOptionTran.containsKey(en)) {
             //log.info("found " + en + " in menuOptioinTran");

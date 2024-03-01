@@ -67244,3 +67244,6 @@ XP,経験値
 Wiki,Wiki
 hitpoints,ライフ
 Mining,採掘
+.,。
+autochat,自動チャット
+switcher,切り替え

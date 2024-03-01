@@ -49,7 +49,9 @@ public class JapanesePlugin extends Plugin{
     @Inject
     private JapWidgets japWidgets;
     private Player player;
+    @Getter
     private final JapTransforms japTransforms = new JapTransforms();
+
     public final String separator = "--";
     @Getter
     protected final HashMap<String, Integer> japCharIds = new HashMap<>();    // colour-char(key) <-> CharIds(val)
@@ -119,6 +121,7 @@ public class JapanesePlugin extends Plugin{
     {
         log.info("start of plugin");
         japTransforms.initTransHash();
+        japWidgets.setJapTransforms(japTransforms);
 //        overlayManager.add(japaneseOverlay);
         loadJapChar();
 //        loadChatButtons();
