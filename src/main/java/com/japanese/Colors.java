@@ -48,6 +48,34 @@ enum Colors {
 //        return black; // or throw an exception
 //    }
 
+    public static Colors fromName(String colorName){
+        if (colorName.equals(red.getName())){
+            return fromHex(red.getHex());
+        }
+        if (colorName.equals(black.getName())){
+            return fromHex(red.getHex());
+        }
+        if (colorName.equals(blue.getName())){
+            return fromHex(red.getHex());
+        }
+        if (colorName.equals(lightblue.getName())){
+            return fromHex(red.getHex());
+        }
+        if (colorName.equals(yellow.getName())){
+            return fromHex(red.getHex());
+        }
+        if (colorName.equals(orange.getName())){
+            return fromHex(red.getHex());
+        }
+        if (colorName.equals(white.getName())){
+            return fromHex(red.getHex());
+        }
+        if (colorName.equals(green.getName())){
+            return fromHex(red.getHex());
+        }
+        log.info("couldnt find color with the name : " + colorName);
+        return fromHex(white.getHex());
+    }
     public static Colors fromHex(String hex) {
         int[] colorInts = new int[Colors.values().length];//number of colors
 

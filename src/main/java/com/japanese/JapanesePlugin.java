@@ -39,7 +39,7 @@ public class JapanesePlugin extends Plugin{
     @Inject @Getter
     public ChatIconManager chatIconManager;
     @Inject
-    private JapaneseConfig config;
+    public JapaneseConfig config;
     @Inject
     private JapChar japChar;
     @Inject
@@ -124,13 +124,13 @@ public class JapanesePlugin extends Plugin{
         japWidgets.setJapTransforms(japTransforms);
 //        overlayManager.add(japaneseOverlay);
         loadJapChar();
-//        loadChatButtons();
+
     }
 
     @Override
     protected  void shutDown() throws  Exception
     {
-        log.info("start of plugin");
+        log.info("end of plugin");
     }
 
     @Subscribe

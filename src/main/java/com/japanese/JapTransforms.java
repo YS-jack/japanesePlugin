@@ -2,6 +2,9 @@ package com.japanese;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.ChatMessageType;
+import net.runelite.api.Client;
+import net.runelite.api.GameState;
 import net.runelite.client.game.ChatIconManager;
 
 import javax.inject.Inject;
@@ -10,63 +13,76 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
-
+import com.japanese.JapaneseConfig.*;
 
 @Slf4j
 public class JapTransforms {
-    @Inject
+    //@Inject
     private HashMap<String, String> knownDeepL;
-    @Inject
+    //@Inject
     private HashMap<String, String> knownDirect;
     private HashMap<String, String> directWord;
-    @Inject
+    //@Inject
     private HashMap<String, String> menuOptionTran;
-    @Inject
+    //@Inject
     private HashMap<String, String> itemNpcTran;
-    @Inject
+    //@Inject
     private HashMap<String, String> transliterationMap;
-    public void initTransHash() throws Exception {
-        String transDataDir = "src/main/resources/com/japanese/translations";
-        knownDeepL = new HashMap<>();
-        putToDictHash(knownDeepL, transDataDir + "/KnownDeepLTranslations.csv");
-        knownDirect = new HashMap<>();
-        putToDictHash(knownDirect, transDataDir + "/KnownDirectTranslations.csv");
-        directWord = new HashMap<>();
-        putToDictHash(directWord, transDataDir + "/DirectWordTranslations.txt");
-        menuOptionTran = new HashMap<>();
-        putToDictHash(menuOptionTran, transDataDir + "/MenuOptionsDirect.csv");
-        itemNpcTran = new HashMap<>();
-        putToDictHash(itemNpcTran, transDataDir + "/ItemAndNPCTranslations.csv");
-        transliterationMap = new HashMap<>();
-        putToDictHash(transliterationMap, transDataDir + "/transliteration.csv");
-        log.info("end of making hashmap for translations");
-        log.info("directWord translation for apple = " + directWord.get("apple"));
-    }
-    private void putToDictHash(HashMap<String, String> dictHash, String dir) {
+    @Inject
+    private Client client;
+    @Inject
+    JapanesePlugin japanesePlugin;
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(dir), StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split("[,、]+");
-                if (parts.length == 2) {
-                    dictHash.put(parts[0].trim().toLowerCase(), parts[1].trim().toLowerCase());
-//                    if(dictHash.containsKey("gielinor"))
-//                        log.info("added gielinor to hash");
-                    ////log.info("parts[1] = " + parts[1].trim() +", equal to 調理する?:"+parts[1].trim().equals("調理する"));
-                }else{
-                    log.info("no pair found");
+    public void initTransHash() throws Exception {
+        String transDataDir = "src/main/resources/com/japanese/translations/";
+        knownDeepL = new HashMap<>();
+        putToDictHash(knownDeepL, transDataDir, "KnownDeepLTranslations.csv");
+        knownDirect = new HashMap<>();
+        putToDictHash(knownDirect, transDataDir , "KnownDirectTranslations.csv","SkillTranslations.csv");
+        directWord = new HashMap<>();
+        putToDictHash(directWord, transDataDir , "DirectWordTranslations.txt");
+        menuOptionTran = new HashMap<>();
+        putToDictHash(menuOptionTran, transDataDir,"MenuOptionsDirect.csv");
+        itemNpcTran = new HashMap<>();
+        putToDictHash(itemNpcTran, transDataDir ,"ItemAndNPCTranslations.csv");
+        transliterationMap = new HashMap<>();
+        putToDictHash(transliterationMap, transDataDir,"transliteration.csv");
+        log.info("end of making hashmap for translations");
+        //log.info("directWord translation for apple = " + directWord.get("apple"));
+    }
+    private void putToDictHash(HashMap<String, String> dictHash, String dirName, String... dirArray) {
+        for (String dir:dirArray) {
+            dir = dirName + dir;
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(dir), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] parts = line.split("\\|");
+                    if (parts.length == 2) {
+                        dictHash.put(parts[0].trim().toLowerCase(), parts[1].trim().toLowerCase());
+                    } else {
+                        log.info("no pair found");
+                    }
                 }
+            } catch (IOException e) {
+                log.info("error creating hashmap for transform dict, for type : " + dir);
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            log.info("error creating hashmap for transform dict, for type : " + dir);
-            e.printStackTrace();
         }
     }
     public enum transformOptions{
-        doNothing, wordToWord, DeepL, transliterate, alpToJap
+        doNothing, wordToWord, API, transliterate, alpToJap
         //wordToWord : translate using word to word dictionary, ignores grammar
         //alpToJap : transform alphabet input already in japanese to japanese characters : eg. petto no neko -> ペットの猫 (= a pet cat)
         //transliterate : similar to alpToJap, but output will all be Katakana form
+    }
+
+    public void messageIngame(String str, String colorName) {
+        String colorHex = Colors.fromName(colorName).getHex();
+        String enWithColors = "<col=" + colorHex + ">" + str;
+        ChatIconManager iconManager = japanesePlugin.getChatIconManager();
+        HashMap<String, Integer> map = japanesePlugin.getJapCharIds();
+        String msg =  getTransformWithColors(enWithColors, transformOptions.wordToWord, map, iconManager);
+        client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", msg, null);
     }
     //returns concat of "img<color--##.png>"
     //input String enWithColors example : <col=ffffff>Mama Layla<col=ffff00>  (level-3)
@@ -162,10 +178,10 @@ public class JapTransforms {
             case doNothing:
                 return enString;
             case wordToWord:
-                log.info("option = " + transOpt);
-                log.info("enword = " + enStringLower);
+                //log.info("option = " + transOpt);
+                //log.info("enword = " + enStringLower);
                 return getW2WTranslation(enStringLower);
-            case DeepL:
+            case API:
             case transliterate:
             case alpToJap:
             default:
@@ -176,12 +192,13 @@ public class JapTransforms {
     private String getW2WTranslation(String en) {
         //first, search if the whole sentence has been translated before
         //log.info("transforming : " + en);
+        en = en.trim();
         if (!knownDirect.isEmpty()) {
             if (knownDirect.containsKey(en)) {
-                log.info("knownDirect[0]=" + knownDirect.get("apple"));
+                return knownDirect.get(en);
             }
-            return knownDirect.get(en);
-        } else if (menuOptionTran.containsKey(en)) {
+        }
+        if (menuOptionTran.containsKey(en)) {
             //log.info("found " + en + " in menuOptioinTran");
             return menuOptionTran.get(en);
             //log.info("returning result : " + result);
@@ -195,10 +212,14 @@ public class JapTransforms {
             //1. use api translator on the whole sentence if enabled
               //todo
             //2.if api translation not enabled, split up into words and translate each of them and concat them
-            String[] wordArray = en.split("[ ,.;:]+");
+            String[] wordArray = en.split("[ ,.;:!?]+");
             StringBuilder resultBuilder = new StringBuilder();
             for (String word : wordArray) {
                 word = word.trim();
+                if (word.matches("(\\d)")){//if its only a number, add the number and continue
+                    resultBuilder.append(word);
+                    continue;
+                }
                 if (directWord.containsKey(word)) {
                     //log.info("found in directWord");
                     resultBuilder.append(directWord.get(word));

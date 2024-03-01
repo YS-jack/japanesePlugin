@@ -1,18 +1,31 @@
-Xp drops,経験値
-Gielinor,ギレノー
-Xp,経験値
-Activities,アクション
-Defence,防御
-Runecrafting,ルーン錬成
-runecraft,ルーン錬成
-Firemaking,火起こし
-Woodcutting,キコリ
-cooking,調理
-Herblore,薬学
-Ranged,弓
-Prayer,祈り
-Fletching,木材加工
-Elden r i n g,神
-Eldenring,神
-Rubicon,神
-yukiedosato,神
+Xp drops|経験値
+Gielinor|ギレノー
+Xp|経験値
+Activities|アクション
+Elden r i n g|神
+Eldenring|神
+Rubicon|神
+yukiedosato|神
+cancel|キャンセル
+All|全て
+Game|ゲーム
+private|秘
+channel|チャ
+clan|クラ
+friends|友
+group|グル
+trade|交換
+On|入
+Off|切
+Auto|自動
+filtered|一部
+hide|隠す
+Check API! using direct translation|API翻訳エラー：使用制限や内容を確認してください。
+Please report to the deveoloper : JapWidgets getNPCConfig error|開発者に報告してください：JapWidgets getNPCConfig エラー
+members only|メンバー限定
+gielinor| ギレノー
+XP|経験値
+Wiki|Wiki
+.|。
+autochat|自動チャット
+switcher|切り替え

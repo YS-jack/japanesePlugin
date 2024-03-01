@@ -22,8 +22,9 @@ import java.util.HashMap;
 public class JapWidgets {
     //for every widget with no child, if it has widget, translate and replace it
     private List<Widget> widgetWithText;
+    @Inject
     @Setter
-    private JapTransforms japTransforms;
+    private JapTransforms japTransforms = new JapTransforms();
 
     @Inject
     Client client;
@@ -49,6 +50,8 @@ public class JapWidgets {
             for (Widget nestedChild : nestedChildren) {changeEndChildTextAndRecord(nestedChild);}
             for (Widget staticChild : staticChildren) {changeEndChildTextAndRecord(staticChild);}
 
+            if (widget.getId() == ComponentID.CHATBOX_REPORT_TEXT)
+                return;
             String widgetText = widget.getText();
             if (widgetText != null) {
                 if (!widgetText.isEmpty() && !widgetText.isBlank() && !widgetText.contains("<img=")) {//if widgetText contains text
@@ -58,17 +61,22 @@ public class JapWidgets {
                     if (widgetText.contains("<")) {
                         int grandParentId = widget.getParent().getParent().getId();
                         if (grandParentId == ComponentID.SKILLS_CONTAINER){
-                            String hex = Colors.blue.getHex();
-                            widget.setTextColor(Colors.hexToInt(hex));
+                            String hex;
+                            if (!widgetText.contains("<br>")){//mouse hover of member skill in f2p world
+                                hex = Colors.red.getHex();
+                                widget.setTextColor(Colors.hexToInt(hex));
+                            } else {
+                                hex = Colors.blue.getHex();
+                                widget.setTextColor(Colors.hexToInt(hex));
+                            }
                             translatedTextWithColors = changeWidgetTextsWithBr(widget);//returns <img> with <br>
                             widget.setText(translatedTextWithColors);
-
                             return;
                         }
                         if (grandParentId == ComponentID.CHATBOX_BUTTONS) {
                             if (widgetText.startsWith("<br>")){
                                 widget.setXTextAlignment(WidgetTextAlignment.RIGHT);
-                            } else if(widgetText.endsWith("<br>")){
+                            } else {
                                 widget.setXTextAlignment(WidgetTextAlignment.LEFT);
                             }
                             widget.setText(removeTag(widgetText));
@@ -86,12 +94,13 @@ public class JapWidgets {
     }
     private String getImageText (Widget widget) {
         String colorHex = getColorHex(widget);
-        String str = widget.getText();
+        String str = widget.getText().trim();
         String translatedTextWithColors;
         String enWithColors = "<col=" + colorHex + ">" + str;
         ChatIconManager iconManager = japanesePlugin.getChatIconManager();
         HashMap<String, Integer> map = japanesePlugin.getJapCharIds();
-        translatedTextWithColors = japTransforms.getTransformWithColors(enWithColors, transformOptions.wordToWord, map, iconManager);
+        transformOptions option = getWidgetTransformConfig(widget);
+        translatedTextWithColors = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager);
         return translatedTextWithColors;
     }
     private String changeWidgetTextsWithBr(Widget widget) {//if widget contains multiple lines, breaks line of output as well
@@ -111,16 +120,16 @@ public class JapWidgets {
                 text = removeTag(text);
                 lastStringLen = text.length();
                 if (text.matches("^[0-9,]+$")) {
-                    log.info("only contains int and commas");
+                    //log.info("only contains int and commas");
                     imgBuild.append(text);
                     continue;
                 }
-
                 String enWithColors = "<col=" + colorHex + ">" + text;
-                log.info("enWithColors = " + enWithColors);
+                //log.info("enWithColors = " + enWithColors);
                 ChatIconManager iconManager = japanesePlugin.getChatIconManager();
                 HashMap<String, Integer> map = japanesePlugin.getJapCharIds();
-                String w = japTransforms.getTransformWithColors(enWithColors, transformOptions.alpToJap, map, iconManager);
+                transformOptions option = getWidgetTransformConfig(widget);
+                String w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager);
                 imgBuild.append(w);
             }
         }
@@ -140,12 +149,35 @@ public class JapWidgets {
                 replace("<","").replace(">","");
     }
 
-    private String getLastTag(String str) {//,ff00>,00ffff>Hide</col>
-        if (str.contains("<col=")){
-            String[] s = str.split("<col=");
-            int colNumber = s.length - 1;
-            return s[colNumber - 1].split(">")[0];
+    private transformOptions getWidgetTransformConfig(Widget widget) {
+
+        Widget g5Parent = widget.getParent().getParent().getParent().getParent().getParent();
+        if (g5Parent.getId() == ComponentID.CHATBOX_MESSAGES) {
+            if (japanesePlugin.config.npcDialogueConfig() == JapaneseConfig.GameTextProcessChoice.簡易翻訳) {
+                return transformOptions.wordToWord;
+            }
+            if (japanesePlugin.config.npcDialogueConfig() == JapaneseConfig.GameTextProcessChoice.そのまま) {
+                return transformOptions.doNothing;
+            }
+            if (japanesePlugin.config.npcDialogueConfig() == JapaneseConfig.GameTextProcessChoice.API翻訳) {
+                return transformOptions.API;
+            } else {
+                japTransforms.messageIngame("開発者に報告してください：JapWidgets getWidgetTransformConfig エラー", "red");
+                return transformOptions.wordToWord;
+            }
+        } else {
+            if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.GameTextProcessChoice.簡易翻訳) {
+                return transformOptions.wordToWord;
+            }
+            if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.GameTextProcessChoice.そのまま) {
+                return transformOptions.doNothing;
+            }
+            if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.GameTextProcessChoice.API翻訳) {
+                return transformOptions.API;
+            } else {
+                japTransforms.messageIngame("開発者に報告してください：JapWidgets getWidgetTransformConfig エラー", "red");
+                return transformOptions.wordToWord;
+            }
         }
-        return "";
     }
 }
