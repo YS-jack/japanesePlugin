@@ -17,17 +17,13 @@ import com.japanese.JapaneseConfig.*;
 
 @Slf4j
 public class JapTransforms {
-    //@Inject
     private HashMap<String, String> knownDeepL;
-    //@Inject
     private HashMap<String, String> knownDirect;
     private HashMap<String, String> directWord;
-    //@Inject
     private HashMap<String, String> menuOptionTran;
-    //@Inject
     private HashMap<String, String> itemNpcTran;
-    //@Inject
     private HashMap<String, String> transliterationMap;
+    public HashMap<String, String> knownSettingTranslation;
     @Inject
     private Client client;
     @Inject
@@ -38,33 +34,41 @@ public class JapTransforms {
         knownDeepL = new HashMap<>();
         putToDictHash(knownDeepL, transDataDir, "KnownDeepLTranslations.csv");
         knownDirect = new HashMap<>();
-        putToDictHash(knownDirect, transDataDir , "KnownDirectTranslations.csv","SkillTranslations.csv");
+        putToDictHash(knownDirect, transDataDir , "KnownDirectTranslations.csv","SkillTranslations.csv",
+                "widgetTranslations.csv","KnownSettingTranslation.csv");
         directWord = new HashMap<>();
         putToDictHash(directWord, transDataDir , "DirectWordTranslations.txt");
         menuOptionTran = new HashMap<>();
-        putToDictHash(menuOptionTran, transDataDir,"MenuOptionsDirect.csv");
+        putToDictHash(menuOptionTran, transDataDir,"KnownMenuOptionsDirect.csv");
         itemNpcTran = new HashMap<>();
         putToDictHash(itemNpcTran, transDataDir ,"ItemAndNPCTranslations.csv");
         transliterationMap = new HashMap<>();
         putToDictHash(transliterationMap, transDataDir,"transliteration.csv");
+
+        //specific translations
+        knownSettingTranslation = new HashMap<>();
+        putToDictHash(knownSettingTranslation, transDataDir, "KnownSettingTranslation.csv");
         log.info("end of making hashmap for translations");
-        //log.info("directWord translation for apple = " + directWord.get("apple"));
+//        knownDirect.entrySet().stream()
+//                .forEach(entry -> log.info(entry.getKey() + " => " + entry.getValue()));
     }
     private void putToDictHash(HashMap<String, String> dictHash, String dirName, String... dirArray) {
         for (String dir:dirArray) {
-            dir = dirName + dir;
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(dir), StandardCharsets.UTF_8))) {
+            String dir2 = dirName + dir;
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(dir2), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     String[] parts = line.split("\\|");
                     if (parts.length == 2) {
-                        dictHash.put(parts[0].trim().toLowerCase(), parts[1].trim().toLowerCase());
+                        dictHash.put(parts[0].trim().toLowerCase(), parts[1].trim());
+                    } else if (parts.length == 1){
+                        dictHash.put(parts[0].trim().toLowerCase(), parts[0].trim());
                     } else {
                         log.info("no pair found");
                     }
                 }
             } catch (IOException e) {
-                log.info("error creating hashmap for transform dict, for type : " + dir);
+                log.info("error creating hashmap for transform dict, for type : " + dir2);
                 e.printStackTrace();
             }
         }
@@ -86,15 +90,24 @@ public class JapTransforms {
     }
     //returns concat of "img<color--##.png>"
     //input String enWithColors example : <col=ffffff>Mama Layla<col=ffff00>  (level-3)
-    public String getTransformWithColors(String enWithColors, transformOptions transOpt,HashMap<String, Integer> hashMap, ChatIconManager chatIconManager) {
+    public String getTransformWithColors(String enWithColors, transformOptions transOpt,
+                                         HashMap<String, Integer> hashMap, ChatIconManager chatIconManager) {
+        return getTWCchild(enWithColors, transOpt,hashMap, chatIconManager, null);
+    }
+    public String getTransformWithColors(String enWithColors, transformOptions transOpt,
+                                         HashMap<String, Integer> hashMap, ChatIconManager chatIconManager, HashMap<String,String> map) {
+        return getTWCchild(enWithColors, transOpt,hashMap, chatIconManager, map);
+    }
+    private String getTWCchild(String enWithColors, transformOptions transOpt,
+                               HashMap<String, Integer> hashMap, ChatIconManager chatIconManager,
+                               HashMap<String,String> specifiedMap){
         if (enWithColors.contains("<img=")){//ignore if its already in japanese
             return enWithColors;
         }
-        String[][] colorWords = getColorWordArray(enWithColors, transOpt);// = {{"ffffff","White string"},{"ff0000","red"},...}
+        String[][] colorWords = getColorWordArray(enWithColors, transOpt, specifiedMap);// = {{"ffffff","White string"},{"ff0000","red"},...}
         //todo-translate words in colorWords as specified with transOpt
         StringBuilder imgTagStrings = new StringBuilder();
         for (int i = 0; i < colorWords.length; i++) {
-
             for (int j = 0; j < colorWords[i][1].length();) {
                 ////log.info("getTransformWithColors: the word is " + colorWords[i][1] + "codePointAt("+j+") = " + colorWords[i][1].codePointAt(j));
                 int codePoint = colorWords[i][1].codePointAt(j);
@@ -115,14 +128,14 @@ public class JapTransforms {
         ////log.info("\n");
         return imgTagStrings.toString();
     }
-    private String[][] getColorWordArray(String enWithColors, transformOptions transOpt) {
+    private String[][] getColorWordArray(String enWithColors, transformOptions transOpt, HashMap<String,String> specifiedMap) {
         int colorTagNum = enWithColors.split(">").length - 1;
         String[][] colorWords;// = {{"ffffff","White string"},{"ff0000","red"},...}
         if (colorTagNum == 0) {
             colorWords = new String[1][2];
             Colors white = Colors.white;
             colorWords[0][0] = white.getName();
-            colorWords[0][1] = transform(enWithColors.trim(), transOpt);
+            colorWords[0][1] = transform(enWithColors.trim(), transOpt,specifiedMap);
             ////log.info("transform result : " + colorWords[0][1]);
         }
         else {
@@ -135,7 +148,7 @@ public class JapTransforms {
 
             for (int i = 0; i < colorTagNum; i++) {
                 colorWords[i][0] = colorArray[i];
-                colorWords[i][1] = transform(wordArray[i], transOpt);
+                colorWords[i][1] = transform(wordArray[i], transOpt, specifiedMap);
                 ////log.info("colorWords[" + i + "][0]" + colorWords[i][0] );
                 ////log.info("colorWords[" + i + "][1]" + colorWords[i][1] );
             }
@@ -152,7 +165,7 @@ public class JapTransforms {
             Colors c = Colors.fromHex(parts[i+1].split(">")[0]);
             colorArray[i] = c.getName();
             if (colorArray[i] == null || Objects.equals(colorArray[i], "")){
-                colorArray[i] = Colors.white.getName();
+                colorArray[i] = Colors.red.getName();
             }
             ////log.info("added color : " + c.getName());
         }
@@ -172,8 +185,13 @@ public class JapTransforms {
         return  wordArray;
     }
 
-    private String transform(String enString, transformOptions transOpt) {
+    private String transform(String enString, transformOptions transOpt, HashMap<String,String> specifiedMap) {
         String enStringLower = enString.toLowerCase();
+        if(specifiedMap != null) {
+            if (specifiedMap.containsKey(enStringLower)) {
+                return specifiedMap.get(enStringLower);
+            }
+        }
         switch(transOpt) {
             case doNothing:
                 return enString;
@@ -235,8 +253,16 @@ public class JapTransforms {
                             resultBuilder.append(transliterte(word));
                         }
                     }else{
-                        log.info("couldnt find translation of " + word + ", transliterating");
-                        resultBuilder.append(transliterte(word));
+                        if (knownDirect.containsKey(word)) {
+                            resultBuilder.append(knownDirect.get(word));
+                        } else if (directWord.containsKey(word)){
+                            resultBuilder.append(directWord.get(word));
+                        } else {
+                            log.info("couldnt find translation of " + word + ", transliterating");
+                            resultBuilder.append(transliterte(word));
+                        }
+//                        log.info("couldnt find translation of " + word + ", transliterating");
+//                        resultBuilder.append(transliterte(word));
                     }
                 }
             }
@@ -247,7 +273,10 @@ public class JapTransforms {
         StringBuilder katakana = new StringBuilder();
         for (int i = 0; i < word.length(); i++) {
             String ch = String.valueOf(word.charAt(i));
-            katakana.append(transliterationMap.getOrDefault(ch, ch));
+            if(ch.matches("[^\\p{L}\\p{N}\\s]"))
+                katakana.append(ch);
+             else
+                katakana.append(transliterationMap.getOrDefault(ch, ch));
         }
         return katakana.toString();
     }

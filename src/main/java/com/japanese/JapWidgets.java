@@ -4,19 +4,22 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.ComponentID;
-import net.runelite.api.widgets.InterfaceID;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import net.runelite.api.Client;
-import java.util.Arrays;
 
 import javax.inject.Inject;
 import com.japanese.JapTransforms.transformOptions;
-import com.japanese.JapanesePlugin;
 import net.runelite.api.widgets.WidgetTextAlignment;
 import net.runelite.client.game.ChatIconManager;
 
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 public class JapWidgets {
@@ -31,17 +34,17 @@ public class JapWidgets {
     @Inject
     JapanesePlugin japanesePlugin;
     private int count = 0; //count how many widgets there are, for testing
-    public void changeWidgetTexts(Widget widgetExceptions) { //widgetExceptions = parent widgets to ignore searching for texts
+    public void changeWidgetTexts(Widget widgetExceptions) throws IOException { //widgetExceptions = parent widgets to ignore searching for texts
         collectWidgetIdsWithText();//for collecting ids, only for development
     }
 
-    private void collectWidgetIdsWithText(){//for collecting ids, only for development
+    private void collectWidgetIdsWithText() throws IOException {//for collecting ids, only for development
         Widget[] roots = client.getWidgetRoots();
         for (Widget root : roots) {
             changeEndChildTextAndRecord(root);
         }
     }
-    private void changeEndChildTextAndRecord(Widget widget){//for collecting ids, only for development
+    private void changeEndChildTextAndRecord(Widget widget) throws IOException {//for collecting ids, only for development
         if(!widget.isHidden()) {
             Widget[] dynamicChildren = widget.getDynamicChildren();
             Widget[] nestedChildren = widget.getNestedChildren();
@@ -55,6 +58,24 @@ public class JapWidgets {
             String widgetText = widget.getText();
             if (widgetText != null) {
                 if (!widgetText.isEmpty() && !widgetText.isBlank() && !widgetText.contains("<img=")) {//if widgetText contains text
+                    //check for specific widget
+                    if (getGrandParentsId(widget,4) != null) {
+                        if (getGrandParentsId(widget, 4).getId() == ComponentID.SETTINGS_INIT) {
+                            if (widget.getText().matches("F\\d{1,2}") || widget.getText().equals("ESC"))
+                                return;
+                        } else{
+                            Widget g6Parent = widget.getParent().getParent().getParent().getParent().getParent().getParent();
+                            if (g6Parent != null) {
+                                if (g6Parent.getId() == ComponentID.SETTINGS_INIT) {
+                                    ///for dumping texts for translation ease
+                                    String dir = "src/main/resources/com/japanese/dump/";
+                                    writeToFile(widgetText + "|", dir + "settingsDump");
+                                    if (widget.getText().matches("F\\d{1,2}") || widget.getText().equals("ESC"))
+                                        return;
+                                }
+                            }
+                        }
+                    }
                     String translatedTextWithColors;
                     if (widgetText.matches("^[0-9,%.]*$"))//if its only numbers
                         return;
@@ -65,9 +86,15 @@ public class JapWidgets {
                             if (!widgetText.contains("<br>")){//mouse hover of member skill in f2p world
                                 hex = Colors.red.getHex();
                                 widget.setTextColor(Colors.hexToInt(hex));
-                            } else {
+                                int yPos = widget.getRelativeY();
+                                widget.setRelativeY(yPos + 3);
+                            } else if (!widgetText.contains("Total level")) {
                                 hex = Colors.blue.getHex();
                                 widget.setTextColor(Colors.hexToInt(hex));
+                                if (!containsNumber(widgetText)) {
+                                    int yPos = widget.getRelativeY();
+                                    widget.setRelativeY(yPos + 3);
+                                }
                             }
                             translatedTextWithColors = changeWidgetTextsWithBr(widget);//returns <img> with <br>
                             widget.setText(translatedTextWithColors);
@@ -85,14 +112,75 @@ public class JapWidgets {
                             return;
                         }
                     }
+
                     //first argument of getTransformWithColors example : <col=ffffff>Mama Layla<col=ffff00>  (level-3)
+                    widget.setText(removeTag(widgetText));
                     translatedTextWithColors = changeWidgetTextsWithBr(widget);
                     widget.setText(translatedTextWithColors);
+
+                    insertBrAfterTransform(widget);
+                    //setNiceWidgetHeight(widget);
                 }
             }
         }
     }
-    private String getImageText (Widget widget) {
+    private void insertBrAfterTransform(Widget widget){//input is <images> with <br>
+        int width = widget.getWidth();
+        String str = widget.getText();
+        int charPerLine = width/14;
+        StringBuilder stringBuilder = new StringBuilder();
+        String[] imgArray = extractImg(str);
+        if (imgArray.length > 2) {
+            for (int i = 0; i < imgArray.length; i++) {
+                stringBuilder.append(imgArray[i]);
+                if ((i + 1) % charPerLine == 0 && i + 1 < widget.getText().length()) {
+                    stringBuilder.append("<br>");
+                }
+            }
+            String newTxt = stringBuilder.toString();
+            widget.setText(newTxt);
+            //set good size for widget
+        }
+    }
+    private void setNiceWidgetHeight(Widget widget){
+        int lineNum = countOccurrences(widget.getText(),"<br>") + 1;
+        int lineHeight = lineNum * 17;
+        if (widget.getOriginalHeight() < lineHeight) {
+            widget.setOriginalHeight(lineHeight);
+//        widget.getParent().setOriginalHeight(lineHeight);
+//        for (Widget w : widget.getParent().getDynamicChildren())
+//            w.setOriginalHeight(lineHeight);
+
+        }
+        //widget.revalidate();
+    }
+    private int countOccurrences(String str, String findStr) {
+        int count = 0;
+        int index = 0;
+        while ((index = str.indexOf(findStr, index)) != -1) {
+            count++;
+            index += findStr.length(); // Move to the end of the current occurrence to find the next one
+        }
+        return count;
+    }
+    public static boolean containsWidget(Widget[] widgetArray, Widget widget) {
+        for (Widget element : widgetArray) {
+            if (element.equals(widget)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    private String[] extractImg(String input) {
+        List<String> images = new ArrayList<>();
+        Pattern pattern = Pattern.compile("(<.*?>)");
+        Matcher matcher = pattern.matcher(input);
+        while(matcher.find()){
+            images.add(matcher.group(1));
+        }
+        return images.toArray(new String[0]);
+    }
+    private String getImageText (Widget widget) {//automatically inserts <br> regarding the width of widget
         String colorHex = getColorHex(widget);
         String str = widget.getText().trim();
         String translatedTextWithColors;
@@ -129,7 +217,14 @@ public class JapWidgets {
                 ChatIconManager iconManager = japanesePlugin.getChatIconManager();
                 HashMap<String, Integer> map = japanesePlugin.getJapCharIds();
                 transformOptions option = getWidgetTransformConfig(widget);
-                String w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager);
+                String w;
+                //if texts inside settings
+                if (widget.getParent().getParent().getParent().getParent().getId() == ComponentID.SETTINGS_INIT){
+                    HashMap<String,String> settingHash =  japTransforms.knownSettingTranslation;
+                    w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager,settingHash);
+                }else{
+                    w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager);
+                }
                 imgBuild.append(w);
             }
         }
@@ -179,5 +274,28 @@ public class JapWidgets {
                 return transformOptions.wordToWord;
             }
         }
+    }
+    public static boolean containsNumber(String s) {
+        Pattern p = Pattern.compile(".*\\d.*");
+        Matcher m = p.matcher(s);
+        return m.matches();
+    }
+    private void writeToFile(String line, String filePath) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
+                writer.write(line);
+                writer.newLine(); // Writes a new line
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private Widget getGrandParentsId(Widget widget, int n) {
+        for (int i = 0; i < n; i++) {
+            if (widget.getParent() != null) {
+                widget = widget.getParent();
+            }else{
+                return null;
+            }
+        }
+        return widget;
     }
 }

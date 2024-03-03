@@ -1,0 +1,363 @@
+coins|コイン
+Accept aid|手助け承認
+Accept trade delay|交換成立まで遅延
+Activities|活動
+Always|常に
+Always empty bolt pouches on death|死後必ずボルト入れを空ける
+Always empty essence pouches on death|死後必ずエッセンス入れを空ける
+Always empty herb sacks on death|死後必ずハーブ入れを空ける
+Always empty rune pouches on death|死後必ずルーン入れを空ける
+Always empty seed boxes on death|死後必ず種箱を空ける
+Always empty tackle boxes on death|死後必ずタックル箱を空ける
+Ammo-picking behaviour|弾薬の拾い方
+Area sound volume|周囲の音量
+Audio|音声
+Auto chat|声
+Beta Worlds|ベータサーバ
+Block spontaneous pop-up promotional messages|ポップアップ広告をブロック
+Broadcast|全体放送
+Camera Effects|カメラの効果
+Camera zoom distance|カメラズーム距離
+Casting Alchemy spells on Untradeable items always triggers a warning|錬金術を交換不可アイテムに唱えた場合は警告する
+Change the level of brightness to make the world look lighter or darker.|視界の明るさを調整
+Charter Ships confirmation|船搭乗時の確認
+Chat|チャット
+Chat Colour - Opaque|チャット：不透明
+Chat Colour - Split|チャット：分ける
+Chat Colour - Transparent|チャット：透明
+Chat box scrollbar position|チャット：スクロール位置
+Chatbox Mode - Set Automatically|チャットボックスモード：自動
+Clan Broadcasts|チャットの全体放送
+Clan chat|クランチャット
+Classic|クラシック
+Clear your highlighted NPCs|NPCの強調表示を解除
+Click through transparent chatbox|透明なチャットボックスを通してクリック
+Collection log - New addition notification|収集ログ：新規追加通知
+Collection log - New addition popup|収集ログ：新規追加ポップアップ
+Combat|戦闘
+Combat Achievement Tasks - Completion popup|戦闘功績のタスク：達成ポップアップ
+Combat Achievement Tasks - Failure|戦闘功績のタスク：失敗を通知
+Combat Achievement Tasks - Repeat completion|戦闘功績のタスク：達成を複数回通知
+Combat Achievement Tasks - Repeat failure|戦闘功績のタスク：失敗を複数回通知
+Compact boss health overlay|ボス体力のコンパクト表示
+Completed quest text colour|達成クエストの色
+Confirmations|確認
+Control Options|操作設定
+Controls|操作
+Convert save to beta worlds|最新データをベータサーバに保存
+Ctrl+click to invert run mode|CTRL+クリックで走る・歩くを反転
+Deep Wilderness lever default option|ウィルダネス深部レバーの即値
+Default|即値
+Depends on combat levels|戦闘レベル依存
+Determines how quests that you lack the recommended stats for are shown.|推奨レベル不足のクエストの表示設定
+Determines how quests that you lack the requirements for are shown.|必要レベル不足のクエストの表示設定
+Determines how values are displayed on the health overlay.|体力オーバーレイの数値の表示設定
+Determines how your quest list should be sorted.|クエスト一覧の並び順
+Determines the size of the text in your quest list.|クエスト一覧のテキストの大きさ
+Determines the text colour for completed quests in your quest list.|クエスト一覧の達成済クエストの表示設定
+Determines the text colour for quests in progress in your quest list.|クエスト一覧の進行中クエストの表示設定
+Determines the text colour for unavailable quests in your quest list.|クエスト一覧の開始不可クエストの表示設定
+Determines the text colour for unstarted quests in your quest list.|クエスト一覧の未開始クエストの表示設定
+Determines which music area mode to use. Modern uses large areas with multiple music tracks assigned to each area. Classic uses small areas with one music track per area.|音楽再生エリアの設定。モダンは広範囲の中で設定された複数の曲が再生される。クラシックは狭い範囲に設定された唯一の曲が再生される。
+Disable Phantom Muspah messages|ファントム・ムスファの通知を切る
+Disable level-up interface|レベルアップ表示を無効
+Disable quest list text shadows|クエスト一覧の文字の影を無効
+Disable tablet warnings|タブレットの警告を全て無効化
+Disable teleport warnings|ワープの警告を全て無効化
+Display|表示
+Display a warning on login if there are items stored in an item retrieval service|アイテムがどこかで保管されている場合はログイン時に警告
+Displays the chosen colour of the fog inside of Last Man Standing.|最強選抜戦の霧の色を表示
+Drop item warning|物を落とす際の警告
+ESC|
+Enable new-style skill guide interface|新仕様のスキル画面を有効化
+Enable precise timing|時間を0.1秒まで表示
+Enable profanity filter|失礼な英単語を隠す
+Enable separating hours|時間を分と区切って表示
+Enable tablet warnings|タブレットの警告を全て有効化
+Enable teleport warnings|ワープのの警告を全て有効化
+Esc closes the current interface|ESCキーで各画面を閉じる
+Exact Value|正確な値
+F1|
+F10|
+F11|
+F12|
+F2|
+F3|
+F4|
+F5|
+F6|
+F7|
+F8|
+F9|
+Farming protection payment confirmation|農家への支払い確認
+Filter out boss kill-count with spam-filter|ボス討伐数をスパムフィルタで隠す
+Food/Potions can form supply piles on death|食べ物・ポーションを死んだ場所に落とす
+Friend Login/Logout messages|友達のログイン・ログアウト通知
+Friend chat|フレンドチャット
+Game Chat|ゲームチャット
+Game client layout|ゲームクライアント配置
+Gameplay|ゲーム内
+General|一般
+Graphics|画面表示
+Guest clan chat|見学クランチャット
+Health overlay display type|体力オーバーレイ表示方法
+Hide completed quests|完了済みクエスト非表示
+Hide miniquests|小クエストを非表示
+Hide private chat when the chatbox is hidden|チャットUI非表示時は個人チャットを隠す
+Hide quest list headers|クエスト一覧のヘッダを非表示
+Hide quests|クエストを非表示
+Hide quests in progress|進行中クエスト非表示
+Hide roofs|屋根非表示
+Hide unstarted quests|未開始クエスト非表示
+Hides category headers in the quest list.|クエスト一覧の種別ヘッダを非表示
+Hides completed quests in the quest list.|クエスト一覧の完了済みクエスト非表示
+Hides miniquests in the quest list.|クエスト一覧の小クエスト非表示
+Hides quests in progress in the quest list.|クエスト一覧の進行中を非表示
+Hides quests in the quest list.|クエスト一覧のクエストを非表示
+Hides unstarted quests in the quest list.|クエスト一覧の未開始クエスト非表示
+Hitsplat tinting|ダメージ表示に着色
+If an item drops that is worth more than this value, a message will be shown in chat to let you know.|下記以上の値段がつく物をゲットした場合、通知を受け取る
+If enabled, the game will run a daily process that removes some permanently banned accounts from your Ignore list, freeing up space.|有効時、無視リストのプレイヤーが永久バンされた場合はその人をリストから自動的に外す。
+If enabled, the game will run a daily process that removes some permanently muted accounts from your Ignore list, freeing up space.|有効時、無視リストのプレイヤーが永久ミュートされた場合はその人をリストから自動的に外す。
+If you go to drop an item that is worth more than this value, a warning will appear.|これより値段が高いアイテムを落とすと警告が表示されます
+Ignore List - Remove permanently banned accounts daily|無視リストから永久バンされたプレイヤーを毎日削除
+Ignore List - Remove permanently muted accounts daily|無視リストから永久ミュートされたプレイヤーを毎日削除
+In progress quest text colour|進行中クエストのテキスト色
+Incoming challenge request|受信した挑戦状
+Incoming trade request|受信した交換依頼
+Input value|値を入力
+Interfaces|画面表示
+Iron Group Broadcasts|GIMの通知
+Iron Group chat|GIMのチャット
+Items|アイテム
+Fixed|固定
+Keybinds|キーバインド
+Last Man Standing fog colour|最強選抜戦の霧の色
+Loot drop notifications|報酬の通知
+Looting bag - Ignore supplies|盗品入れ：素材は無視
+Looting bag - Store all|盗品入れ：全て収納
+Left|左
+Make-x darts|ダーツをx作成
+Max hit hitsplats|最大ダメージ表示
+Max hit hitsplats threshold|最大ダメージしきい値
+Max hits below this threshold will not show max hit hitsplats.|しきい値以下のダメージは最大ダメージ特有の表示がされません
+Middle mouse button controls the camera|マウス真ん中ボタンでカメラ操作
+Minigames|ミニゲーム
+Minimum item value needed for Alchemy spells warning|錬金術を唱える際の警告を表示するミニゲームアイテムの値段
+Minimum item value needed for drop item warning|落とす際の警告を表示するミニゲームアイテムの値段
+Minimum item value needed for loot notification|報酬通知を表示するミニゲームアイテムの値段
+Modern|モダン
+Modern Layout - Side panel can be closed by the hotkeys|モダンな配置：横パネルをキー入力で閉じることができる
+Modern Layout - Side panel visual appearance|モダンな配置：横パネルの見た目
+Move follower options lower down|フォロワーのオプションを下へ移動
+Moves the pet options lower down in the options menu, this stops your left click on the pet being Talk-to.|ペット等のフォロワーのオプションを下へ移動させると誤って左クリックしにくくなる。
+Music|音楽
+Music area mode|音楽の範囲設定
+Music looping|曲のループ
+Music unlock message|新曲開放の通知
+Music volume|曲の音量
+NPC attack options|NPCの攻撃設定
+None|なし
+Opens a popup whenever a new item is added to your Collection log.|収集ログの更新時にポップアップを表示
+Options|選択肢
+Options on the compass for orienting the camera also set its vertical angle|方位磁針クリック時、縦方向の向きも変更
+Other notifications|その他の通知
+PK Skull Prevention|PKスカル防止
+Player attack options|他プレイヤー攻撃設定
+Player trade options|交換設定
+Popout|(RL非対応)
+Post-quest Poison Karambwan confirmation|クエスト後の毒カランワン確認
+Private chat|個人チャット
+Public chat|公共チャット
+Quest List|クエスト一覧
+Quest list sorting|クエスト一覧の順序
+Quest list text size|クエスト一覧の文字サイズ
+Removes shadows from the text in your quest list.|クエスト一覧の文字から影をなくす
+Reset beta world save|ベータサーバのデータをリセット
+Reset opaque chat colours|チャットの不透明色をリセット
+Reset quest list text colours|クエスト一覧の文字の色をリセット
+Reset split chat colours|別枠チャットの色をリセット
+Reset transparent chat colours|チャットの透明色をリセット
+Resizable|変更可能
+Resizable - Modern layout|サイズ変更可能で今風な配置
+Restore default keybinds|キーバインドのリセット
+Right|右
+Rune-picking behaviour|ルーン取得の操作
+Screen Brightness|画面明度
+Scroll wheel can change zoom distance|スクロールでズーム操作可能
+Select what the default left click option on an NPC will be.|NPCの左クリックのオプションを選択
+Select what the default left click option on another player will be.|他プレイヤーの左クリックのオプションを選択
+Select whether Trade options are shown on other players, if available.|他プレイヤーに交換オプションを表示するか、しないか
+Select which client mode you would like to play the game in.Fixed mode is the classic client layout.Resizable will let you make the client as large as your screen.|ゲーム全体の表示方法を選択。固定モードはRS初期の表示。サイズ変更可能はウィンドウの大きさまで表示領域を伸ばせます。
+Sends a chat notification whenever a new item is added to your Collection log.|新アイテムが収集ログに追加された際に通知を送信する
+Set whether holding Ctrl when clicking to walk or interact will temporarily invert your selected run mode.|CTRLキーを押しながら移動するようクリックすると設定中の移動モード（走る・歩く）ではない方で移動するか、の設定
+Shift click to drop items|カバン内アイテムをシフト+クリックで落とす
+Show Activity Adviser|アドバイスを表示
+Show Wiki entity lookup|Wiki検索を表示
+Show as normal|通常通り表示
+Show as unavailable|開始不可と表示
+Show boss health overlay|ボスの体力オーバーレイを表示
+Show chat effects|チャットエフェクトを表示
+Show confirmation when paying for items from gravestone|墓からアイテムを回収する際の費用の確認ダイアログを表示
+Show data orbs|マップ周辺データを表示
+Show enemy name on health overlay|敵の名前を体力バーに表示
+Show prayer tooltips|祈りの情報を表示
+Show quests you lack the recommended stats for|推奨レベルが無いクエストを表示
+Show quests you lack the requirements for|開始不可のクエストを表示
+Show special attack tooltip|奥義の情報を表示
+Show the Store button on desktop|ストアボタンをデスクトップで表示
+Show the camera effect after looting the Barrows' chest|バロウズの報酬獲得後、カメラエフェクトを表示
+Show the camera effect when in Baba Yaga's house|ババ・ヤガの家のカメラエフェクトを表示
+Show the camera effect when on the Fishing Trawler|フィッシング・トローラのカメラエフェクトを表示
+Show the remaining XP for a level in the stats panel|ステータスパネルでレベルアップまでの残りXPを表示
+Show warning on Wilderness teleport levers|ウィルダネスレバーの警告を表示
+Show warning on Wilderness teleport levers on High Risk worlds|高リスクワールドのウィルダネスレバーの警告を表示
+Show warning on exiting Ferox Enclave|フェロックス・オンクレーブから外出する際警告を表示
+Show warning on exiting Ferox Enclave on a High Risk world|高リスクワールドでフェロックス・オンクレーブから外出する際警告を表示
+Show warning on taking a canoe to the Wilderness|ウィルダネスまでカヌーで移動する際に警告を表示
+Show warning on taking a canoe to the Wilderness on a High Risk world|高リスクワールドでウィルダネスまでカヌーで移動する際に警告を表示
+Show warning when a buy offer price is too high in the Grand Exchange|グランドエクスチェンジで即値よりかなり高く買おうととする際に警告を表示
+Show warning when a sell offer price is too low in the Grand Exchange|グランドエクスチェンジで即値よりかなり安く売ろうとする際に警告を表示
+Show warning when casting: Annakarl Teleport|「アナカール ワープ」を唱える際に警告する
+Show warning when casting: Carrallanger Teleport|「カランガー ワープ」を唱える際に警告する
+Show warning when casting: Dareeyak Teleport|「ダレヤク ワープ」を唱える際に警告する
+Show warning when casting: Ghorrock Teleport|「ゴロック ワープ」を唱える際に警告する
+Show warning when casting: Teleport to Target|「標的へワープ」を唱える際に警告する
+Show warning when using tablet: Annakarl|アナカールワープのタブレット使用時に警告する
+Show warning when using tablet: Carrallanger|カランガーワープのタブレット使用時に警告する
+Show warning when using tablet: Cemetery|セメトリーワープのタブレット使用時に警告する
+Show warning when using tablet: Dareeyak|ダリヤクワープのタブレット使用時に警告する
+Show warning when using tablet: Ghorrock|ゴロックワープのタブレット使用時に警告する
+Show warning when using tablet: Ice Plateau|アイスプラトーのタブレット使用時に警告する
+Show warning when using tablet: Wilderness Crabs|ウィルダネス蟹のタブレット使用時に警告する
+Shows a message in the chat that lets you know a valuable item has dropped. This is based on the threshold you set.|設定したしきい値以上の値段がついてるアイテムがドロップするとメッセージを表示します
+Single mouse button mode|単クリックモード
+Small|小
+Sound effect volume|効果音の音量
+Split friends private chat|個人チャットを開ける
+Stone Border|石の枠
+Tablets|タブレット
+Teleports|ワープ
+The following options control the warning messages for teleport spells that take you to the wilderness. When enabled, you will be shown a warning message when you cast a teleport spell to the wilderness.|ウィルダネスへワープする魔法に関する警告の設定。有効時、ウィルダネスへワープする魔法を発動すると警告が表示される。
+The following options control the warning messages for teleport tablets that take you to the wilderness. When enabled, you will be shown a warning message when using a teleport tablet to the wilderness.|ウィルダネスへワープするタブレットに関する警告の設定。有効時、ウィルダネスへワープするタブレットを使用すると警告が表示される。
+The following options control which colour to display chat messages in a transparent chatbox.|透明なチャットボックスで表示される文字の色の設定。
+The following options control which colour to display chat messages in an opaque chatbox.|不透明なチャットボックスで表示される文字の色の設定。
+The following options control which colour to display chat messages in the split chat outside your chatbox.|個人チャットで表示される文字の色の設定。
+Timeout|タイムアウト
+Tooltips|詳細情報
+Transparent chatbox|透明チャットボックス
+Transparent side panel|透明な横パネル
+Unavailable quest text colour|開始不可なクエストの文字の色
+Unstarted quest text colour|未開始なクエストの文字の色
+Untradeable loot notifications|交換不可な報酬の通知
+Use the slider to change the camera zoom level.|スライダでカメラズームを操作
+Using these options will affect your save game on beta worlds. The convert option will take a copy of your latest save point, and put it on your beta save profile. When you next sign in to a beta world, you will sign in in that exact state. The reset option will wipe all of your stats, and so on, to experience the beta similarly to if you had just left Tutorial Island.|ベータワールドセーブデータを設定できます。最新データを保存すると最後に保存されたデータのコピーでベータワールドのプレイや情報を上書きします。次ベータワールドにログインするとそのデータが適用されます。リセットするとチュートリアル島からランブリッジにワープした際の状態にベータワールドのデータが戻ります。
+Warnings|警告表示
+When casting alchemy spells on items in your inventory, if the item is worth more than this value, a warning will be shown.|以下に設定した値より高価なアイテムを対象に錬金術を唱えると警告が表示される
+When enabled, a message will be shown in the chatbox when you unlock a new music track.|有効時、新しい音楽を開放した際にチャットボックスに通知を送る
+When enabled, a warning will be shown on login if you have items stored in an item retrieval service.|有効時、アイテムがどこかで保管されている場合はログイン時に警告を表示する
+When enabled, always shows a warning when you try to cast an alchemy spell on an Untradeable item.|有効時、必ず交換不可なアイテムを対象に錬金術を唱える際に警告を表示する
+When enabled, ammo you pick up from the ground will attempt to equip itself to your quiver or bolt pouch, if those contain matching ammo.|有効時、矢などを拾うとそれと同じ種類のものが既に箙やボルト入れにある場合はそこに収納する
+When enabled, boss kill-count will no longer appear in chat when you kill a boss.|有効時、ボス討伐後のチャットへの討伐数メッセージが表示されなくなる
+When enabled, chat effects will be displayed when players use them.|有効時、他の人が使用したチャットのエフェクトが表示される
+When enabled, completion of Combat Achievement tasks will be accompanied by a popup box.|有効時、戦闘功績のタスクを達成するとポップアップが表示される
+When enabled, data orbs are shown around the world map.|有効時、体力値などのデータがミニマップ周辺に表示される
+When enabled, displays the XP needed to reach the next level when viewing the amount of XP you have in a skill.|有効時、スキルの現在の経験値（Xp）を表示すると、次のレベルまでに必要な経験値が表示される
+When enabled, fighting certain bosses will display a larger health overlay.|有効時、特定のボスの体力ゲージが大きく表示される
+When enabled, food and potions will be prevented from being automatically put into your looting bag.|有効時、食べ物とポーションが自動的に盗品入れに収納されなくなる
+When enabled, helpful spells that target other players can be cast on you.|有効時、他人を対象にとる便利な魔法が自分を対象にとることを受け入れる
+When enabled, hides all roofs. If you are inside a building, the roof will be hidden regardless of the setting being disabled.|有効時、屋根が非表示になる。屋内にいる場合この設定関係なく屋根は非表示になる
+When enabled, hitsplats caused by damage that you did not deal are tinted.|有効時、他人が与えたダメージ表示の色を区別される
+When enabled, hovering over a prayer shows the prayers effect.|有効時、マウスを祈りの上に置くとその効果が表示される
+When enabled, hovering over the special attack bar will show its effect.|有効時、マウスを奥義バーの上に置くとその効果が表示される。
+When enabled, if there's no new music track to play when one ends, the currently playing one will restart.|有効時、再生中の曲が終わって次に再生できる曲が無い場合、再生中の曲が再度流れる
+When enabled, if you die with a bolt pouch, its contents will be emptied into your grave, even if the pouch itself is not lost. The pouch is always emptied if it is destroyed, or if the death is in PvP, regardless of this option.|有効時、死後にボルト入れの中身が取り出され、墓に格納されます（ボルト入れが失われない場合でも）。ボルト入れが破壊された場合、もしくはPvPによる死後はこの設定に関わらず空にされます。
+When enabled, if you die with a herb sack, its contents will be emptied into your grave, even if the sack itself is not lost. The sack is always emptied if it is destroyed, or if the death is in PvP, regardless of this option.|有効時、死後に薬草入れの中身が取り出され、墓に格納されます（薬草入れが失われない場合でも）。薬草入れが破壊された場合、もしくはPvPによる死後はこの設定に関わらず空にされます。
+When enabled, if you die with a rune pouch, its contents will be emptied into your grave, even if the pouch itself is not lost. The pouch is always emptied if it is destroyed, or if the death is in PvP, regardless of this option.|有効時、死後にルーン入れの中身が取り出され、墓に格納されます（ルーン入れが失われない場合でも）。ルーン入れが破壊された場合、もしくはPvPによる死後はこの設定に関わらず空にされます。
+When enabled, if you die with a seed box, its contents will be emptied into your grave, even if the box itself is not lost. The box is always emptied if it is destroyed, or if the death is in PvP, regardless of this option.|有効時、死後に種ボックスれの中身が取り出され、墓に格納されます（種ボックスが失われない場合でも）。種ボックスが破壊された場合、もしくはPvPによる死後はこの設定に関わらず空にされます。
+When enabled, if you die with a tackle box, its contents will be emptied into your grave, even if the box itself is not lost. The box is always emptied if it is destroyed, or if the death is in PvP, regardless of this option.|有効時、死後にタックル箱の中身が取り出され、墓に格納されます（タックル箱が失われない場合でも）。タックル箱が破壊された場合、もしくはPvPによる死後はこの設定に関わらず空にされます。
+When enabled, if you die with an essence pouch, its contents will be emptied into your grave, even if the pouch itself is not lost. The pouch is always emptied if it is destroyed, or if the death is in PvP, regardless of this option.|有効時、死後にエッセンス入れの中身が取り出され、墓に格納されます（エッセンス入れが失われない場合でも）。エッセンス入れが破壊された場合、もしくはPvPによる死後はこの設定に関わらず空にされます。
+When enabled, if you go to drop an item that has a higher value than the threshold you set, a warning will appear.|有効時、設定したしきい値以上の値段がついてるアイテムがドロップすると警告が表示されます
+When enabled, if you have a transparent chat box, you can click through it.|有効時、チャットボックスが透明な場合はチャットボックス越しにクリック可能になる
+When enabled, if you have already learnt to cook karambwan properly, but you choose to cook one poorly, you will be asked to confirm your choice. The warning is offered only after you have learnt to cook them properly.|有効時、カランバンの正しい調理法を習得済みにもかかわらず下手に調理することを選択した場合、確認される。この確認は正しい調理方法の習得後のみ表示される。
+When enabled, if you hold down the middle mouse button, you can move the camera.|有効時、マウスの真ん中のスクロールボタンを押すとカメラ操作が可能になる
+When enabled, if you hold shift, your left click option on items in your inventory will default to drop.|有効時、シフトを長押ししてカバンの物を左クリックするとそれを落とすようになる
+When enabled, if you left click where there is more than one option, the click will act as if you right clicked.|有効時、複数動作が可能な場所を左クリックすると動作一覧が表示される
+When enabled, in resizable mode make the chatbox background transparent.|有効時、サイズ変更可能モードの場合はチャットボックスの背景が透明になる
+When enabled, on death in eligible areas, food & potions will be dropped as a pile of supplies where you died, rather than going to a gravestone.|有効時、可能な区域では食べ物とポーションを墓に格納せず地面に直接落とす
+When enabled, pressing the hotkey assigned to an already open side panel will close it.|有効時、既に開いてある横パネルのキーを押すとそのパネルが閉じる
+When enabled, replaces bad words with a set of *.|チェックを外さないと日本語チャットが使えません！有効時、失礼な単語を*で隠す
+When enabled, runes you pick up from the ground, or make during Runecrafting, will attempt to go into your rune pouch, if it contains matching runes.|有効時、拾ったルーンや作ったルーンと同種のルーンがルーン入れに既に格納されている場合はルーン入れに格納する
+When enabled, sending a message with any chat prefix will automatically sets your chat mode to the respective channel: /p, /f, /c, /gc or /g (GIM only).|有効時、次の文字列で始まる送信メッセージはそれぞれのチャットに送られる:公共は/p, フレンドは/f, クランは/c, グループアイアンマンは/gc or /g (GIM限定)
+When enabled, separates timers into hours, when applicable.|有効時、「何時間」の表示を分と別ける
+When enabled, show the Activity Adviser button around the minimap.|有効時、アドバイスボタンがミニマップ周辺に表示される
+When enabled, show the store button around the minimap on desktop only.|有効時、デスクトップ版の場合はストアボタンがミニマップ周辺に表示される
+When enabled, shows a message in chat when you receive an untradeable item as a drop.|有効時、交換不可なアイテムを討伐対象からもらうとチャットに通知される
+When enabled, shows a warning when placing a buy offer that is more than 10 times of the guide price.|有効時、通常価格の10倍より高い値段で買おうとした場合に警告を表示する
+When enabled, shows a warning when placing a sell offer that is lower than 10% of the guide price.|有効時、通常価格の10%未満で売却しようとする場合に警告を表示する
+When enabled, shows your private messages above your chat box.|有効時、個人チャットがチャットボックスの上に表示される
+When enabled, shows your timers to the nearest tenth of a second.|有効時、0.1秒の桁までタイマーの時間を表示する
+When enabled, spontaneous pop-up promotional messages will automatically be blocked.|有効時、他人からの唐突な広告メッセージが自動でブロックされる
+When enabled, the Wiki entity lookup will be displayed under the minimap.|有効時、Wiki検索ボタンがミニマップの下に表示される
+When enabled, the boss health overlay will be more compact.|有効時、ボス体力のがコンパクトに表示される
+When enabled, the compass options that orient the camera towards North, South, East or West will use a fixed vertical angle rather than preserving its current height.|有効時、方位磁針アイコンを操作して東西南北のいずれかを向く際、現在のカメラの縦方向の位置が保持されず、既定値に設定される
+When enabled, the deep Wilderness teleport lever will take you to Edgeville by default instead of Ardougne.|有効時、ウィルダネス深部レバーの即値がア―ドウヌでなくエッジビルに設定される
+When enabled, the enemy name will be displayed on the health overlay.|有効時、敵の名前が体力バー上に表示される
+When enabled, the escape key will close your active interface.|有効時、エスケープボタンで開いている画面が閉じる
+When enabled, the level-up interface will no longer open and skill unlocks will not be shown. You will continue to get level-up fireworks, jingles, messages and broadcasts, but levelling will no longer delay or interrupt your actions.|有効時、レベルアップインターフェースが表示されず、開放したコンテンツが表示されなくなる。レベルアップによる花火エフェクト、効果音、通知とブロードキャストはされなくなりますが、レベルがあがっても動作が中断されなくなります
+When enabled, the scroll wheel can change the camera zoom.|有効時、スクロールでズーム操作が可能になる
+When enabled, the skill guide interface will feature a look that allows it to be resized as well as moved.|有効時、スキルガイド画面が移動、サイズ変更可能になる
+When enabled, there is a camera effect after looting the Barrows' chest.|有効時、バロウズの報酬獲得後、カメラが揺れるようになる
+When enabled, there is a camera effect when inside Baba Yaga's house.|有効時、ババヤガの家の中にいるとカメラが揺れるようになる
+When enabled, there is a camera effect when on the Fishing Trawler.|有効時、フィッシングトローラーのカメラエフェクトが有効になる
+When enabled, when using items on your looting bag, you will immediately store as many of that item as possible in the bag.|有効時、アイテムを盗品入れに使用すると、できるだけ多くそのアイテムが盗品入れに即格納される
+When enabled, you will be asked to confirm your selection when using the in-game World Switcher menu to change worlds. Especially dangerous worlds, such as PvP worlds, may give warnings regardless.|有効時、ワールド変更時に変更先のワールドの確認が行われる。特にPvPワールド等の危険なワールド変更する場合、この設定にかかわらず確認されるかもしれません。
+When enabled, you will be notified when you fail Combat Achievement tasks where applicable.|有効時、戦闘功績のタスクに失敗した場合は通知される
+When enabled, you will be notified when you fail Combat Achievement tasks, which you have already completed, where applicable.|有効時、達成済みの戦闘功績のタスクに失敗した場合に通知される
+When enabled, you will be notified when you re-complete a Combat Achievement task which you have already completed (excludes killcount and speed tasks).|有効時、達成済みの戦闘功績タスクを再度達成した場合に通知される。（討伐数系と時間制限系のタスクはこれに含まれない）
+When enabled, you will be prevented from attacking players in any way that would cause you to become skulled.|有効時、PKスカルが自分に付与されてしまう相手への攻撃が防止される
+When enabled, you will get a confirmation before paying for your items from a gravestone.|有効時、お金を払って墓からアイテムを回収する場合に確認が行われる
+When enabled, you will have to wait 3 seconds after a change is made before you can click the accept button when trading another player.|有効時、交換画面に変更があった場合は３秒待たないと「承認」ボタンを押せなくなる
+When enabled, you will no longer be asked to confirm Charter Ship payment.|有効時、船の搭乗料金を支払う際の確認が行われなくなる
+When enabled, you will no longer be asked to confirm protection payment for your crops.|有効時、農家に植物を育ててもらう費用を支払う際の確認が行われなくなる
+When enabled, you will no longer receive messages in chat in relation to the Phantom Muspah fight.|有効時、ファントム・ムスファに関するメッセージがチャットに届かなくなる
+When enabled, you will see a make-X screen when fletching darts.|有効時、ダーツをいくつ作成するかの確認画面が表示されるようになる
+When enabled, your max hit hitsplats will look different from non max hits. (Excludes fixed damage, damage from effects such as recoil, retribution, vengeance, corruption, poison and venom, as well as damage from thralls.)|有効時、自分の最大ダメージのヒット表示がそうでないヒットと見た目が変わるようになる。（例外は固定ダメージ、反射、リトリビューション、ヴェンジェンス、腐敗、毒、猛毒、スロールによるダメージ）
+When enabled, your private chat (if split) will be hidden if your chat box is hidden.|有効時、個人チャットがチャットボックス外に別けて表示されている場合、チャットボックス非表示時は個人チャットも非表示になる
+When enabled, your side panel will be transparent.|有効時、横パネルが透明になる
+When timeout is selected, the message you receive when a friend logs in will be removed after an amount of time.|時間切れが選択された場合、友達のログイン通知は一定時間経過後に非表示になる
+Which side the scrollbar should be placed in the chat box.|スクロールバーがチャットボックスのどちら側に表示されるか
+Which visual appearance your side panel should take.|横パネルをどのような見た目にするか
+World Switcher confirmation|ワールド変更確認
+
+On|オン
+Off|オフ
+Timeout|時間切れ
+Depends on combat levels|戦闘レベル依存
+Always right-click|右クリックのみ
+Left-click where available|可能なら左クリック
+Hidden|非表示
+Right-click for clanmates|クラン仲間は右クリック
+Fixed - Classic layout|固定：RS初期感
+Resizable - Classic layout|変更可：RS初期感
+Small|小
+Large|大
+
+Alphabetically|A-Z順
+Blue|青
+Difficulty|難易度
+Free/Members|無課金・メンバー
+Green|緑
+Hide|隠す
+Length|長さ
+Percentage|割合
+Recommended Combat|推奨戦闘レベル
+Red|赤
+Release Date|リリース日
+Start Location|開始地点
+Status|ステータス
+Steel Border|鉄枠
+Storyline|物語
+Type|種類
+White|白
+Yellow|黄

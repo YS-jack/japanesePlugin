@@ -21,6 +21,7 @@ enum Colors {
     orange3("ff981f","orange"),
     red("ff0000","red"),
     white("ffffff","white"),
+    white2("9f9f9f","white"),
     yellow("ffff00", "yellow");
 
     private String name;
@@ -87,19 +88,28 @@ enum Colors {
         return Colors.values()[j]; // or throw an exception
     }
     private static int findClosest(int target, int[] numbers) {
-        int smallestDifference = Math.abs(numbers[0] - target);
-        int closestI = 0;
-        for (int i = 1; i < numbers.length; i++) {
-            int currentDifference = Math.abs(numbers[i] - target);
-            if (currentDifference < smallestDifference) {
-                smallestDifference = currentDifference;
-                closestI = i;
+        if (target == hexToInt("f9f9f9")) {//int for hex 9f9f9f, grey text in settings
+            int i;
+            for (i = 1; i < numbers.length; i++)
+                if (Colors.values()[i] == Colors.white)
+                    return i;
+            return i;
+        } else {
+            int smallestDifference = Math.abs(numbers[0] - target);
+            int closestI = 0;
+            for (int i = 1; i < numbers.length; i++) {
+                int currentDifference = Math.abs(numbers[i] - target);
+                if (currentDifference < smallestDifference) {
+                    smallestDifference = currentDifference;
+                    closestI = i;
+                }
             }
+            return closestI;
         }
-        return closestI;
     }
     public static String IntToHex(int intColor) {
         String hexString = String.format("%06x",intColor);
+
         for (Colors Colors : values()) {
             if (Colors.getHex().equalsIgnoreCase(hexString)) {
                 return Colors.getHex();
