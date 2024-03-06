@@ -45,7 +45,7 @@ Confirmations|確認
 Control Options|操作設定
 Controls|操作
 Convert save to beta worlds|最新データをベータサーバに保存
-Ctrl+click to invert run mode|CTRL+クリックで走る・歩くを反転
+Ctrl+click to invert run mode|CTRL+クリックで走・歩を反転
 Deep Wilderness lever default option|ウィルダネス深部レバーの即値
 Default|即値
 Depends on combat levels|戦闘レベル依存
@@ -165,7 +165,7 @@ Other notifications|その他の通知
 PK Skull Prevention|PKスカル防止
 Player attack options|他プレイヤー攻撃設定
 Player trade options|交換設定
-Popout|(RL非対応)
+Popout|(非対応)
 Post-quest Poison Karambwan confirmation|クエスト後の毒カランワン確認
 Private chat|個人チャット
 Public chat|公共チャット

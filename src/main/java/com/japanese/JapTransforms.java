@@ -24,6 +24,7 @@ public class JapTransforms {
     private HashMap<String, String> itemNpcTran;
     private HashMap<String, String> transliterationMap;
     public HashMap<String, String> knownSettingTranslation;
+    public HashMap<String, String> knownChatButtonSkillTranslation;
     @Inject
     private Client client;
     @Inject
@@ -34,8 +35,7 @@ public class JapTransforms {
         knownDeepL = new HashMap<>();
         putToDictHash(knownDeepL, transDataDir, "KnownDeepLTranslations.csv");
         knownDirect = new HashMap<>();
-        putToDictHash(knownDirect, transDataDir , "KnownDirectTranslations.csv","SkillTranslations.csv",
-                "widgetTranslations.csv","KnownSettingTranslation.csv");
+        putToDictHash(knownDirect, transDataDir , "KnownDirectTranslations.csv","SkillTranslations.csv");
         directWord = new HashMap<>();
         putToDictHash(directWord, transDataDir , "DirectWordTranslations.txt");
         menuOptionTran = new HashMap<>();
@@ -47,7 +47,13 @@ public class JapTransforms {
 
         //specific translations
         knownSettingTranslation = new HashMap<>();
-        putToDictHash(knownSettingTranslation, transDataDir, "KnownSettingTranslation.csv");
+        putToDictHash(knownSettingTranslation, transDataDir, "knownWidgets/KnownSettingTranslation.csv");
+        knownChatButtonSkillTranslation = new HashMap<>();
+        putToDictHash(knownChatButtonSkillTranslation, transDataDir, "knownWidgets/widgetTranslations.csv");
+
+        //add known translation maps to knownDirect
+        knownDirect.putAll(knownSettingTranslation);
+        knownDirect.putAll(knownChatButtonSkillTranslation);
         log.info("end of making hashmap for translations");
 //        knownDirect.entrySet().stream()
 //                .forEach(entry -> log.info(entry.getKey() + " => " + entry.getValue()));
@@ -249,7 +255,7 @@ public class JapTransforms {
                         } else if (directWord.containsKey(enNoS)){
                             resultBuilder.append(directWord.get(enNoS));
                         } else {
-                            log.info("couldnt find translation of " + word + ", transliterating");
+                            //log.info("couldnt find translation of " + word + ", transliterating");
                             resultBuilder.append(transliterte(word));
                         }
                     }else{
@@ -258,7 +264,7 @@ public class JapTransforms {
                         } else if (directWord.containsKey(word)){
                             resultBuilder.append(directWord.get(word));
                         } else {
-                            log.info("couldnt find translation of " + word + ", transliterating");
+                            //log.info("couldnt find translation of " + word + ", transliterating");
                             resultBuilder.append(transliterte(word));
                         }
 //                        log.info("couldnt find translation of " + word + ", transliterating");

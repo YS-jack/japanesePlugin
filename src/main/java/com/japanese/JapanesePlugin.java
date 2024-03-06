@@ -22,9 +22,11 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
-import com.japanese.JapWidgets;
 
+import com.japanese.JapWidgets;
 import com.japanese.JapTransforms.transformOptions;
+import com.japanese.ChatModifier;
+import static net.runelite.api.ChatMessageType.*;
 
 @Slf4j
 @PluginDescriptor(
@@ -49,6 +51,8 @@ public class JapanesePlugin extends Plugin{
 //    private JapaneseOverlay japaneseOverlay;
     @Inject
     private JapWidgets japWidgets;
+    @Inject
+    private ChatModifier chatModifier;
     private Player player;
     @Getter
     private final JapTransforms japTransforms = new JapTransforms();
@@ -123,6 +127,7 @@ public class JapanesePlugin extends Plugin{
         log.info("start of plugin");
         japTransforms.initTransHash();
         japWidgets.setJapTransforms(japTransforms);
+        chatModifier.setJapTransforms(japTransforms);
 //        overlayManager.add(japaneseOverlay);
         loadJapChar();
 
@@ -139,7 +144,13 @@ public class JapanesePlugin extends Plugin{
     {
         if(gameStateChanged.getGameState() == GameState.LOGGED_IN)
         {
-            client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "Example says: " + config.greeting(), null);
+            //String enWithColors = "<col=000000>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+            ChatIconManager iconManager = getChatIconManager();
+            HashMap<String, Integer> map = getJapCharIds();
+            final transformOptions option = transformOptions.wordToWord;
+            //String translatedTextWithColors = "<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"+"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"+"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"+"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"+"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"+"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"+"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"+"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"+"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"+"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"+"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"+"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"+"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"+"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"+"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"+"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">"+"<img="+chatIconManager.chatIconIndex(japCharIds.get("black--51.png"))+">";
+            //client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", translatedTextWithColors, null);
+           // client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "Example says: " + config.greeting(), null);
         }
     }
     @Subscribe
@@ -180,9 +191,13 @@ public class JapanesePlugin extends Plugin{
         //null to look through everything, otherwise specify widget parent not to search through for texts
         japWidgets.changeWidgetTexts(null);
     }
+
     @Subscribe
-    // get dialog content when talking with npc
-    public void onChatMessage(ChatMessage event){
+    public void onChatMessage(ChatMessage chatMessage){
+        if (client.getGameState() != GameState.LOGGED_IN && client.getGameState() != GameState.HOPPING)
+            return;
+
+        chatModifier.modifyChat(chatMessage);
 
     }
 

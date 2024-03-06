@@ -45,7 +45,8 @@ public class JapWidgets {
         }
     }
     private void changeEndChildTextAndRecord(Widget widget) throws IOException {//for collecting ids, only for development
-        if(!widget.isHidden()) {
+        if(!widget.isHidden()&& widget.getId() != ComponentID.CHATBOX_MESSAGE_LINES) {//
+
             Widget[] dynamicChildren = widget.getDynamicChildren();
             Widget[] nestedChildren = widget.getNestedChildren();
             Widget[] staticChildren = widget.getStaticChildren();
@@ -59,12 +60,12 @@ public class JapWidgets {
             if (widgetText != null) {
                 if (!widgetText.isEmpty() && !widgetText.isBlank() && !widgetText.contains("<img=")) {//if widgetText contains text
                     //check for specific widget
-                    if (getGrandParentsId(widget,4) != null) {
-                        if (getGrandParentsId(widget, 4).getId() == ComponentID.SETTINGS_INIT) {
+                    if (getGrandNParent(widget,4) != null) {
+                        if (getGrandNParent(widget, 4).getId() == ComponentID.SETTINGS_INIT) {
                             if (widget.getText().matches("F\\d{1,2}") || widget.getText().equals("ESC"))
                                 return;
                         } else{
-                            Widget g6Parent = widget.getParent().getParent().getParent().getParent().getParent().getParent();
+                            Widget g6Parent = getGrandNParent(widget,6);
                             if (g6Parent != null) {
                                 if (g6Parent.getId() == ComponentID.SETTINGS_INIT) {
                                     ///for dumping texts for translation ease
@@ -80,36 +81,39 @@ public class JapWidgets {
                     if (widgetText.matches("^[0-9,%.]*$"))//if its only numbers
                         return;
                     if (widgetText.contains("<")) {
-                        int grandParentId = widget.getParent().getParent().getId();
-                        if (grandParentId == ComponentID.SKILLS_CONTAINER){
-                            String hex;
-                            if (!widgetText.contains("<br>")){//mouse hover of member skill in f2p world
-                                hex = Colors.red.getHex();
-                                widget.setTextColor(Colors.hexToInt(hex));
-                                int yPos = widget.getRelativeY();
-                                widget.setRelativeY(yPos + 3);
-                            } else if (!widgetText.contains("Total level")) {
-                                hex = Colors.blue.getHex();
-                                widget.setTextColor(Colors.hexToInt(hex));
-                                if (!containsNumber(widgetText)) {
+                        Widget grandParent = getGrandNParent(widget,2);
+                        if (grandParent != null) {
+                            int grandParentId = grandParent.getId();
+                            if (grandParentId == ComponentID.SKILLS_CONTAINER) {
+                                String hex;
+                                if (!widgetText.contains("<br>")) {//mouse hover of member skill in f2p world
+                                    hex = Colors.red.getHex();
+                                    widget.setTextColor(Colors.hexToInt(hex));
                                     int yPos = widget.getRelativeY();
                                     widget.setRelativeY(yPos + 3);
+                                } else if (!widgetText.contains("Total level")) {
+                                    hex = Colors.blue.getHex();
+                                    widget.setTextColor(Colors.hexToInt(hex));
+                                    if (!containsNumber(widgetText)) {
+                                        int yPos = widget.getRelativeY();
+                                        widget.setRelativeY(yPos + 3);
+                                    }
                                 }
+                                translatedTextWithColors = changeWidgetTextsWithBr(widget);//returns <img> with <br>
+                                widget.setText(translatedTextWithColors);
+                                return;
                             }
-                            translatedTextWithColors = changeWidgetTextsWithBr(widget);//returns <img> with <br>
-                            widget.setText(translatedTextWithColors);
-                            return;
-                        }
-                        if (grandParentId == ComponentID.CHATBOX_BUTTONS) {
-                            if (widgetText.startsWith("<br>")){
-                                widget.setXTextAlignment(WidgetTextAlignment.RIGHT);
-                            } else {
-                                widget.setXTextAlignment(WidgetTextAlignment.LEFT);
+                            if (grandParentId == ComponentID.CHATBOX_BUTTONS) {
+                                if (widgetText.startsWith("<br>")) {
+                                    widget.setXTextAlignment(WidgetTextAlignment.RIGHT);
+                                } else {
+                                    widget.setXTextAlignment(WidgetTextAlignment.LEFT);
+                                }
+                                widget.setText(removeTag(widgetText));
+                                translatedTextWithColors = getImageText(widget);
+                                widget.setText(translatedTextWithColors);
+                                return;
                             }
-                            widget.setText(removeTag(widgetText));
-                            translatedTextWithColors = getImageText(widget);
-                            widget.setText(translatedTextWithColors);
-                            return;
                         }
                     }
 
@@ -124,9 +128,11 @@ public class JapWidgets {
             }
         }
     }
-    private void insertBrAfterTransform(Widget widget){//input is <images> with <br>
+    private void insertBrAfterTransform(Widget widget){
         int width = widget.getWidth();
         String str = widget.getText();
+        if (width <= 0 )
+            return;
         int charPerLine = width/14;
         StringBuilder stringBuilder = new StringBuilder();
         String[] imgArray = extractImg(str);
@@ -219,12 +225,25 @@ public class JapWidgets {
                 transformOptions option = getWidgetTransformConfig(widget);
                 String w;
                 //if texts inside settings
-                if (widget.getParent().getParent().getParent().getParent().getId() == ComponentID.SETTINGS_INIT){
-                    HashMap<String,String> settingHash =  japTransforms.knownSettingTranslation;
-                    w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager,settingHash);
-                }else{
-                    w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager);
+                Widget grandParent = getGrandNParent(widget,4);
+                if (grandParent != null) {
+                    if (grandParent.getId() == ComponentID.SETTINGS_INIT) {
+                        HashMap<String, String> settingHash = japTransforms.knownSettingTranslation;
+                        w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, settingHash);
+                        imgBuild.append(w);
+                        continue;
+                    }
                 }
+                grandParent = getGrandNParent(widget, 2);
+                if (grandParent != null) {
+                    if (grandParent.getId() == ComponentID.CHATBOX_BUTTONS || grandParent.getId() == ComponentID.SKILLS_CONTAINER) {
+                        HashMap<String, String> settingHash = japTransforms.knownChatButtonSkillTranslation;
+                        w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, settingHash);
+                        imgBuild.append(w);
+                        continue;
+                    }
+                }
+                w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager);
                 imgBuild.append(w);
             }
         }
@@ -239,40 +258,41 @@ public class JapWidgets {
             colorHex = Colors.IntToHex(widgetColor);
         return colorHex;
     }
-    private String removeTag(String str) {
+    public String removeTag(String str) {
         return str.replaceAll("<[^>]*>","").
                 replace("<","").replace(">","");
     }
 
     private transformOptions getWidgetTransformConfig(Widget widget) {
 
-        Widget g5Parent = widget.getParent().getParent().getParent().getParent().getParent();
-        if (g5Parent.getId() == ComponentID.CHATBOX_MESSAGES) {
-            if (japanesePlugin.config.npcDialogueConfig() == JapaneseConfig.GameTextProcessChoice.簡易翻訳) {
-                return transformOptions.wordToWord;
+        Widget g5Parent = getGrandNParent(widget, 5);
+        if (g5Parent != null) {
+            if (g5Parent.getId() == ComponentID.CHATBOX_MESSAGES) {
+                if (japanesePlugin.config.npcDialogueConfig() == JapaneseConfig.GameTextProcessChoice.簡易翻訳) {
+                    return transformOptions.wordToWord;
+                }
+                if (japanesePlugin.config.npcDialogueConfig() == JapaneseConfig.GameTextProcessChoice.そのまま) {
+                    return transformOptions.doNothing;
+                }
+                if (japanesePlugin.config.npcDialogueConfig() == JapaneseConfig.GameTextProcessChoice.API翻訳) {
+                    return transformOptions.API;
+                } else {
+                    japTransforms.messageIngame("開発者に報告してください：JapWidgets getWidgetTransformConfig エラー", "red");
+                    return transformOptions.wordToWord;
+                }
             }
-            if (japanesePlugin.config.npcDialogueConfig() == JapaneseConfig.GameTextProcessChoice.そのまま) {
-                return transformOptions.doNothing;
-            }
-            if (japanesePlugin.config.npcDialogueConfig() == JapaneseConfig.GameTextProcessChoice.API翻訳) {
-                return transformOptions.API;
-            } else {
-                japTransforms.messageIngame("開発者に報告してください：JapWidgets getWidgetTransformConfig エラー", "red");
-                return transformOptions.wordToWord;
-            }
+        }
+        if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.GameTextProcessChoice.簡易翻訳) {
+            return transformOptions.wordToWord;
+        }
+        if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.GameTextProcessChoice.そのまま) {
+            return transformOptions.doNothing;
+        }
+        if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.GameTextProcessChoice.API翻訳) {
+            return transformOptions.API;
         } else {
-            if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.GameTextProcessChoice.簡易翻訳) {
-                return transformOptions.wordToWord;
-            }
-            if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.GameTextProcessChoice.そのまま) {
-                return transformOptions.doNothing;
-            }
-            if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.GameTextProcessChoice.API翻訳) {
-                return transformOptions.API;
-            } else {
-                japTransforms.messageIngame("開発者に報告してください：JapWidgets getWidgetTransformConfig エラー", "red");
-                return transformOptions.wordToWord;
-            }
+            japTransforms.messageIngame("開発者に報告してください：JapWidgets getWidgetTransformConfig エラー", "red");
+            return transformOptions.wordToWord;
         }
     }
     public static boolean containsNumber(String s) {
@@ -288,7 +308,7 @@ public class JapWidgets {
             e.printStackTrace();
         }
     }
-    private Widget getGrandParentsId(Widget widget, int n) {
+    private Widget getGrandNParent(Widget widget, int n) {
         for (int i = 0; i < n; i++) {
             if (widget.getParent() != null) {
                 widget = widget.getParent();
