@@ -47,7 +47,7 @@ public class ChatModifier {
                 //log.info("got a DIALOG");
                 return;
         }
-        if (chatMessage.getMessageNode().getValue().startsWith("To talk in your " )) {
+        if (chatMessage.getMessageNode().getValue().startsWith("To talk in your Iron Group's channel, start each line of chat with " )) {
             String GIMName = client.getClanChannel(ClanID.GROUP_IRONMAN).getName();
             if (GIMName != null)
                 chatMessage.getMessageNode().setSender(GIMName);
@@ -97,9 +97,9 @@ public class ChatModifier {
         String chatName = messageNode.getSender();
         int nameCharCount = replaceTagWithAA(name).length()+2; // +2 because of ": " after name
         int chatNameCount = (chatName == null ? 0:chatName.length()+4); //+2 because of [] brackets
-        int enCharCount = nameCharCount + chatNameCount + 7; //+8 because timestamp is probably on
+        int enCharCount = nameCharCount + chatNameCount + 8; //+8 because timestamp is probably on
         double enWidth = 5.8; //width of 1 en character
-        double jpWidth = 14.2; //width of 1 <img=> character
+        double jpWidth = 13.1; //width of 1 <img=> character
         int chatWidth = 486;
         int width = chatWidth - (int) (enCharCount*enWidth+2); //-2 just to be safe
 

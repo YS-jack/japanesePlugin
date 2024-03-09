@@ -46,9 +46,11 @@ public class JapanesePlugin extends Plugin{
     @Inject
     private JapChar japChar;
     @Inject
+    public RomToJap romToJap = new RomToJap();
+    @Inject
     private OverlayManager overlayManager;
-//    @Inject
-//    private JapaneseOverlay japaneseOverlay;
+    @Inject @Getter
+    private ChatInputOverlay japaneseOverlay;
     @Inject
     private JapWidgets japWidgets;
     @Inject
@@ -56,14 +58,12 @@ public class JapanesePlugin extends Plugin{
     private Player player;
     @Getter
     private final JapTransforms japTransforms = new JapTransforms();
-
     public final String separator = "--";
     @Getter
     protected final HashMap<String, Integer> japCharIds = new HashMap<>();    // colour-char(key) <-> CharIds(val)
     @Getter
     protected final HashMap<String,Integer> chatButtonsIds = new HashMap<>(); //button name (allSelected.png ...) <-> img Ids
     public String dialogueText;
-    public String dialogueNPC;
     private void loadJapChar()
     {
         String[] japCharArray = japChar.getCharList(); //list of all characters e.g.　black+JapChar.separator+面
@@ -121,23 +121,7 @@ public class JapanesePlugin extends Plugin{
     protected String getCharPath(String colChar) {
         return "char/" + colChar;
     }
-    @Override
-    protected void startUp() throws Exception
-    {
-        log.info("start of plugin");
-        japTransforms.initTransHash();
-        japWidgets.setJapTransforms(japTransforms);
-        chatModifier.setJapTransforms(japTransforms);
-//        overlayManager.add(japaneseOverlay);
-        loadJapChar();
 
-    }
-
-    @Override
-    protected  void shutDown() throws  Exception
-    {
-        log.info("end of plugin");
-    }
 
     @Subscribe
     public void onGameStateChanged(GameStateChanged gameStateChanged)
@@ -200,7 +184,24 @@ public class JapanesePlugin extends Plugin{
         chatModifier.modifyChat(chatMessage);
 
     }
+    @Override
+    protected void startUp() throws Exception
+    {
+        log.info("start of plugin");
+        japTransforms.initTransHash();
+        romToJap.initRom2JpHash();
+        japWidgets.setJapTransforms(japTransforms);
+        chatModifier.setJapTransforms(japTransforms);
+        overlayManager.add(japaneseOverlay);
+        loadJapChar();
 
+    }
+
+    @Override
+    protected  void shutDown() throws  Exception
+    {
+        log.info("end of plugin");
+    }
     @Provides
     JapaneseConfig provideConfig(ConfigManager configManager) {
         return configManager.getConfig(JapaneseConfig.class);
