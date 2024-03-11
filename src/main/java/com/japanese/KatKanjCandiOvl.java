@@ -13,7 +13,7 @@ import java.awt.*;
 
 @Slf4j
 @ParametersAreNonnullByDefault
-class ChatInputOverlay extends Overlay //remove abstract when actually making overlays with this
+class KatKanjCandiOvl extends Overlay //remove abstract when actually making overlays with this
 {
     private Client client;
     private JapaneseConfig config;
@@ -21,43 +21,32 @@ class ChatInputOverlay extends Overlay //remove abstract when actually making ov
     private final PanelComponent panelComponent = new PanelComponent();
     private int[] ovlPos;
     private int inputWidth = 400;
+    private final int maxCandidateLength = 100;
     @Inject
-    public ChatInputOverlay(Client client, JapanesePlugin plugin) {
+    public KatKanjCandiOvl(Client client, JapanesePlugin plugin) {
         setPosition(OverlayPosition.BOTTOM_LEFT);
         this.client = client;
         this.plugin = plugin;
     }
     @Override
     public Dimension render(Graphics2D graphics) {
-        int msgLength = plugin.romToJap.inputCount;
-        String jpMsg = plugin.romToJap.chatJpMsg;
-        if (msgLength == 0) return null;
+        String[] jpMsg = plugin.romToJap.kanjKatCandidates;
+        int msgCount = plugin.romToJap.inputCount;
+        if (msgCount == 0) return null;
 
         panelComponent.getChildren().clear();
 
         // Set the size of the overlay
-        panelComponent.setPreferredSize(new Dimension(Math.min(14*(msgLength + 1)+8*5,inputWidth),0));
+        panelComponent.setPreferredSize(new Dimension(maxCandidateLength,0));
 
         Color bgColor = new Color(127, 82, 33);
         panelComponent.setBackgroundColor(bgColor);
-        if(getLen(jpMsg) > inputWidth) {
-            String[] newMsgs = splitMsg(jpMsg);
-            for (int i = 0;i < newMsgs.length; i++) {
-                if (i == newMsgs.length - 1) {
-                    panelComponent.getChildren().add(LineComponent.builder()
-                            .left(newMsgs[i])
-                            .right("(" + Integer.toString(msgLength) + "\n/80)")
-                            .build());
-                } else {
-                    panelComponent.getChildren().add(LineComponent.builder()
-                            .left(newMsgs[i])
-                            .build());
-                }
-            }
-        } else {
+
+        for(int i = 0; i < jpMsg.length; i++) {
+            String jp = jpMsg[i];
             panelComponent.getChildren().add(LineComponent.builder()
-                    .left(jpMsg)
-                    .right(" (" + Integer.toString(msgLength) + "\n/80)")
+                    .left(Integer.toString(i))
+                    .right(jp)
                     .build());
         }
         return panelComponent.render(graphics);

@@ -17,16 +17,12 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.game.ChatIconManager;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.ImageUtil;
-import net.runelite.client.ui.overlay.Overlay;
+
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Objects;
 
-import com.japanese.JapWidgets;
 import com.japanese.JapTransforms.transformOptions;
-import com.japanese.ChatModifier;
-import static net.runelite.api.ChatMessageType.*;
 
 @Slf4j
 @PluginDescriptor(
@@ -50,7 +46,9 @@ public class JapanesePlugin extends Plugin{
     @Inject
     private OverlayManager overlayManager;
     @Inject @Getter
-    private ChatInputOverlay japaneseOverlay;
+    private ChatInputOverlay chatInputOverlay;
+    @Inject
+    private KatKanjCandiOvl katKanjCandiOvl;
     @Inject
     private JapWidgets japWidgets;
     @Inject
@@ -192,7 +190,8 @@ public class JapanesePlugin extends Plugin{
         romToJap.initRom2JpHash();
         japWidgets.setJapTransforms(japTransforms);
         chatModifier.setJapTransforms(japTransforms);
-        overlayManager.add(japaneseOverlay);
+        overlayManager.add(chatInputOverlay);
+        overlayManager.add(katKanjCandiOvl);
         loadJapChar();
 
     }
