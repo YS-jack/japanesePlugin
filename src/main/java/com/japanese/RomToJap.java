@@ -8,6 +8,7 @@ import net.runelite.api.widgets.Widget;
 import javax.inject.Inject;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.sql.Array;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,9 +17,11 @@ import java.util.regex.Pattern;
 public class RomToJap {
     @Inject
     private JapWidgets japWidgets = new JapWidgets();
+    @Inject
+    private JapanesePlugin japanesePlugin;
     public int inputCount = 0; //for counting number of words in chat input
     public String chatJpMsg = "";
-    public String[] kanjKatCandidates = {};//candidates of kanji or katakana from input
+    public List<String> kanjKatCandidates = new ArrayList<>();//candidates of kanji or katakana from input
     private List<FourValues> japCharDS = new ArrayList<>();
     private HashMap<String,String> char2char = new HashMap<>();
 
@@ -222,6 +225,7 @@ public class RomToJap {
         StringBuilder sentenceBuilder = new StringBuilder();
         String symbolPart = "([^\\p{IsAlphabetic}\\d\\p{IsHiragana}\\p{IsKatakana}\\p{Nd}]+[\\s\u3000]*)";
         FourValues prevKata = null;
+
         for (int i = 0; i < wordList.length; i++) {
             String word  = wordList[i];
             if (Pattern.matches(symbolPart, word)) {//if its symbol, dont change
@@ -229,42 +233,67 @@ public class RomToJap {
                 prevKata = null;
                 continue;
             }
-            FourValues newKata = getKatKanWord(word, prevKata);//turn word into kanji+hiragana+katakana
-            //todo; check if the new kata(prevkata) is valid grammar wise
-            sentenceBuilder.append(newKata.written);
 
-            prevKata = newKata;
+            int candidateSelectionN = 0;
+            String wordPart = word;
+            List<FourValues> transformCandidates = new ArrayList<>();
+            if (word.matches(".+\\d+\\s*$")){
+                String intPart = word.split("\\D+")[1].trim();
+                if (!intPart.isEmpty()) {
+                    candidateSelectionN = Integer.parseInt(intPart);
+                    wordPart = word.split("\\d+\\s*$")[0];
+                }
+            }
+            boolean last = false;
+            if (i == wordList.length - 1)
+                last = true;
+            List<FourValues> newKata = getKatKanWord(wordPart, prevKata, candidateSelectionN, last);//turn word into kanji+hiragana+katakana
+
+            //todo; check if the new kata(prevkata) is valid grammar wise
+            for (FourValues fv : newKata)
+                sentenceBuilder.append(fv.written);
+
+//            String[] writtenArray = new String[transformCandidates.size()];
+
+
+            prevKata = newKata.get(newKata.size()-1);
         }
         //kanjKatCandidates = wordList;
         return sentenceBuilder.toString();
         //return katMsg;
     }
 
-    private FourValues getKatKanWord(String word, FourValues prevKata) {
-        int candidateSelectionN = 0;
-        String wordPart = word;
+    private List<FourValues> getKatKanWord(String word, FourValues prevKata, int candiSelectionN, boolean last) {
         List<FourValues> transformCandidates = new ArrayList<>();
-        if (word.matches(".+\\d+\\s*$")){
-            String intPart = word.split("\\D+")[1].trim();
-            if (!intPart.isEmpty()) {
-                candidateSelectionN = Integer.parseInt(intPart);
-                wordPart = word.split("\\d+\\s*$")[0];
-            }
-        }
-        for (int i = 0; i < wordPart.length(); i++){// i words shorter
-            transformCandidates.addAll(getAllMatches(wordPart.substring(0,wordPart.length()-i)));
-            if (!transformCandidates.isEmpty()){
+        int i;
+        for (i = 0; i < word.length(); i++){// i words shorter
+            transformCandidates.addAll(getAllMatches(word.substring(0,word.length()-i)));
+            if (!transformCandidates.isEmpty())
                 break;
+        }
+        if (transformCandidates.isEmpty()) {
+            List<FourValues> ret = new ArrayList<>();
+            FourValues fourVal = new FourValues(word, word, word, 1);
+            ret.add(fourVal);
+            return ret;
+        }
+        if (i == 0) {//the whole word was found in japCharDS
+            if (last) {//if it was the last element of wordlist, update candidate list
+                kanjKatCandidates.clear();
+                for (int j = 0; j < transformCandidates.size(); j++)
+                    kanjKatCandidates.add(transformCandidates.get(j).getWritten());
             }
-        }
 
-        String[] writtenArray = new String[transformCandidates.size()];
-        for (int i = 0; i < transformCandidates.size(); i++) {
-            writtenArray[i] = transformCandidates.get(i).getWritten();
+            List<FourValues> ret = new ArrayList<>();
+            ret.add(transformCandidates.get(candiSelectionN));
+            return ret;
         }
-        kanjKatCandidates = writtenArray;
-
-        return transformCandidates.get(candidateSelectionN);
+        else {//not the last word of inside "word" element of wordList
+            List<FourValues> ret = new ArrayList<>();
+            ret.add(transformCandidates.get(0));//it doesnt have a selection number, so the default(=0) is selected
+            ret.addAll(getKatKanWord(word.substring(word.length()-i),prevKata,candiSelectionN,last));
+            return ret;
+        }
     }
     private List<FourValues> getAllMatches(String kata) {
         List<FourValues> matches = new ArrayList<>();

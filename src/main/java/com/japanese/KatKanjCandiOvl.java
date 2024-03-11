@@ -22,6 +22,7 @@ class KatKanjCandiOvl extends Overlay //remove abstract when actually making ove
     private int[] ovlPos;
     private int inputWidth = 400;
     private final int maxCandidateLength = 100;
+
     @Inject
     public KatKanjCandiOvl(Client client, JapanesePlugin plugin) {
         setPosition(OverlayPosition.BOTTOM_LEFT);
@@ -30,7 +31,7 @@ class KatKanjCandiOvl extends Overlay //remove abstract when actually making ove
     }
     @Override
     public Dimension render(Graphics2D graphics) {
-        String[] jpMsg = plugin.romToJap.kanjKatCandidates;
+        String[] jpMsg = plugin.romToJap.kanjKatCandidates.toArray(new String[plugin.romToJap.kanjKatCandidates.size()]);
         int msgCount = plugin.romToJap.inputCount;
         if (msgCount == 0) return null;
 
