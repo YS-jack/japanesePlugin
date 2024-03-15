@@ -6,6 +6,7 @@ import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.ComponentID;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,6 +62,12 @@ public class JapWidgets {
             String widgetText = widget.getText();
             if (widgetText != null) {
                 if (!widgetText.isEmpty() && !widgetText.isBlank() && !widgetText.contains("<img=")) {//if widgetText contains text
+//                    if (widget.getParent().getId() == 14024705 || widget.getParent().getId() == 14024714) { //parent of skill guide, or parent of element in list
+//                        String dir = "src/main/resources/com/japanese/dump/";
+//                        if (widget.getText().matches("\\d{1,2}"))
+//                            return;
+//                        writeToFile(widgetText + "|", dir + "skillGuideDump.txt");
+//                    }
                     //check for specific widget
                     if (getGrandNParent(widget,4) != null) {
                         if (getGrandNParent(widget, 4).getId() == ComponentID.SETTINGS_INIT) {
@@ -69,13 +76,13 @@ public class JapWidgets {
                         } else{
                             Widget g6Parent = getGrandNParent(widget,6);
                             if (g6Parent != null) {
-                                if (g6Parent.getId() == ComponentID.SETTINGS_INIT) {
-                                    ///for dumping texts for translation ease
-                                    String dir = "src/main/resources/com/japanese/dump/";
-                                    writeToFile(widgetText + "|", dir + "settingsDump");
-                                    if (widget.getText().matches("F\\d{1,2}") || widget.getText().equals("ESC"))
-                                        return;
-                                }
+//                                if (g6Parent.getId() == ComponentID.SETTINGS_INIT) {
+//                                    ///for dumping texts for translation ease
+//                                    String dir = "src/main/resources/com/japanese/dump/";
+//                                    writeToFile(widgetText + "|", dir + "settingsDump");
+//                                    if (widget.getText().matches("F\\d{1,2}") || widget.getText().equals("ESC"))
+//                                        return;
+//                                }
                             }
                         }
                     }

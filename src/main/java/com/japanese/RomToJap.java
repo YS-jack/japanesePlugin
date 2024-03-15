@@ -8,7 +8,6 @@ import net.runelite.api.widgets.Widget;
 import javax.inject.Inject;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.sql.Array;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,10 +19,14 @@ public class RomToJap {
     @Inject
     private JapanesePlugin japanesePlugin;
     public int inputCount = 0; //for counting number of words in chat input
-    public String chatJpMsg = "";
-    public List<String> kanjKatCandidates = new ArrayList<>();//candidates of kanji or katakana from input
-    private List<FourValues> japCharDS = new ArrayList<>();
+    public String chatJpMsg = "";//whats written for chat input overlay
+    public List<String> kanjKatCandidates = new ArrayList<>();//candidates of kanji or katakana from input, also used for candidates overlay
+    public int instCandidateSelection = -1;
+    private List<FourValues> japCharDS = new ArrayList<>();//store all japanese words's written form, how its read, type, rank
+    private List<String> prevHiraList = new ArrayList<>();//stores the last updated words that are displayed
+    private List<String> prevJPList = new ArrayList<>();
     private HashMap<String,String> char2char = new HashMap<>();
+    private String notAvailable = "nan";
 
     public void initRom2JpHash() throws Exception {
         String wordsDir = "src/main/resources/com/japanese/romToJap/romJap.csv";
@@ -68,7 +71,7 @@ public class RomToJap {
             e.printStackTrace();
         }
     }
-    class FourValues {
+    public class FourValues {
         @Getter@Setter
         private String written;
         @Getter@Setter
@@ -96,8 +99,16 @@ public class RomToJap {
         chatJpMsg = romJpTransform(inputmsg);
     }
     public String romJpTransform(String romMsg) {
-        String katMsg = rom2Kat(romMsg);
-        return rom2Jp(katMsg);
+        String hiraMsg = rom2Kat(romMsg);
+        List<String> ret = hira2Jp(hiraMsg);
+        if (ret == null)
+            return chatJpMsg;
+        else {
+            StringBuilder inputBuilder = new StringBuilder();
+            for (String written : ret)
+                inputBuilder.append(written);
+            return inputBuilder.toString();
+        }
     }
 
     public String rom2Kat(String romMsg) {
@@ -135,7 +146,7 @@ public class RomToJap {
                     String ch = char2char.get(katCandidate);
                     Character secToLast = romBuffer.charAt(0);
                     if (Pattern.matches(pattern, romBuffer)) //when n comes before a symbol or space, change it to ン
-                        katBuilder.append("ン");
+                        katBuilder.append("ん");
                     else
                         katBuilder.append(secToLast);//append q
                     katBuilder.append(ch); // append エ
@@ -143,7 +154,7 @@ public class RomToJap {
                     continue;
                 }
                 if (Pattern.matches(pattern, romBuffer)){//when n comes before a symbol or space, change it to ン
-                    katBuilder.append("ン");
+                    katBuilder.append("ん");
                     katBuilder.append(romBuffer.charAt(1));
                     romBuilder.setLength(0);
                     continue;
@@ -151,7 +162,7 @@ public class RomToJap {
             } else {//rombuffer size > 2
                 if (Pattern.matches(pattern2, romBuffer)){//when n comes before a symbol or space, change it to ン
                     katBuilder.append(romBuffer, 0, romBufferSize-2);
-                    katBuilder.append("ン");
+                    katBuilder.append("ん");
                     String lastChar = Character.toString(romBuffer.charAt(romBufferSize-1));
                     katBuilder.append(char2char.getOrDefault(lastChar, lastChar));
                     romBuilder.setLength(0);
@@ -164,14 +175,14 @@ public class RomToJap {
                         if (romBuffer.charAt(romBufferSize - 4)
                                 == romBuffer.charAt(romBufferSize - 3)){ // eg: xwwhe > xッウェ
                             katBuilder.append(romBuffer,0,romBufferSize-4);//append x
-                            katBuilder.append("ッ");//append ッ
+                            katBuilder.append("っ");//append ッ
                             katBuilder.append(ch); // append ウェ
                             romBuilder.setLength(0);
                             continue;
                         }
                         if(romBuffer.charAt(romBufferSize - 4) == 'n'){// eg: xnwhe > xンウェ
                             katBuilder.append(romBuffer,0,romBufferSize-4);//append x
-                            katBuilder.append("ン");//append ン
+                            katBuilder.append("ん");//append ン
                             katBuilder.append(ch); // append ウェ
                             romBuilder.setLength(0);
                             continue;
@@ -189,14 +200,14 @@ public class RomToJap {
                     if (romBuffer.charAt(romBufferSize - 3)
                             == romBuffer.charAt(romBufferSize - 2)){ // eg: xkka > xッカ
                         katBuilder.append(romBuffer,0,romBufferSize-3);//append x
-                        katBuilder.append("ッ");//append ッ
+                        katBuilder.append("っ");//append ッ
                         katBuilder.append(ch); // append ウェ
                         romBuilder.setLength(0);
                         continue;
                     }
                     if(romBuffer.charAt(romBufferSize - 3) == 'n'){// eg: xnka > xンカ
                         katBuilder.append(romBuffer,0,romBufferSize-3);//append x
-                        katBuilder.append("ン");//append ン
+                        katBuilder.append("ん");//append ン
                         katBuilder.append(ch); // append カ
                         romBuilder.setLength(0);
                         continue;
@@ -219,81 +230,126 @@ public class RomToJap {
         katBuilder.append(romBuilder.toString());
         return katBuilder.toString();
     }
-    private String rom2Jp(String katMsg) {//katakana list to kanji sentence
-        String[] wordList = getWakatiGaki(katMsg);//get katakana text split with symbols, space attached at the end of each string if its katakana or numbers
+    private List<String> hira2Jp(String hiraMsg) {//hiragana list to kanji sentence
+        String[] wordList = getWakatiGaki(hiraMsg);//get katakana text split with symbols, space attached at the end of each string if its katakana or numbers
         //eg of wordList : "強烈はぴはぴ閾値" "、," "凄く"  "!/" "だよ" "、" "kaka" "クェスト00" "やり" "33" "," "ましょう"
-        StringBuilder sentenceBuilder = new StringBuilder();
-        String symbolPart = "([^\\p{IsAlphabetic}\\d\\p{IsHiragana}\\p{IsKatakana}\\p{Nd}]+[\\s\u3000]*)";
-        FourValues prevKata = null;
-
-        for (int i = 0; i < wordList.length; i++) {
-            String word  = wordList[i];
-            if (Pattern.matches(symbolPart, word)) {//if its symbol, dont change
-                sentenceBuilder.append(word);
-                prevKata = null;
-                continue;
-            }
-
-            int candidateSelectionN = 0;
-            String wordPart = word;
-            List<FourValues> transformCandidates = new ArrayList<>();
-            if (word.matches(".+\\d+\\s*$")){
-                String intPart = word.split("\\D+")[1].trim();
-                if (!intPart.isEmpty()) {
-                    candidateSelectionN = Integer.parseInt(intPart);
-                    wordPart = word.split("\\d+\\s*$")[0];
-                }
-            }
-            boolean last = false;
-            if (i == wordList.length - 1)
-                last = true;
-            List<FourValues> newKata = getKatKanWord(wordPart, prevKata, candidateSelectionN, last);//turn word into kanji+hiragana+katakana
-
-            //todo; check if the new kata(prevkata) is valid grammar wise
-            for (FourValues fv : newKata)
-                sentenceBuilder.append(fv.written);
-
-//            String[] writtenArray = new String[transformCandidates.size()];
-
-
-            prevKata = newKata.get(newKata.size()-1);
+        List<String> wordListList = Arrays.asList(getWakatiGaki(hiraMsg));
+        if (compareLists(wordListList, prevHiraList))
+            return null;
+        int startIndex = searchFirstDif(wordList);
+        if (startIndex < 1)
+            startIndex = 0;
+        List<String> changedList = new ArrayList<>();
+        boolean last;
+        for (int i = startIndex; i < wordList.length; i++) {
+            String word = wordList[i];
+            last = i == wordList.length - 1;
+            FourValues FVword = getMatch(word, last);
+            changedList.add(FVword.written);
         }
-        //kanjKatCandidates = wordList;
-        return sentenceBuilder.toString();
-        //return katMsg;
+        List<String> sublistPrevJPList = prevJPList.subList(0, startIndex);
+        String[] notChanged = sublistPrevJPList.toArray(new String[0]);
+        ArrayList<String> combindedList = new ArrayList<>(Arrays.asList(notChanged));
+        combindedList.addAll(changedList);
+
+        prevHiraList = wordListList;
+        prevJPList = combindedList;
+        return combindedList;
     }
 
-    private List<FourValues> getKatKanWord(String word, FourValues prevKata, int candiSelectionN, boolean last) {
-        List<FourValues> transformCandidates = new ArrayList<>();
-        int i;
-        for (i = 0; i < word.length(); i++){// i words shorter
-            transformCandidates.addAll(getAllMatches(word.substring(0,word.length()-i)));
-            if (!transformCandidates.isEmpty())
-                break;
-        }
-        if (transformCandidates.isEmpty()) {
-            List<FourValues> ret = new ArrayList<>();
-            FourValues fourVal = new FourValues(word, word, word, 1);
-            ret.add(fourVal);
-            return ret;
-        }
-        if (i == 0) {//the whole word was found in japCharDS
-            if (last) {//if it was the last element of wordlist, update candidate list
-                kanjKatCandidates.clear();
-                for (int j = 0; j < transformCandidates.size(); j++)
-                    kanjKatCandidates.add(transformCandidates.get(j).getWritten());
+    private FourValues getMatch(String word, boolean last){//the last word in wordList
+        FourValues FVofWord = new FourValues(word,word,notAvailable,-1);
+        List<FourValues> newCandidates = new ArrayList<>();
+        newCandidates.add(FVofWord);
+        if (word.matches("[\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}]+\\d+$") ||//if theres a number at the end of strings, set candidate to that
+                word.matches("[\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}]+ +$")){// if theres 1 or more space, #space - 1 = candidateN
+            //show no candidates
+            int candidateSelectionN;
+            String wordPart;
+            if (word.matches("[\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}]+\\d+$")) {
+                String intPart = word.split("\\D+")[1].trim();
+                candidateSelectionN = Integer.parseInt(intPart);
+                wordPart = word.split("\\d+\\s*$")[0];
+            } else {
+                String spacePart = word.split("[\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}]+")[1];
+                candidateSelectionN = spacePart.length() - 1;
+                wordPart = word.split(" +$")[0];
             }
+            kanjKatCandidates.clear();
+            newCandidates.addAll(getCandidates(wordPart));
 
-            List<FourValues> ret = new ArrayList<>();
-            ret.add(transformCandidates.get(candiSelectionN));
-            return ret;
+            if (newCandidates.size() < candidateSelectionN) //if the selection is too large, return the last cand
+                candidateSelectionN = newCandidates.size() - 1;
+
+            if (last) {
+                instCandidateSelection = candidateSelectionN;
+                for (FourValues fv : newCandidates)
+                    kanjKatCandidates.add(fv.written);
+            } else
+                instCandidateSelection = -1;
+            return newCandidates.get(candidateSelectionN);
+
+        } else { //no number nor space at the end, add it as hiragana if its not the last word, if last word then look for candidates
+            if (last) {//if its the last word on wordList, update candidates shown by overlay
+                instCandidateSelection = -1;
+                newCandidates.addAll(getCandidates(word));
+                kanjKatCandidates.clear();
+                for (FourValues fv : newCandidates)
+                    kanjKatCandidates.add(fv.written);
+                instCandidateSelection = -1;
+            }
+            return FVofWord;
         }
-        else {//not the last word of inside "word" element of wordList
-            List<FourValues> ret = new ArrayList<>();
-            ret.add(transformCandidates.get(0));//it doesnt have a selection number, so the default(=0) is selected
-            ret.addAll(getKatKanWord(word.substring(word.length()-i),prevKata,candiSelectionN,last));
-            return ret;
+    }
+    private List<FourValues> getCandidates(String word){
+        List<FourValues> matches;
+        List<FourValues> newCandidates = new ArrayList<>();
+
+        matches = getAllMatches(word);//get all exact matches
+        newCandidates.addAll(matches);
+
+        if (newCandidates.size() < 6) {//if not many candidates, get matches that begin with the last wordPart
+            // (the last wordPart might be in the middle of being typed
+            matches = getAllBeginningWith(word);
+            newCandidates.addAll(matches);
         }
+        newCandidates.sort(new compareFV());
+        if (newCandidates.size() < 10) {//if still not many candidates
+            // (the last wordPart might be in the middle of being typed
+            int nWordsToAdd = 10 - newCandidates.size();
+            List<FourValues> containedAndExtra;
+            containedAndExtra = getAllContaining(word, nWordsToAdd); // get all words that is contained within "wordPart"
+            newCandidates.addAll(containedAndExtra);
+        }
+        //newCandidates.sort(new compareFV());
+        return  newCandidates;
+    }
+    private int searchFirstDif(String[] wordList){
+        int upTo = 0;
+        if (wordList.length > prevHiraList.size())
+            upTo = prevHiraList.size();
+        else
+            upTo = wordList.length;
+        for (int i = 0; i < upTo; i++)
+            if (!Objects.equals(wordList[i], prevHiraList.get(i)))
+                return i;
+        return (upTo == 0 ? 0 : upTo-1);
+    }
+    public static <T> boolean compareLists(List<T> list1, List<T> list2) {
+        // If lists have different sizes, they are not equal
+        if (list1.size() != list2.size()) {
+            return false;
+        }
+
+        // Compare elements of the lists
+        for (int i = 0; i < list1.size(); i++) {
+            if (!list1.get(i).equals(list2.get(i))) {
+                return false;
+            }
+        }
+
+        // If all elements match, lists are equal
+        return true;
     }
     private List<FourValues> getAllMatches(String kata) {
         List<FourValues> matches = new ArrayList<>();
@@ -307,12 +363,36 @@ public class RomToJap {
         }
         return matches;
     }
+    private List<FourValues> getAllBeginningWith(String kata) {
+        List<FourValues> matches = new ArrayList<>();
+        for (FourValues entry: japCharDS)
+            if (entry.read.startsWith(kata) && !entry.read.equals(kata))
+                matches.add(entry);
+        return matches;
+    }
+    private List<FourValues> getAllContaining(String kata, int nToAdd) {//returns a substring 0:x that is in japCharDS, and add it to substring x:
+        List<FourValues> matches = new ArrayList<>();
+        for (int i = kata.length() - 1; i >= 0; i--) {
+            String substring = kata.substring(0,i);
+            for (FourValues entry: japCharDS)
+                if (entry.read.equals(substring) && matches.size() < nToAdd) {
+                    FourValues addingFV = new FourValues(entry.written + kata.substring(i),
+                            entry.written + kata.substring(i), notAvailable, entry.rank);
+                    if (matches.isEmpty())
+                        matches.add(addingFV);
+                    else if (matches.get(matches.size() - 1).rank + 3 < addingFV.rank)//only add few of the word is only different tense of the previous
+                        matches.add(addingFV);
+                }
+        }
+        return matches;
+    }
     private String[] getWakatiGaki (String text) {
         // Regular expression pattern for splitting
-        String regexPattern = "([\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}\\p{Nd}]+\\d+)|" +
-                "([\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}\\p{Nd}]+)|" +
-                "([\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}\\p{Nd}]+[^\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}\\p{Nd}\\d\\s\u3000]+)|"+
-                "([^\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}\\p{Nd}\\d\\s\u3000]+)";
+        String regexPattern =
+                "([\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}]*\\d+)|" +
+                        "([\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}]+ +)|" +
+                        "([\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}]+)|"+
+                        "([^\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}\\d ]+)";
 
         Pattern patternCompiled = Pattern.compile(regexPattern);
         Matcher matcher = patternCompiled.matcher(text);
@@ -321,7 +401,9 @@ public class RomToJap {
         // Find and collect all matches
         while (matcher.find()) {
             String segment = matcher.group(0);
-            if (segment != null) segmentsAndPunctuation.add(segment);
+            if (segment != null) {
+                segmentsAndPunctuation.add(segment);
+            }
         }
 
         // Convert the list to an array

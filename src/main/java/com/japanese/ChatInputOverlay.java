@@ -21,7 +21,7 @@ class ChatInputOverlay extends Overlay //remove abstract when actually making ov
     private final PanelComponent panelComponent = new PanelComponent();
     private int[] ovlPos;
     private int inputWidth = 400;
-    public String displayedJpInput = "";
+
     @Inject
     public ChatInputOverlay(Client client, JapanesePlugin plugin) {
         setPosition(OverlayPosition.BOTTOM_LEFT);
@@ -32,7 +32,7 @@ class ChatInputOverlay extends Overlay //remove abstract when actually making ov
     public Dimension render(Graphics2D graphics) {
         int msgLength = plugin.romToJap.inputCount;
         String jpMsg = plugin.romToJap.chatJpMsg;
-        displayedJpInput = jpMsg;
+
         if (msgLength == 0) return null;
 
         panelComponent.getChildren().clear();

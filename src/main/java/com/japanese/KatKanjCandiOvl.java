@@ -21,7 +21,8 @@ class KatKanjCandiOvl extends Overlay //remove abstract when actually making ove
     private final PanelComponent panelComponent = new PanelComponent();
     private int[] ovlPos;
     private int inputWidth = 400;
-    private final int maxCandidateLength = 100;
+    private int japCharSize = 14; // px width of each japanese characters
+
 
     @Inject
     public KatKanjCandiOvl(Client client, JapanesePlugin plugin) {
@@ -32,24 +33,33 @@ class KatKanjCandiOvl extends Overlay //remove abstract when actually making ove
     @Override
     public Dimension render(Graphics2D graphics) {
         String[] jpMsg = plugin.romToJap.kanjKatCandidates.toArray(new String[plugin.romToJap.kanjKatCandidates.size()]);
+        int candSelectN = plugin.romToJap.instCandidateSelection;
         int msgCount = plugin.romToJap.inputCount;
         if (msgCount == 0) return null;
 
         panelComponent.getChildren().clear();
 
-        // Set the size of the overlay
-        panelComponent.setPreferredSize(new Dimension(maxCandidateLength,0));
+
 
         Color bgColor = new Color(127, 82, 33);
+        Color bgSelectedColor = new Color(213, 161, 98);
         panelComponent.setBackgroundColor(bgColor);
-
+        int maxWidth = 0;
         for(int i = 0; i < jpMsg.length; i++) {
             String jp = jpMsg[i];
+            String numbering = Integer.toString(i);
+            if (i == candSelectN)
+                numbering = numbering + " < ";
             panelComponent.getChildren().add(LineComponent.builder()
-                    .left(Integer.toString(i))
-                    .right(jp)
+                    .left(numbering)
+                    .right(jp.trim())
                     .build());
+            if (maxWidth < jp.trim().length()*japCharSize)
+                maxWidth = jp.trim().length()*japCharSize;
         }
+
+        // Set the size of the overlay
+        panelComponent.setPreferredSize(new Dimension(maxWidth + japCharSize*3,0));
         return panelComponent.render(graphics);
     }
 
