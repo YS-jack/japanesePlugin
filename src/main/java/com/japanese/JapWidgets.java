@@ -48,7 +48,7 @@ public class JapWidgets {
     private void changeEndChildTextAndRecord(Widget widget) throws IOException {//for collecting ids, only for development
         if(!widget.isHidden()&& widget.getId() != ComponentID.CHATBOX_MESSAGE_LINES) {//
             if (widget.getId() == ComponentID.CHATBOX_INPUT) {
-                japanesePlugin.romToJap.drawOverlay(widget);
+                japanesePlugin.getRomToJap().drawOverlay(widget);
             }
             Widget[] dynamicChildren = widget.getDynamicChildren();
             Widget[] nestedChildren = widget.getNestedChildren();

@@ -21,7 +21,8 @@ class ChatInputOverlay extends Overlay //remove abstract when actually making ov
     private final PanelComponent panelComponent = new PanelComponent();
     private int[] ovlPos;
     private int inputWidth = 400;
-
+    private int japCharSize = 14; // px width of each japanese characters
+    private int enCharSize = 8;
     @Inject
     public ChatInputOverlay(Client client, JapanesePlugin plugin) {
         setPosition(OverlayPosition.BOTTOM_LEFT);
@@ -30,19 +31,18 @@ class ChatInputOverlay extends Overlay //remove abstract when actually making ov
     }
     @Override
     public Dimension render(Graphics2D graphics) {
-        int msgLength = plugin.romToJap.inputCount;
-        String jpMsg = plugin.romToJap.chatJpMsg;
+        int msgLength = plugin.getRomToJap().inputCount;
+        String jpMsg = plugin.getRomToJap().chatJpMsg;
 
         if (msgLength == 0) return null;
 
         panelComponent.getChildren().clear();
 
         // Set the size of the overlay
-        panelComponent.setPreferredSize(new Dimension(Math.min(14*(msgLength + 1)+8*5,inputWidth),0));
-
+        panelComponent.setPreferredSize(new Dimension(Math.min(japCharSize*(msgLength + 1)+enCharSize*5,inputWidth),0));
         Color bgColor = new Color(127, 82, 33);
         panelComponent.setBackgroundColor(bgColor);
-        if(getLen(jpMsg) > inputWidth) {
+        if(getLen(jpMsg) +japCharSize*4 +enCharSize*10> inputWidth) {
             String[] newMsgs = splitMsg(jpMsg);
             for (int i = 0;i < newMsgs.length; i++) {
                 if (i == newMsgs.length - 1) {
@@ -66,14 +66,22 @@ class ChatInputOverlay extends Overlay //remove abstract when actually making ov
     }
 
     private int getLen(String str) {
-        return str.length()*14;
+        return str.length()*japCharSize;
     }
 
-    private String[] splitMsg(String string) {//splits message into 2, first with length of chat input width, second (and third if needed) with remaining
-        String[] ret = {
-                string.substring(0, string.length() / 2),  // First half
-                string.substring(string.length() / 2)       // Second half
-        };
-        return ret;
+    private String[] splitMsg(String str) {//splits message
+        int chunkSize = inputWidth/japCharSize-4;
+        int length = str.length();
+        int numOfChunks = (int) Math.ceil((double) length / chunkSize);
+        String[] chunks = new String[numOfChunks];
+
+        // Split the string into chunks
+        for (int i = 0; i < numOfChunks; i++) {
+            int startIndex = i * chunkSize;
+            int endIndex = Math.min(startIndex + chunkSize, length);
+            chunks[i] = str.substring(startIndex, endIndex);
+        }
+
+        return chunks;
     }
 }

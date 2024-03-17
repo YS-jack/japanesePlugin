@@ -6,10 +6,7 @@ import javax.inject.Inject;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
-import net.runelite.api.events.BeforeRender;
-import net.runelite.api.events.ChatMessage;
-import net.runelite.api.events.ClientTick;
-import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.*;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
@@ -17,6 +14,7 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.game.ChatIconManager;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.ImageUtil;
+
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -41,8 +39,8 @@ public class JapanesePlugin extends Plugin{
     public JapaneseConfig config;
     @Inject
     private JapChar japChar;
-    @Inject
-    public RomToJap romToJap = new RomToJap();
+    @Inject @Getter
+    private RomToJap romToJap = new RomToJap();
     @Inject
     private OverlayManager overlayManager;
     @Inject @Getter
@@ -53,9 +51,8 @@ public class JapanesePlugin extends Plugin{
     private JapWidgets japWidgets;
     @Inject
     private ChatModifier chatModifier;
-    private Player player;
-    @Getter
-    private final JapTransforms japTransforms = new JapTransforms();
+    @Getter @Inject
+    private JapTransforms japTransforms = new JapTransforms();
     public final String separator = "--";
     @Getter
     protected final HashMap<String, Integer> japCharIds = new HashMap<>();    // colour-char(key) <-> CharIds(val)
@@ -181,6 +178,12 @@ public class JapanesePlugin extends Plugin{
 
         chatModifier.modifyChat(chatMessage);
 
+    }
+    @Subscribe
+    public void onOverheadTextChanged(OverheadTextChanged event){
+        String msg = event.getOverheadText();
+        String japaneseMsg = chatModifier.translateOverhead(msg);
+        event.getActor().setOverheadText(japaneseMsg);
     }
     @Override
     protected void startUp() throws Exception

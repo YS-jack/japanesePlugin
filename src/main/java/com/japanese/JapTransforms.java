@@ -29,6 +29,8 @@ public class JapTransforms {
     private Client client;
     @Inject
     JapanesePlugin japanesePlugin;
+    @Inject
+    private RomToJap romToJap;
 
     public void initTransHash() throws Exception {
         String transDataDir = "src/main/resources/com/japanese/translations/";
@@ -206,8 +208,12 @@ public class JapTransforms {
                 //log.info("enword = " + enStringLower);
                 return getW2WTranslation(enStringLower);
             case API:
+                return enString;
             case transliterate:
+                return enString;
             case alpToJap:
+                romToJap = japanesePlugin.getRomToJap();
+                return romToJap.romJpTransform(enStringLower, false);
             default:
                 return enString;
         }

@@ -29,8 +29,7 @@ public class ChatModifier {
     private JapanesePlugin japanesePlugin;
     @Inject
     @Setter
-    private JapTransforms japTransforms = new JapTransforms();
-
+    private JapTransforms japTransforms;
     @Inject
     private JapWidgets japWidgets = new JapWidgets();
     @Inject
@@ -38,7 +37,19 @@ public class ChatModifier {
     @Inject
     private Client client;
 
+    public String translateOverhead(String enMsg) {
+        transformOptions option = transformOptions.alpToJap;
+        String colorHex = Colors.yellow.getHex();
+        String enWithColors = "<col=" + colorHex + ">" + enMsg;
+
+        ChatIconManager iconManager = japanesePlugin.getChatIconManager();
+        HashMap<String, Integer> map = japanesePlugin.getJapCharIds();
+        JapTransforms jt = japanesePlugin.getJapTransforms();
+        return jt.getTransformWithColors(enWithColors, option, map, iconManager);
+    }
+
     public void modifyChat(ChatMessage chatMessage) {
+        transformOptions tranOp;
         switch (chatMessage.getType()) {
             case MESBOX:
                 //log.info("got a MESBOX");
@@ -46,6 +57,12 @@ public class ChatModifier {
             case DIALOG:
                 //log.info("got a DIALOG");
                 return;
+            case CLAN_GIM_GROUP_WITH:
+            case PUBLICCHAT:
+                tranOp = transformOptions.alpToJap;
+                break;
+            default:
+                tranOp = getChatConfig(chatMessage);
         }
         if (chatMessage.getMessageNode().getValue().startsWith("To talk in your Iron Group's channel, start each line of chat with " )) {
             String GIMName = client.getClanChannel(ClanID.GROUP_IRONMAN).getName();
@@ -58,7 +75,7 @@ public class ChatModifier {
             }
         }
 
-        String translatedTextWithColors = translateMessage(chatMessage);
+        String translatedTextWithColors = translateMessage(chatMessage, tranOp);
         String withBr = insertBr(translatedTextWithColors, chatMessage);
 
         MessageNode messageNode = chatMessage.getMessageNode();
@@ -66,7 +83,7 @@ public class ChatModifier {
         client.refreshChat();
     }
 
-    private String translateMessage(ChatMessage chatMessage) {
+    private String translateMessage(ChatMessage chatMessage, transformOptions option) {
         MessageNode messageNode = chatMessage.getMessageNode();
         String message = messageNode.getValue();
         String name = messageNode.getName();
@@ -80,8 +97,8 @@ public class ChatModifier {
 
         ChatIconManager iconManager = japanesePlugin.getChatIconManager();
         HashMap<String, Integer> map = japanesePlugin.getJapCharIds();
-        final transformOptions option = getChatConfig(chatMessage);
-        return japTransforms.getTransformWithColors(enWithColors, option, map, iconManager);
+        JapTransforms jt = japanesePlugin.getJapTransforms();
+        return jt.getTransformWithColors(enWithColors, option, map, iconManager);
     }
     private JapTransforms.transformOptions getChatConfig(ChatMessage chatMessage) {//todo:read from config
         return JapTransforms.transformOptions.wordToWord;

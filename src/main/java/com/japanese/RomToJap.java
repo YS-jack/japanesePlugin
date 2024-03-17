@@ -96,13 +96,15 @@ public class RomToJap {
         if (inputmsg.isEmpty()){
             return;
         }
-        chatJpMsg = romJpTransform(inputmsg);
+        String newMsg = romJpTransform(inputmsg, true);
+        if (!newMsg.isEmpty())
+            chatJpMsg = newMsg;
     }
-    public String romJpTransform(String romMsg) {
+    public String romJpTransform(String romMsg, boolean chatInput) {
         String hiraMsg = rom2Kat(romMsg);
-        List<String> ret = hira2Jp(hiraMsg);
+        List<String> ret = hira2Jp(hiraMsg, chatInput);
         if (ret == null)
-            return chatJpMsg;
+            return "";
         else {
             StringBuilder inputBuilder = new StringBuilder();
             for (String written : ret)
@@ -230,11 +232,11 @@ public class RomToJap {
         katBuilder.append(romBuilder.toString());
         return katBuilder.toString();
     }
-    private List<String> hira2Jp(String hiraMsg) {//hiragana list to kanji sentence
+    private List<String> hira2Jp(String hiraMsg, boolean chatInput) {//hiragana list to kanji sentence
         String[] wordList = getWakatiGaki(hiraMsg);//get katakana text split with symbols, space attached at the end of each string if its katakana or numbers
         //eg of wordList : "強烈はぴはぴ閾値" "、," "凄く"  "!/" "だよ" "、" "kaka" "クェスト00" "やり" "33" "," "ましょう"
         List<String> wordListList = Arrays.asList(getWakatiGaki(hiraMsg));
-        if (compareLists(wordListList, prevHiraList))
+        if (compareLists(wordListList, prevHiraList) && chatInput)
             return null;
         int startIndex = searchFirstDif(wordList);
         if (startIndex < 1)
@@ -244,7 +246,7 @@ public class RomToJap {
         for (int i = startIndex; i < wordList.length; i++) {
             String word = wordList[i];
             last = i == wordList.length - 1;
-            FourValues FVword = getMatch(word, last);
+            FourValues FVword = getMatch(word, last, chatInput);
             changedList.add(FVword.written);
         }
         List<String> sublistPrevJPList = prevJPList.subList(0, startIndex);
@@ -257,8 +259,8 @@ public class RomToJap {
         return combindedList;
     }
 
-    private FourValues getMatch(String word, boolean last){//the last word in wordList
-        FourValues FVofWord = new FourValues(word,word,notAvailable,-1);
+    private FourValues getMatch(String word, boolean last, boolean chatInput){//the last word in wordList
+        FourValues FVofWord = new FourValues(word.trim().replaceAll("\\d",""),word.trim().replaceAll("\\d",""),notAvailable,-1);
         List<FourValues> newCandidates = new ArrayList<>();
         newCandidates.add(FVofWord);
         if (word.matches("[\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}]+\\d+$") ||//if theres a number at the end of strings, set candidate to that
@@ -275,28 +277,35 @@ public class RomToJap {
                 candidateSelectionN = spacePart.length() - 1;
                 wordPart = word.split(" +$")[0];
             }
-            kanjKatCandidates.clear();
+            if (chatInput)
+                kanjKatCandidates.clear();
             newCandidates.addAll(getCandidates(wordPart));
 
-            if (newCandidates.size() < candidateSelectionN) //if the selection is too large, return the last cand
+            if (newCandidates.size() -1< candidateSelectionN) //if the selection is too large, return the last cand
                 candidateSelectionN = newCandidates.size() - 1;
 
             if (last) {
-                instCandidateSelection = candidateSelectionN;
+                if (chatInput)
+                    instCandidateSelection = candidateSelectionN;
                 for (FourValues fv : newCandidates)
-                    kanjKatCandidates.add(fv.written);
-            } else
+                    if (chatInput)
+                        kanjKatCandidates.add(fv.written);
+            } else if (chatInput)
                 instCandidateSelection = -1;
             return newCandidates.get(candidateSelectionN);
 
-        } else { //no number nor space at the end, add it as hiragana if its not the last word, if last word then look for candidates
+        } else { //no japanese + number nor space at the end, add it as hiragana if its not the last word, if last word then look for candidates
             if (last) {//if its the last word on wordList, update candidates shown by overlay
-                instCandidateSelection = -1;
+                if (chatInput)
+                    instCandidateSelection = -1;
                 newCandidates.addAll(getCandidates(word));
-                kanjKatCandidates.clear();
+                if (chatInput)
+                    kanjKatCandidates.clear();
                 for (FourValues fv : newCandidates)
-                    kanjKatCandidates.add(fv.written);
-                instCandidateSelection = -1;
+                    if (chatInput)
+                        kanjKatCandidates.add(fv.written);
+                if (chatInput)
+                    instCandidateSelection = -1;
             }
             return FVofWord;
         }
@@ -305,18 +314,18 @@ public class RomToJap {
         List<FourValues> matches;
         List<FourValues> newCandidates = new ArrayList<>();
 
-        matches = getAllMatches(word);//get all exact matches
+        matches = getAllMatches(word, 999);//get all exact matches
         newCandidates.addAll(matches);
 
         if (newCandidates.size() < 6) {//if not many candidates, get matches that begin with the last wordPart
             // (the last wordPart might be in the middle of being typed
-            matches = getAllBeginningWith(word);
+            matches = getAllBeginningWith(word,5);
             newCandidates.addAll(matches);
         }
         newCandidates.sort(new compareFV());
-        if (newCandidates.size() < 10) {//if still not many candidates
+        if (newCandidates.size() < 15) {//if still not many candidates
             // (the last wordPart might be in the middle of being typed
-            int nWordsToAdd = 10 - newCandidates.size();
+            int nWordsToAdd = 15 - newCandidates.size();
             List<FourValues> containedAndExtra;
             containedAndExtra = getAllContaining(word, nWordsToAdd); // get all words that is contained within "wordPart"
             newCandidates.addAll(containedAndExtra);
@@ -351,37 +360,57 @@ public class RomToJap {
         // If all elements match, lists are equal
         return true;
     }
-    private List<FourValues> getAllMatches(String kata) {
+    private List<FourValues> getAllMatches(String kata, int nToAdd) {
         List<FourValues> matches = new ArrayList<>();
+        int count = 0;
         for (FourValues entry: japCharDS) {
+            if (count > nToAdd)
+                break;
             if (entry.read.equals(kata)){
-                if (matches.isEmpty())
+                if (matches.isEmpty()) {
+                    count++;
                     matches.add(entry);
-                else if (matches.get(matches.size() - 1).rank + 9 < entry.rank)//dont add if the word is only different tense of the previous
+                }
+                else if (matches.get(matches.size() - 1).rank + 9 < entry.rank) {//dont add if the word is only different tense of the previous
+                    count++;
                     matches.add(entry);
+                }
             }
         }
         return matches;
     }
-    private List<FourValues> getAllBeginningWith(String kata) {
+    private List<FourValues> getAllBeginningWith(String kata, int nToAdd) {
         List<FourValues> matches = new ArrayList<>();
-        for (FourValues entry: japCharDS)
-            if (entry.read.startsWith(kata) && !entry.read.equals(kata))
+        int count = 0;
+        for (FourValues entry: japCharDS) {
+            if (count > nToAdd)
+                break;
+            if (entry.read.startsWith(kata) && !entry.read.equals(kata)) {
+                count++;
                 matches.add(entry);
+            }
+        }
         return matches;
     }
     private List<FourValues> getAllContaining(String kata, int nToAdd) {//returns a substring 0:x that is in japCharDS, and add it to substring x:
         List<FourValues> matches = new ArrayList<>();
-        for (int i = kata.length() - 1; i >= 0; i--) {
+        int count = 0;
+        for (int i = kata.length() - 1; i >= 0 && count < nToAdd; i--) {
             String substring = kata.substring(0,i);
             for (FourValues entry: japCharDS)
-                if (entry.read.equals(substring) && matches.size() < nToAdd) {
+                if (entry.read.equals(substring)) {
                     FourValues addingFV = new FourValues(entry.written + kata.substring(i),
                             entry.written + kata.substring(i), notAvailable, entry.rank);
-                    if (matches.isEmpty())
+                    if (matches.isEmpty()) {
                         matches.add(addingFV);
-                    else if (matches.get(matches.size() - 1).rank + 3 < addingFV.rank)//only add few of the word is only different tense of the previous
+                        count++;
+                    }
+                    else if (matches.get(matches.size() - 1).rank + 3 < addingFV.rank) {//only add few of the word is only different tense of the previous
+                        count++;
+                        if(count > nToAdd)
+                            break;
                         matches.add(addingFV);
+                    }
                 }
         }
         return matches;
