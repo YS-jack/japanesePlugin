@@ -1,23 +1,18 @@
 package com.japanese;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
-import net.runelite.api.GameState;
 import net.runelite.client.game.ChatIconManager;
 
 import javax.inject.Inject;
-import java.awt.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.List;
-import com.japanese.JapaneseConfig.*;
 
 @Slf4j
 public class JapTransforms {
-    private HashMap<String, String> knownDeepL;
+    public HashMap<String, String> knownAPI;
     private HashMap<String, String> knownDirect;
     private HashMap<String, String> directWord;
     private HashMap<String, String> menuOptionTran;
@@ -27,15 +22,18 @@ public class JapTransforms {
     public HashMap<String, String> knownChatButtonSkillTranslation;
     @Inject
     private Client client;
+
     @Inject
     JapanesePlugin japanesePlugin;
     @Inject
     private RomToJap romToJap;
+    @Inject
+    private ApiTranslate apiTranslate;
 
     public void initTransHash() throws Exception {
         String transDataDir = "src/main/resources/com/japanese/translations/";
-        knownDeepL = new HashMap<>();
-        putToDictHash(knownDeepL, transDataDir, "KnownDeepLTranslations.csv");
+        knownAPI = new HashMap<>();
+        putToDictHash(knownAPI, transDataDir, "KnownAPITranslations.csv");
         knownDirect = new HashMap<>();
         putToDictHash(knownDirect, transDataDir , "KnownDirectTranslations.csv","SkillTranslations.csv");
         directWord = new HashMap<>();
@@ -88,7 +86,7 @@ public class JapTransforms {
         //transliterate : similar to alpToJap, but output will all be Katakana form
     }
 
-    public void messageIngame(String str, String colorName) {
+    public void messageIngame(String str, String colorName) throws Exception {
         String colorHex = Colors.fromName(colorName).getHex();
         String enWithColors = "<col=" + colorHex + ">" + str;
         ChatIconManager iconManager = japanesePlugin.getChatIconManager();
@@ -99,16 +97,16 @@ public class JapTransforms {
     //returns concat of "img<color--##.png>"
     //input String enWithColors example : <col=ffffff>Mama Layla<col=ffff00>  (level-3)
     public String getTransformWithColors(String enWithColors, transformOptions transOpt,
-                                         HashMap<String, Integer> hashMap, ChatIconManager chatIconManager) {
+                                         HashMap<String, Integer> hashMap, ChatIconManager chatIconManager) throws Exception {
         return getTWCchild(enWithColors, transOpt,hashMap, chatIconManager, null);
     }
     public String getTransformWithColors(String enWithColors, transformOptions transOpt,
-                                         HashMap<String, Integer> hashMap, ChatIconManager chatIconManager, HashMap<String,String> map) {
+                                         HashMap<String, Integer> hashMap, ChatIconManager chatIconManager, HashMap<String,String> map) throws Exception {
         return getTWCchild(enWithColors, transOpt,hashMap, chatIconManager, map);
     }
     private String getTWCchild(String enWithColors, transformOptions transOpt,
                                HashMap<String, Integer> hashMap, ChatIconManager chatIconManager,
-                               HashMap<String,String> specifiedMap){
+                               HashMap<String,String> specifiedMap) throws Exception {
         if (enWithColors.contains("<img=")){//ignore if its already in japanese
             return enWithColors;
         }
@@ -136,7 +134,7 @@ public class JapTransforms {
         ////log.info("\n");
         return imgTagStrings.toString();
     }
-    private String[][] getColorWordArray(String enWithColors, transformOptions transOpt, HashMap<String,String> specifiedMap) {
+    private String[][] getColorWordArray(String enWithColors, transformOptions transOpt, HashMap<String,String> specifiedMap) throws Exception {
         int colorTagNum = enWithColors.split(">").length - 1;
         String[][] colorWords;// = {{"ffffff","White string"},{"ff0000","red"},...}
         if (colorTagNum == 0) {
@@ -193,7 +191,7 @@ public class JapTransforms {
         return  wordArray;
     }
 
-    private String transform(String enString, transformOptions transOpt, HashMap<String,String> specifiedMap) {
+    private String transform(String enString, transformOptions transOpt, HashMap<String,String> specifiedMap) throws Exception {
         String enStringLower = enString.toLowerCase();
         if(specifiedMap != null) {
             if (specifiedMap.containsKey(enStringLower)) {
@@ -208,7 +206,7 @@ public class JapTransforms {
                 //log.info("enword = " + enStringLower);
                 return getW2WTranslation(enStringLower);
             case API:
-                return enString;
+                return japanesePlugin.getApiTranslate().getDeepl(enString, "en", "ja");
             case transliterate:
                 return enString;
             case alpToJap:
@@ -235,9 +233,9 @@ public class JapTransforms {
         } else if (itemNpcTran.containsKey((en))) {
             //log.info("found in ItemNpcTran");
             return itemNpcTran.get(en);
-        } else  if (knownDeepL.containsKey(en)) {
+        } else  if (knownAPI.containsKey(en)) {
             //log.info("found in knownDeepl");
-            return knownDeepL.get(en);
+            return knownAPI.get(en);
         } else {//if not translated before,
             //1. use api translator on the whole sentence if enabled
               //todo

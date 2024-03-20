@@ -2,26 +2,19 @@ package com.japanese;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.MessageNode;
 import net.runelite.api.events.ChatMessage;
-import net.runelite.api.widgets.ComponentID;
 
-import com.japanese.JapanesePlugin;
 import com.japanese.JapTransforms.transformOptions;
-import com.japanese.JapWidgets;
 import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.game.ChatIconManager;
 import net.runelite.api.clan.ClanID;
 
 import javax.inject.Inject;
-import java.awt.*;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static java.lang.Math.floor;
 
 @Slf4j
 public class ChatModifier {
@@ -37,7 +30,7 @@ public class ChatModifier {
     @Inject
     private Client client;
 
-    public String translateOverhead(String enMsg) {
+    public String translateOverhead(String enMsg) throws Exception {
         transformOptions option = transformOptions.alpToJap;
         String colorHex = Colors.yellow.getHex();
         String enWithColors = "<col=" + colorHex + ">" + enMsg;
@@ -48,7 +41,7 @@ public class ChatModifier {
         return jt.getTransformWithColors(enWithColors, option, map, iconManager);
     }
 
-    public void modifyChat(ChatMessage chatMessage) {
+    public void modifyChat(ChatMessage chatMessage) throws Exception {
         transformOptions tranOp;
         switch (chatMessage.getType()) {
             case MESBOX:
@@ -60,6 +53,11 @@ public class ChatModifier {
             case CLAN_GIM_GROUP_WITH:
             case PUBLICCHAT:
                 tranOp = transformOptions.alpToJap;
+                break;
+            case ITEM_EXAMINE:
+            case NPC_EXAMINE:
+            case OBJECT_EXAMINE:
+                tranOp = transformOptions.API;
                 break;
             default:
                 tranOp = getChatConfig(chatMessage);
@@ -81,9 +79,10 @@ public class ChatModifier {
         MessageNode messageNode = chatMessage.getMessageNode();
         messageNode.setRuneLiteFormatMessage(withBr);
         client.refreshChat();
+
     }
 
-    private String translateMessage(ChatMessage chatMessage, transformOptions option) {
+    private String translateMessage(ChatMessage chatMessage, transformOptions option) throws Exception {
         MessageNode messageNode = chatMessage.getMessageNode();
         String message = messageNode.getValue();
         String name = messageNode.getName();
@@ -98,7 +97,26 @@ public class ChatModifier {
         ChatIconManager iconManager = japanesePlugin.getChatIconManager();
         HashMap<String, Integer> map = japanesePlugin.getJapCharIds();
         JapTransforms jt = japanesePlugin.getJapTransforms();
-        return jt.getTransformWithColors(enWithColors, option, map, iconManager);
+
+        if (option == transformOptions.API && !japanesePlugin.getJapTransforms().knownAPI.containsKey(message.toLowerCase())) {
+            Thread thread = new Thread(() -> {
+                try {
+                   String ret = jt.getTransformWithColors(enWithColors, option, map, iconManager);
+                    String withBr = insertBr(ret, chatMessage);
+
+                    MessageNode messageNode2 = chatMessage.getMessageNode();
+                    messageNode2.setRuneLiteFormatMessage(withBr);
+                    client.refreshChat();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            thread.setDaemon(false);
+            thread.start();
+            return message;
+        }else
+            return jt.getTransformWithColors(enWithColors, option, map, iconManager);
     }
     private JapTransforms.transformOptions getChatConfig(ChatMessage chatMessage) {//todo:read from config
         return JapTransforms.transformOptions.wordToWord;

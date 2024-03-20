@@ -48,7 +48,11 @@ public class JapanesePlugin extends Plugin{
     @Inject
     private KatKanjCandiOvl katKanjCandiOvl;
     @Inject
+    private APICountOverlay apiCountOverlay;
+    @Inject
     private JapWidgets japWidgets;
+    @Inject @Getter
+    private ApiTranslate apiTranslate;
     @Inject
     private ChatModifier chatModifier;
     @Getter @Inject
@@ -82,7 +86,7 @@ public class JapanesePlugin extends Plugin{
 //        log.info("end of making character image hashmap");
 //    }
 
-    private String[] getNewMenuEntryString(MenuEntry event) {
+    private String[] getNewMenuEntryString(MenuEntry event) throws Exception {
         String[] newOptTar = new String[2];
         transformOptions targetTranOption;
         if(event.getTarget().isEmpty()) {//the event is for walk here or cancel
@@ -166,13 +170,13 @@ public class JapanesePlugin extends Plugin{
     }
 
     @Subscribe
-    private void onBeforeRender(BeforeRender event) throws IOException {
+    private void onBeforeRender(BeforeRender event) throws Exception {
         //null to look through everything, otherwise specify widget parent not to search through for texts
         japWidgets.changeWidgetTexts(null);
     }
 
     @Subscribe
-    public void onChatMessage(ChatMessage chatMessage){
+    public void onChatMessage(ChatMessage chatMessage) throws Exception {
         if (client.getGameState() != GameState.LOGGED_IN && client.getGameState() != GameState.HOPPING)
             return;
 
@@ -180,7 +184,7 @@ public class JapanesePlugin extends Plugin{
 
     }
     @Subscribe
-    public void onOverheadTextChanged(OverheadTextChanged event){
+    public void onOverheadTextChanged(OverheadTextChanged event) throws Exception {
         String msg = event.getOverheadText();
         String japaneseMsg = chatModifier.translateOverhead(msg);
         event.getActor().setOverheadText(japaneseMsg);
@@ -191,10 +195,13 @@ public class JapanesePlugin extends Plugin{
         log.info("start of plugin");
         japTransforms.initTransHash();
         romToJap.initRom2JpHash();
+        apiTranslate.apiCountInit();
+
         japWidgets.setJapTransforms(japTransforms);
         chatModifier.setJapTransforms(japTransforms);
         overlayManager.add(chatInputOverlay);
         overlayManager.add(katKanjCandiOvl);
+        overlayManager.add(apiCountOverlay);
         loadJapChar();
 
     }

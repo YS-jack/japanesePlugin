@@ -6,7 +6,6 @@ import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.ComponentID;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,17 +34,17 @@ public class JapWidgets {
     @Inject
     JapanesePlugin japanesePlugin;
     private int count = 0; //count how many widgets there are, for testing
-    public void changeWidgetTexts(Widget widgetExceptions) throws IOException { //widgetExceptions = parent widgets to ignore searching for texts
+    public void changeWidgetTexts(Widget widgetExceptions) throws Exception { //widgetExceptions = parent widgets to ignore searching for texts
         collectWidgetIdsWithText();//for collecting ids, only for development
     }
 
-    private void collectWidgetIdsWithText() throws IOException {//for collecting ids, only for development
+    private void collectWidgetIdsWithText() throws Exception {//for collecting ids, only for development
         Widget[] roots = client.getWidgetRoots();
         for (Widget root : roots) {
             changeEndChildTextAndRecord(root);
         }
     }
-    private void changeEndChildTextAndRecord(Widget widget) throws IOException {//for collecting ids, only for development
+    private void changeEndChildTextAndRecord(Widget widget) throws Exception {//for collecting ids, only for development
         if(!widget.isHidden()&& widget.getId() != ComponentID.CHATBOX_MESSAGE_LINES) {//
             if (widget.getId() == ComponentID.CHATBOX_INPUT) {
                 japanesePlugin.getRomToJap().drawOverlay(widget);
@@ -143,6 +142,8 @@ public class JapWidgets {
         if (width <= 0 )
             return;
         int charPerLine = width/14;
+        if (charPerLine <= 0)
+            return;
         StringBuilder stringBuilder = new StringBuilder();
         String[] imgArray = extractImg(str);
         if (imgArray.length > 2) {
@@ -195,7 +196,7 @@ public class JapWidgets {
         }
         return images.toArray(new String[0]);
     }
-    private String getImageText (Widget widget) {//automatically inserts <br> regarding the width of widget
+    private String getImageText (Widget widget) throws Exception {//automatically inserts <br> regarding the width of widget
         String colorHex = getColorHex(widget);
         String str = widget.getText().trim();
         String translatedTextWithColors;
@@ -206,7 +207,7 @@ public class JapWidgets {
         translatedTextWithColors = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager);
         return translatedTextWithColors;
     }
-    private String changeWidgetTextsWithBr(Widget widget) {//if widget contains multiple lines, breaks line of output as well
+    private String changeWidgetTextsWithBr(Widget widget) throws Exception {//if widget contains multiple lines, breaks line of output as well
         String[] textBrSeparated = widget.getText().trim().split("<br>");
         String colorHex = getColorHex(widget);
         StringBuilder imgBuild = new StringBuilder();
@@ -272,7 +273,7 @@ public class JapWidgets {
                 replace("<","").replace(">","");
     }
 
-    private transformOptions getWidgetTransformConfig(Widget widget) {
+    private transformOptions getWidgetTransformConfig(Widget widget) throws Exception {
 
         Widget g5Parent = getGrandNParent(widget, 5);
         if (g5Parent != null) {
