@@ -2,6 +2,7 @@ package com.japanese;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.MessageNode;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.ComponentID;
 
@@ -9,6 +10,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import net.runelite.api.Client;
 
@@ -34,20 +36,38 @@ public class JapWidgets {
     @Inject
     JapanesePlugin japanesePlugin;
     private int count = 0; //count how many widgets there are, for testing
+    private List<String> stringTranslatingInThread = new ArrayList<>();
+    public List<Widget> dialogOptionWidgets = new ArrayList<>();
+    public boolean displayDialog = false;
+    private int dialogDisplayCount = 0;
     public void changeWidgetTexts(Widget widgetExceptions) throws Exception { //widgetExceptions = parent widgets to ignore searching for texts
-        collectWidgetIdsWithText();//for collecting ids, only for development
-    }
-
-    private void collectWidgetIdsWithText() throws Exception {//for collecting ids, only for development
+        dialogDisplayCount = 0;
+        int localDialogCount = dialogDisplayCount;
         Widget[] roots = client.getWidgetRoots();
         for (Widget root : roots) {
             changeEndChildTextAndRecord(root);
         }
+        displayDialog = dialogDisplayCount != localDialogCount;
+        //log.info("displayDialog=" + displayDialog);
     }
     private void changeEndChildTextAndRecord(Widget widget) throws Exception {//for collecting ids, only for development
-        if(!widget.isHidden()&& widget.getId() != ComponentID.CHATBOX_MESSAGE_LINES) {//
-            if (widget.getId() == ComponentID.CHATBOX_INPUT) {
+        if(!widget.isHidden()
+                && widget.getId() != ComponentID.CHATBOX_MESSAGE_LINES
+                //&& widget.getId() != ComponentID.CHATBOX_FRAME
+        ){//
+            if (widget.getId() == ComponentID.CHATBOX_INPUT && japanesePlugin.config.selfConfig().equals(JapaneseConfig.ChatConfigSelf.ローマ字変換))
                 japanesePlugin.getRomToJap().drawOverlay(widget);
+
+            if (widget.getId() == ComponentID.DIALOG_OPTION_OPTIONS){//dialog options are shown via overlay, so quest helper selection is visible
+                //log.info("found dialog option:" + widget.getParentId());
+                Widget[] dialogOptions = widget.getDynamicChildren();
+                dialogDisplayCount++;
+                displayDialog = true;
+                if (!dialogOptionWidgets.equals(Arrays.asList(dialogOptions))) {
+                    dialogOptionWidgets.clear();
+                    dialogOptionWidgets.addAll(Arrays.asList(dialogOptions));
+                }
+                return;
             }
             Widget[] dynamicChildren = widget.getDynamicChildren();
             Widget[] nestedChildren = widget.getNestedChildren();
@@ -56,10 +76,15 @@ public class JapWidgets {
             for (Widget nestedChild : nestedChildren) {changeEndChildTextAndRecord(nestedChild);}
             for (Widget staticChild : staticChildren) {changeEndChildTextAndRecord(staticChild);}
 
-            if (widget.getId() == ComponentID.CHATBOX_REPORT_TEXT)
-                return;
+
             String widgetText = widget.getText();
             if (widgetText != null) {
+                if (widget.getId() == ComponentID.CHATBOX_REPORT_TEXT
+                        ||getWidgetTransformConfig(widget) == transformOptions.doNothing
+                        ||(client.getLocalPlayer().getName()!=null && widget.getText().equals(client.getLocalPlayer().getName()))//if its player name then leave it
+                )
+                    return;
+
                 if (!widgetText.isEmpty() && !widgetText.isBlank() && !widgetText.contains("<img=")) {//if widgetText contains text
 //                    if (widget.getParent().getId() == 14024705 || widget.getParent().getId() == 14024714) { //parent of skill guide, or parent of element in list
 //                        String dir = "src/main/resources/com/japanese/dump/";
@@ -68,6 +93,9 @@ public class JapWidgets {
 //                        writeToFile(widgetText + "|", dir + "skillGuideDump.txt");
 //                    }
                     //check for specific widget
+                    if (widgetText.toLowerCase().contains("hail, group iron man!"))
+                        log.info("found hail, group iron man!");
+                    //log.info(widgetText);
                     if (getGrandNParent(widget,4) != null) {
                         if (getGrandNParent(widget, 4).getId() == ComponentID.SETTINGS_INIT) {
                             if (widget.getText().matches("F\\d{1,2}") || widget.getText().equals("ESC"))
@@ -107,8 +135,10 @@ public class JapWidgets {
                                         widget.setRelativeY(yPos + 3);
                                     }
                                 }
-                                translatedTextWithColors = changeWidgetTextsWithBr(widget);//returns <img> with <br>
-                                widget.setText(translatedTextWithColors);
+                                boolean setbr = false;
+                                changeWidgetTextsWithBr(widget, setbr);
+//                                translatedTextWithColors = changeWidgetTextsWithBr(widget, setbr);//returns <img> with <br>
+                                //widget.setText(translatedTextWithColors);
                                 return;
                             }
                             if (grandParentId == ComponentID.CHATBOX_BUTTONS) {
@@ -126,11 +156,13 @@ public class JapWidgets {
                     }
 
                     //first argument of getTransformWithColors example : <col=ffffff>Mama Layla<col=ffff00>  (level-3)
-                    widget.setText(removeTag(widgetText));
-                    translatedTextWithColors = changeWidgetTextsWithBr(widget);
-                    widget.setText(translatedTextWithColors);
-
-                    insertBrAfterTransform(widget);
+                    //widget.setText(removeTag(widgetText));
+                    boolean setbr = true;
+                    changeWidgetTextsWithBr(widget, setbr);
+//                    translatedTextWithColors = changeWidgetTextsWithBr(widget);
+//                    widget.setText(translatedTextWithColors);
+//
+//                    insertBrAfterTransform(widget);
                     //setNiceWidgetHeight(widget);
                 }
             }
@@ -204,60 +236,131 @@ public class JapWidgets {
         ChatIconManager iconManager = japanesePlugin.getChatIconManager();
         HashMap<String, Integer> map = japanesePlugin.getJapCharIds();
         transformOptions option = getWidgetTransformConfig(widget);
-        translatedTextWithColors = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager);
-        return translatedTextWithColors;
-    }
-    private String changeWidgetTextsWithBr(Widget widget) throws Exception {//if widget contains multiple lines, breaks line of output as well
-        String[] textBrSeparated = widget.getText().trim().split("<br>");
-        String colorHex = getColorHex(widget);
-        StringBuilder imgBuild = new StringBuilder();
-        int lastStringLen = 0;
-        for (int i = 0; i<textBrSeparated.length; i++) {
-            String text = textBrSeparated[i];
-            if (text.isEmpty() || text.matches("<col=(\\d)>")) {
-                imgBuild.append("<br>");
-                lastStringLen = 0;
-            } else {
-                if(lastStringLen >0){
-                    imgBuild.append("<br>");
-                }
-                text = removeTag(text);
-                lastStringLen = text.length();
-                if (text.matches("^[0-9,]+$")) {
-                    //log.info("only contains int and commas");
-                    imgBuild.append(text);
-                    continue;
-                }
-                String enWithColors = "<col=" + colorHex + ">" + text;
-                //log.info("enWithColors = " + enWithColors);
-                ChatIconManager iconManager = japanesePlugin.getChatIconManager();
-                HashMap<String, Integer> map = japanesePlugin.getJapCharIds();
-                transformOptions option = getWidgetTransformConfig(widget);
-                String w;
-                //if texts inside settings
-                Widget grandParent = getGrandNParent(widget,4);
-                if (grandParent != null) {
-                    if (grandParent.getId() == ComponentID.SETTINGS_INIT) {
-                        HashMap<String, String> settingHash = japTransforms.knownSettingTranslation;
-                        w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, settingHash);
-                        imgBuild.append(w);
-                        continue;
+
+        if (option == transformOptions.API &&
+                !japanesePlugin.getJapTransforms().knownAPI.containsKey(str.toLowerCase()) ) {
+            if(!stringTranslatingInThread.contains(widget.getText())) {
+                stringTranslatingInThread.add(widget.getText());
+                Thread thread = new Thread(() -> {
+                    try {
+                        if (removeTag(widget.getText()).isEmpty())
+                            return;
+                        String ret = japanesePlugin.getJapTransforms().getTransformWithColors(enWithColors, option, map, iconManager);
+                        //String withBr = insertBr(ret, chatMessage);
+                        widget.setText(ret);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
                     }
-                }
-                grandParent = getGrandNParent(widget, 2);
-                if (grandParent != null) {
-                    if (grandParent.getId() == ComponentID.CHATBOX_BUTTONS || grandParent.getId() == ComponentID.SKILLS_CONTAINER) {
-                        HashMap<String, String> settingHash = japTransforms.knownChatButtonSkillTranslation;
-                        w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, settingHash);
-                        imgBuild.append(w);
-                        continue;
-                    }
-                }
-                w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager);
-                imgBuild.append(w);
+                });
+
+                thread.setDaemon(false);
+                thread.start();
             }
+            return widget.getText();
         }
-        return imgBuild.toString();
+        else {
+            translatedTextWithColors = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager);
+            return translatedTextWithColors;
+        }
+    }
+    private void changeWidgetTextsWithBr(Widget widget, boolean setbr) throws Exception {//if widget contains multiple lines, breaks line of output as well
+        transformOptions option = getWidgetTransformConfig(widget);
+        String textBr2Space = widget.getText().replace("<br>"," ").trim();
+
+        if (option == transformOptions.API && !japanesePlugin.getJapTransforms().knownAPI.containsKey(textBr2Space)) {
+
+            if(!stringTranslatingInThread.contains(textBr2Space)) {
+                stringTranslatingInThread.add(textBr2Space);
+                Thread thread = new Thread(() -> {//process with new thread because games freezes while waiting for api response
+                    try {
+                        if (removeTag(widget.getText()).isEmpty())
+                            return;
+                        if(widget.getText().toLowerCase().contains("hail"))
+                            log.info("found hail gim");
+                        String stringToShow = getNewTextWithBr(widget, option);
+                        widget.setText(stringToShow);
+                        insertBrAfterTransform(widget);
+                        stringTranslatingInThread.remove(textBr2Space);
+
+                        //widget.setHidden(false);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+                thread.setDaemon(false);
+                thread.start();
+
+                //widget.setHidden(true);
+            }
+            return;
+        }
+        String translatedTextWithColors = getNewTextWithBr(widget, option);
+        widget.setText(translatedTextWithColors);
+        insertBrAfterTransform(widget);
+    }
+
+    private String getNewTextWithBr(Widget widget, transformOptions option) throws Exception {
+        String textSpaceNotBr = widget.getText().replace("<br>"," ").trim();
+        textSpaceNotBr = removeTag(textSpaceNotBr);
+        String colorHex = getColorHex(widget);
+        if (textSpaceNotBr.toLowerCase().contains("hail, group iron man!"))
+            log.info("found the dialog");
+//        StringBuilder imgBuild = new StringBuilder();
+//        int lastStringLen = 0;
+        ChatIconManager iconManager = japanesePlugin.getChatIconManager();
+        HashMap<String, Integer> map = japanesePlugin.getJapCharIds();
+//        for (int i = 0; i<textBrSeparated.length; i++) {
+//            String text = textBrSeparated[i];
+//        if (textSpaceNotBr.isEmpty() || textSpaceNotBr.matches("<col=(\\d)>")) {
+//            imgBuild.append("<br>");
+//            lastStringLen = 0;
+//        } else {
+//            if(lastStringLen >0){
+//                imgBuild.append("<br>");
+//            }
+
+//            textSpaceNotBr = removeTag(text);
+//            lastStringLen = text.length();
+//            if (textSpaceNotBr.matches("^[0-9,]+$")) {
+//                //log.info("only contains int and commas");
+//                imgBuild.append(textSpaceNotBr);
+//                continue;
+//            }
+        String enWithColors = "<col=" + colorHex + ">" + textSpaceNotBr;
+        //log.info("enWithColors = " + enWithColors);
+//        String w;
+        if (option != transformOptions.API) {
+            Widget grandParent = getGrandNParent(widget, 4);
+            if (grandParent != null) {//for setting
+                if (grandParent.getId() == ComponentID.SETTINGS_INIT) {
+                    HashMap<String, String> settingHash = japTransforms.knownSettingTranslation;
+//                    w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, settingHash);
+//                    imgBuild.append(w);
+//                        continue;
+                    return japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, settingHash);
+                }
+            }
+            grandParent = getGrandNParent(widget, 2);
+            if (grandParent != null) {//for chat buttons
+                if (grandParent.getId() == ComponentID.CHATBOX_BUTTONS || grandParent.getId() == ComponentID.SKILLS_CONTAINER) {
+                    HashMap<String, String> settingHash = japTransforms.knownChatButtonSkillTranslation;
+//                    w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, settingHash);
+//                    imgBuild.append(w);
+//                        continue;
+                    return japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, settingHash);
+                }
+            }
+            //add other screen if needed
+        }
+
+            //for non setting/chat widgets
+//            w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager);
+
+        return japTransforms.getTransformWithColors(enWithColors, option, map, iconManager);
+//            imgBuild.append(w);
+////        }
+////        }
+//        return imgBuild.toString();
     }
     String getColorHex(Widget widget) {
         int widgetColor = widget.getTextColor();
@@ -273,34 +376,47 @@ public class JapWidgets {
                 replace("<","").replace(">","");
     }
 
-    private transformOptions getWidgetTransformConfig(Widget widget) throws Exception {
+    public transformOptions getWidgetTransformConfig(Widget widget) throws Exception {
 
         Widget g5Parent = getGrandNParent(widget, 5);
-        if (g5Parent != null) {
-            if (g5Parent.getId() == ComponentID.CHATBOX_MESSAGES) {
-                if (japanesePlugin.config.npcDialogueConfig() == JapaneseConfig.GameTextProcessChoice.簡易翻訳) {
+        if (g5Parent != null) {//for chat dialogs
+            if (g5Parent.getId() == ComponentID.CHATBOX_MESSAGES || widget.getParentId() == ComponentID.DIALOG_OPTION_OPTIONS) {
+                if (japanesePlugin.config.npcDialogueConfig() == JapaneseConfig.GameTextProcessChoice.簡易翻訳)
                     return transformOptions.wordToWord;
-                }
-                if (japanesePlugin.config.npcDialogueConfig() == JapaneseConfig.GameTextProcessChoice.そのまま) {
+                if (japanesePlugin.config.npcDialogueConfig() == JapaneseConfig.GameTextProcessChoice.そのまま)
                     return transformOptions.doNothing;
-                }
-                if (japanesePlugin.config.npcDialogueConfig() == JapaneseConfig.GameTextProcessChoice.API翻訳) {
-                    return transformOptions.API;
+                if (japanesePlugin.config.npcDialogueConfig() == JapaneseConfig.GameTextProcessChoice.DeepL翻訳) {
+                    if (japanesePlugin.getApiTranslate().deeplCount < japanesePlugin.getApiTranslate().deeplLimit-500)
+                        return transformOptions.API;
+                    else {
+                        if (japanesePlugin.config.translatorOption() == JapaneseConfig.TranslatorConfig.簡易翻訳)
+                            return transformOptions.wordToWord;
+                        else
+                            return transformOptions.doNothing;
+                    }
                 } else {
                     japTransforms.messageIngame("開発者に報告してください：JapWidgets getWidgetTransformConfig エラー", "red");
                     return transformOptions.wordToWord;
                 }
             }
-        }
-        if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.GameTextProcessChoice.簡易翻訳) {
+        } // for every other widgets, such as interfaces, buttons, etc
+        if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.jpEnChoice.日本語)
             return transformOptions.wordToWord;
-        }
-        if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.GameTextProcessChoice.そのまま) {
+
+        if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.jpEnChoice.英語)
             return transformOptions.doNothing;
-        }
-        if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.GameTextProcessChoice.API翻訳) {
-            return transformOptions.API;
-        } else {
+
+//        if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.GameTextProcessChoice.DeepL翻訳) {
+//            if (japanesePlugin.getApiTranslate().deeplCount < japanesePlugin.getApiTranslate().deeplLimit-500)
+//                return transformOptions.API;
+//            else {
+//                if (japanesePlugin.config.translatorOption() == JapaneseConfig.TranslatorConfig.簡易翻訳)
+//                    return transformOptions.wordToWord;
+//                else
+//                    return transformOptions.doNothing;
+//            }
+//        }
+        else {
             japTransforms.messageIngame("開発者に報告してください：JapWidgets getWidgetTransformConfig エラー", "red");
             return transformOptions.wordToWord;
         }

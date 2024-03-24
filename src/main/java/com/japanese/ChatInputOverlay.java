@@ -34,7 +34,7 @@ class ChatInputOverlay extends Overlay //remove abstract when actually making ov
         int msgLength = plugin.getRomToJap().inputCount;
         String jpMsg = plugin.getRomToJap().chatJpMsg;
 
-        if (msgLength == 0) return null;
+        if (msgLength == 0 || plugin.getJapWidgets().displayDialog || plugin.config.selfConfig().equals(JapaneseConfig.ChatConfigSelf.そのまま表示)) return null;
 
         panelComponent.getChildren().clear();
 

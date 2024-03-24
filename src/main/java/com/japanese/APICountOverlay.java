@@ -30,42 +30,38 @@ class APICountOverlay  extends Overlay {
     }
     @Override
     public Dimension render(Graphics2D graphics) {
-        if (!config.DeeplAPICount() && !config.GoogleAPICount() && !config.AzureAPICount())
+        if (!config.DeeplAPICount() || !config.useDeepl())// && !config.GoogleAPICount() && !config.AzureAPICount())
             return null;
 
         int enCharSize = 8;
+        int jpCharSize = 15;
+        boolean deeplKeyValid = plugin.getApiTranslate().keyValid;
         String deeplCount = Long.toString(plugin.getApiTranslate().deeplCount);
         String deeplLimit = Long.toString(plugin.getApiTranslate().deeplLimit);
-        String googleCount = Long.toString(plugin.getApiTranslate().googleCount);
-        String googleLimit = Long.toString(plugin.getApiTranslate().googleLimit);
-        String azureCount = Long.toString(plugin.getApiTranslate().azureCount);
-        String azureLimit = Long.toString(plugin.getApiTranslate().azureLimit);
+//        String googleCount = Long.toString(plugin.getApiTranslate().googleCount);
+//        String googleLimit = Long.toString(plugin.getApiTranslate().googleLimit);
+//        String azureCount = Long.toString(plugin.getApiTranslate().azureCount);
+//        String azureLimit = Long.toString(plugin.getApiTranslate().azureLimit);
 
-        Color bgColor = new Color(80, 148, 144);
-        panelComponent.setBackgroundColor(bgColor);
+        Color bgColorCount = new Color(80, 148, 144);
+        Color bgColorInvalid = new Color(194, 93, 93);
         panelComponent.getChildren().clear();
-        if (config.DeeplAPICount())
+        int len;
+        if (deeplKeyValid) {
+            panelComponent.setBackgroundColor(bgColorCount);
             panelComponent.getChildren().add(LineComponent.builder()
                     .left("DeepL:")
                     .right(deeplCount + " / " + deeplLimit)
                     .build());
-
-        if (config.GoogleAPICount())
+            len = (deeplLimit.length()*2+10)*enCharSize;
+        } else {
+            panelComponent.setBackgroundColor(bgColorInvalid);
             panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Google Cloud:")
-                    .right(googleCount + " / " + googleLimit)
+                    .left("APIキーが無効です。\n有効なキーが入力されるまでは\n簡易翻訳が行われます。APIキーが有効であることと\n上限に到達していないことを確認してください")
                     .build());
-
-        if (config.AzureAPICount())
-            panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Azure AI:")
-                    .right(azureCount + " / " + azureLimit)
-                    .build());
-
-        int max = (Math.max(Math.max(deeplCount.length() + deeplLimit.length(), googleCount.length() + googleLimit.length()),
-                azureCount.length() + azureLimit.length()));
-
-        panelComponent.setPreferredSize(new Dimension((max + 3) *enCharSize*2,0));
+            len = ("簡易翻訳が行われます。APIキーが有効であることと".length()+2)*jpCharSize;
+        }
+        panelComponent.setPreferredSize(new Dimension(len,0));
         return panelComponent.render(graphics);
     }
 
