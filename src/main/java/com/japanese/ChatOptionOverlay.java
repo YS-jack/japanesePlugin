@@ -18,7 +18,7 @@ import com.japanese.JapTransforms;
 
 @Slf4j
 @ParametersAreNonnullByDefault
-class ChatOptionOverlay  extends Overlay {
+class ChatOptionOverlay  extends Overlay {//overlay for dialog options
     private Client client;
     private JapaneseConfig config;
     private JapanesePlugin plugin;
@@ -58,7 +58,7 @@ class ChatOptionOverlay  extends Overlay {
             try {
                 switch (transformOptions) {
                     case API:
-                        jpString = plugin.getApiTranslate().getDeepl(enString, "", "", true);
+                        jpString = plugin.getApiTranslate().getDeepl(enString, "", "", true, null);
                         break;
                     case wordToWord:
                         jpString = plugin.getJapTransforms().getW2WTranslation(enString);

@@ -37,7 +37,9 @@ class KatKanjCandiOvl extends Overlay //remove abstract when actually making ove
         String[] jpMsg = plugin.getRomToJap().kanjKatCandidates.toArray(new String[0]);
         int candSelectN = plugin.getRomToJap().instCandidateSelection;
         int msgCount = plugin.getRomToJap().inputCount;
-        if (msgCount == 0|| plugin.getJapWidgets().displayDialog || plugin.config.selfConfig().equals(JapaneseConfig.ChatConfigSelf.そのまま表示)) return null;
+        if (msgCount == 0|| plugin.getJapWidgets().displayDialog
+                || plugin.config.selfConfig().equals(JapaneseConfig.ChatConfigSelf.そのまま表示)
+                || jpMsg.length == 0) return null;
         if (jpMsg.length == 1 && jpMsg[0].matches("[^\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}]+")) return  null;
         panelComponent.getChildren().clear();
         int panelN = jpMsg.length/candListMax + 1;

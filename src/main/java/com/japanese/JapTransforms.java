@@ -14,16 +14,23 @@ import java.util.regex.Pattern;
 @Slf4j
 public class JapTransforms {
     public HashMap<String, String> knownAPI;
-    private HashMap<String, String> knownDirect;
-    private HashMap<String, String> directWord;
-    private HashMap<String, String> menuOptionTran;
-    private HashMap<String, String> itemNpcTran;
-    private HashMap<String, String> transliterationMap;
+    public HashMap<String, String> knownDirect;
+    public HashMap<String, String> directWord;
+    public HashMap<String, String> knownMenuOption;
+    public HashMap<String, String> knownItemAndWidgets;
+    public HashMap<String, String> knownNpc;
+    public HashMap<String, String> knownObject;
+    public HashMap<String, String> transliterationMap;
     public HashMap<String, String> knownSettingTranslation;
     public HashMap<String, String> knownChatButtonSkillTranslation;
-
     public HashMap<String, String> knownPlayerNames;
+    private List<String> sentMenuOption = new ArrayList<>();
+    private List<String> sentNpcName = new ArrayList<>();
+    private List<String> sentItemAndWidgetsName = new ArrayList<>();
+    private List<String> sentObjectName = new ArrayList<>();
+    public List<String> sentApiTranslate = new ArrayList<>();
 
+    public DiscordWebhook webhook;
     @Inject
     private Client client;
 
@@ -41,11 +48,17 @@ public class JapTransforms {
         knownDirect = new HashMap<>();
         putToDictHash(knownDirect, transDataDir , "KnownDirectTranslations.csv","SkillTranslations.csv");
         directWord = new HashMap<>();
-        putToDictHash(directWord, transDataDir , "DirectWordTranslations.txt");
-        menuOptionTran = new HashMap<>();
-        putToDictHash(menuOptionTran, transDataDir,"KnownMenuOptionsDirect.csv");
-        itemNpcTran = new HashMap<>();
-        putToDictHash(itemNpcTran, transDataDir ,"ItemAndNPCTranslations.csv");
+        putToDictHash(directWord, transDataDir , "BigTranslationDict.txt");
+
+        knownMenuOption = new HashMap<>();
+        putToDictHash(knownMenuOption, transDataDir,"KnownMenuOptionsDirect.csv");
+        knownItemAndWidgets = new HashMap<>();
+        putToDictHash(knownItemAndWidgets, transDataDir ,"KnownItemAndWidgets.csv");
+        knownNpc = new HashMap<>();
+        putToDictHash(knownNpc, transDataDir ,"KnownNpc.csv");
+        knownObject = new HashMap<>();
+        putToDictHash(knownObject, transDataDir ,"KnownObject.csv");
+
         transliterationMap = new HashMap<>();
         putToDictHash(transliterationMap, transDataDir,"transliteration.csv");
 
@@ -58,6 +71,14 @@ public class JapTransforms {
         //add known translation maps to knownDirect
         knownDirect.putAll(knownSettingTranslation);
         knownDirect.putAll(knownChatButtonSkillTranslation);
+
+        String sentWebhookDir = "src/main/resources/com/japanese/webhookSent/";
+
+        putSentToList(sentApiTranslate, sentWebhookDir, "sentAPITranslationMsg.txt");
+        putSentToList(sentItemAndWidgetsName, sentWebhookDir,"sentItemAndWidgetsName.txt");
+        putSentToList(sentMenuOption,sentWebhookDir,"sentMenuOptions.txt");
+        putSentToList(sentNpcName, sentWebhookDir, "sentNpcName.txt");
+        putSentToList(sentObjectName, sentWebhookDir, "sentObjName.txt");
 
         log.info("end of making hashmap for translations");
 //        knownDirect.entrySet().stream()
@@ -77,6 +98,20 @@ public class JapTransforms {
                     } else {
                         log.info("no pair found");
                     }
+                }
+            } catch (IOException e) {
+                log.info("error creating hashmap for transform dict, for type : " + dir2);
+                e.printStackTrace();
+            }
+        }
+    }
+    private void putSentToList(List<String> list, String dirName, String... dirArray) {
+        for (String dir:dirArray) {
+            String dir2 = dirName + dir;
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(dir2), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    list.add(line.toLowerCase());
                 }
             } catch (IOException e) {
                 log.info("error creating hashmap for transform dict, for type : " + dir2);
@@ -221,18 +256,29 @@ public class JapTransforms {
         String re = "^[^\\p{Alnum}]+$";
         if (enString.matches(re))
             return enString;
+
         if(specifiedMap != null) {
             if (specifiedMap.containsKey(enStringLower)) {
                 return specifiedMap.get(enStringLower);
+            } else {
+                Thread thread = new Thread(() -> {
+                    try {
+                    reportUnknownToDisc(specifiedMap, enStringLower);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+                thread.setDaemon(false);
+                thread.start();
             }
         }
-        switch(transOpt) {
 
+        switch(transOpt) {
             case API:
                 if (japanesePlugin.getApiTranslate().deeplCount < japanesePlugin.getApiTranslate().deeplLimit - enString.length() - 5
                 && japanesePlugin.getApiTranslate().keyValid
                 && japanesePlugin.config.useDeepl())
-                    return japanesePlugin.getApiTranslate().getDeepl(enString, "en", "ja", addApiDict);
+                    return japanesePlugin.getApiTranslate().getDeepl(enString, "en", "ja", addApiDict, specifiedMap);
             case wordToWord:
                 //log.info("option = " + transOpt);
                 //log.info("enword = " + enStringLower);
@@ -255,22 +301,10 @@ public class JapTransforms {
         //first, search if the whole sentence has been translated before
         //log.info("transforming : " + en);
         en = en.trim().toLowerCase();
-        if (!knownDirect.isEmpty()) {
-            if (knownDirect.containsKey(en)) {
-                return knownDirect.get(en);
-            }
-        }
-        if (menuOptionTran.containsKey(en)) {
-            //log.info("found " + en + " in menuOptioinTran");
-            return menuOptionTran.get(en);
-            //log.info("returning result : " + result);
-        } else if (itemNpcTran.containsKey((en))) {
-            //log.info("found in ItemNpcTran");
-            return itemNpcTran.get(en);
-        } else  if (knownAPI.containsKey(en)) {
-            //log.info("found in knownDeepl");
-            return knownAPI.get(en);
-        } else {//if not translated before,
+        String knownTranslation = getKnownTranslation(en);
+        if (knownTranslation != null)
+            return knownTranslation;
+        else {//if not translated before,
             //1. use api translator on the whole sentence if enabled
               //todo
             //2.if api translation not enabled, split up into words and translate each of them and concat them
@@ -313,6 +347,38 @@ public class JapTransforms {
             return resultBuilder.toString();
         }
     }
+
+    public String getKnownTranslation(String en){
+        en = en.toLowerCase();
+        if (knownMenuOption.containsKey(en))
+            return knownMenuOption.get(en);
+        if (knownItemAndWidgets.containsKey(en))
+            return knownItemAndWidgets.get(en);
+        if (knownNpc.containsKey(en))
+            return knownNpc.get(en);
+        if (knownObject.containsKey(en))
+            return knownObject.get(en);
+
+        if (knownDirect.containsKey(en))
+            return knownDirect.get(en);
+        if (knownAPI.containsKey(en))
+            return knownAPI.get(en);
+
+        return null;
+    }
+
+    public String replaceAllKnown(String enPassed){
+        if (enPassed.isEmpty()) return "";
+        String[] enArray = enPassed.split("(?<=\\p{Punct})|(?=\\p{Punct})|\\s+");
+        String en = enPassed.toLowerCase();
+        for (int i = Math.min(5,en.length()); i > 0; i--) {
+            for (int j = 0; j < en.length()-i+1; j++) {
+                if (knownObject.containsKey(en.substring(j,j+i)))
+                    return en.substring(0,j) + knownObject.get(en.substring(j,j+i)) + en.substring(j+i);
+            }
+        }
+        return enPassed;
+    }
     private String transliterte(String word) {
         StringBuilder katakana = new StringBuilder();
         for (int i = 0; i < word.length(); i++) {
@@ -323,5 +389,52 @@ public class JapTransforms {
                 katakana.append(transliterationMap.getOrDefault(ch, ch));
         }
         return katakana.toString();
+    }
+    private void reportUnknownToDisc(HashMap<String, String> map, String enString) throws IOException {
+        String url = japanesePlugin.config.webHookUrl();
+        if (url.isEmpty())
+            return;
+        String filePath = "src/main/resources/com/japanese/webhookSent/";
+        if (map == japanesePlugin.getJapTransforms().knownMenuOption && !japanesePlugin.getJapTransforms().sentMenuOption.contains(enString)) {
+            if (sendToWebhook("MenuOption|" + enString)) {
+                sentMenuOption.add(enString);
+                writeToFile(enString, filePath + "sentMenuOptions.txt");
+            }
+        } else if (map == japanesePlugin.getJapTransforms().knownItemAndWidgets && !japanesePlugin.getJapTransforms().sentItemAndWidgetsName.contains(enString)) {
+            if (sendToWebhook("ItemAndWidgetsName|" + enString)) {
+                sentItemAndWidgetsName.add(enString);
+                writeToFile(enString, filePath + "sentItemAndWidgetsName.txt");
+            }
+        } else if (map == japanesePlugin.getJapTransforms().knownNpc && !japanesePlugin.getJapTransforms().sentNpcName.contains(enString)) {
+            if (sendToWebhook("NpcName|" + enString)) {
+                sentNpcName.add(enString);
+                writeToFile(enString, filePath + "sentNpcName.txt");
+            }
+        } else if (map == japanesePlugin.getJapTransforms().knownObject && !japanesePlugin.getJapTransforms().sentObjectName.contains(enString)) {
+            if (sendToWebhook("ObjName|" + enString)) {
+                sentObjectName.add(enString);
+                writeToFile(enString, filePath + "sentObjName.txt");
+            }
+        }
+    }
+
+    private boolean sendToWebhook(String content) {
+        try {
+            webhook.setContent(content);
+            webhook.execute();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void writeToFile(String text, String filePath) throws IOException {
+        //String filePath = "src/main/resources/com/japanese/translations/KnownAPITranslations.csv";
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(filePath, true), StandardCharsets.UTF_8))) {
+            writer.write(text + "\n");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

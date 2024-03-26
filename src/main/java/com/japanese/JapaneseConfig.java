@@ -287,4 +287,20 @@ public interface JapaneseConfig extends Config {
             section = playerSpecific
     )
     default String playerListRom2Jap() {return "プレイヤー名を入力。カンマで区切れば複数名指定可";}
+    @ConfigSection(
+            name = "翻訳データ提供",
+            description = "翻訳に使うデータを送信します",
+            position = 90
+    )
+    String forDevelopers = "for better translation";
+    @ConfigItem(
+            position = 90,
+            keyName = "webhookUrl",
+            name = "webhook URL",
+            description = "本プラグインのdiscordサーバーで得られるURLを入力してください  ",
+            section = forDevelopers,
+            secret = true
+    )
+    default String webHookUrl() {return "";}
+
 }

@@ -207,9 +207,9 @@ public class ChatModifier {
             Thread thread = new Thread(() -> {//process with new thread because games freezes while waiting for api response
                 try {
                     String ret;
-                    if (finalName.isEmpty())
+                    if (finalName.isEmpty())//not sent by player
                         ret = jt.getTransformWithColors(enWithColors, option, map, iconManager, true);
-                    else
+                    else // sent by player, so don't add to dict nor send webhook
                         ret = jt.getTransformWithColors(enWithColors, option, map, iconManager, false);
                     //translatingAPI = false;
                     String withBr = insertBr(ret, chatMessage);

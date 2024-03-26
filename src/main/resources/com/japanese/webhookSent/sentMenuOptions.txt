@@ -1,0 +1,163 @@
+play
+play
+play
+play
+play
+play
+armour
+armour
+open activity adviser
+open activity adviser
+setup
+toggle run
+toggle run
+travel
+travel
+travel
+dps
+export
+import
+show
+clear
+world map
+open store
+clan: clear history
+clan: show friends
+switch tab
+clan: show none
+switch tab
+view inbox
+bond pouch
+worn equipment
+worn equipment
+worn equipment
+rub
+rub
+rub
+group: clear history
+group: show friends
+group: show friends
+group: clear history
+group: show all
+clan: show all
+group: show none
+group: show none
+private: clear history
+private: show friends
+private: show all
+private: show none
+private: show none
+channel: show all
+public: show none
+public: hide
+public: show autochat
+setup your autochat
+public: show standard
+game: filter
+configure filter
+game: clear history
+set chat mode: guest clan (/@gc)
+set chat mode: group (/@g)
+clear history
+character summary
+character summary
+character summary
+prayer
+disable prayer filtering
+enable prayer reordering
+prayer
+disable prayer filtering
+disable spell filtering
+hide
+hide
+hide
+hide
+hide
+settings
+settings
+settings
+settings
+settings
+all settings
+all settings
+select
+select
+select
+gameplay
+gameplay
+gameplay
+gameplay
+gameplay
+chat
+activities
+close dropdown
+close dropdown
+close dropdown
+close dropdown
+close dropdown
+warnings
+warnings
+warnings
+interfaces
+warnings
+world switcher
+world switcher
+world switcher
+world switcher
+magic
+magic
+magic
+magic
+magic
+animation
+animation
+animation
+change
+change
+change
+change
+change
+configure
+yanille
+yanille
+configure
+configure
+skills
+skills
+skills
+skills
+skills
+combat options
+block
+block
+block
+punch
+kick
+auto retaliate
+add to canvas
+construction guide
+slayer guide
+wiki
+fishing guide
+fishing guide
+wiki
+herblore guide
+herblore guide
+herblore guide
+farming guide
+fletching guide
+fletching guide
+cooking guide
+smithing guide
+mining guide
+agility guide
+hunter guide
+magic guide
+attack guide
+hitpoints guide
+hitpoints guide
+strength guide
+prayer guide
+thieving guide
+ranged guide
+defence guide

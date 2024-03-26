@@ -6,8 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import javax.inject.Inject;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @Slf4j
 public class ApiTranslate {
@@ -20,6 +21,8 @@ public class ApiTranslate {
     public long deeplCount = 0;
     public long deeplLimit = 500000;
     public boolean keyValid = false;
+    private List<String> sentAPITranslation = new ArrayList<>();
+    private
 //    public long googleCount = 0;
 //    public long googleLimit = 500000;
 //    public long azureCount = 0;
@@ -61,31 +64,17 @@ public class ApiTranslate {
                     deeplLimit);
         }
         log.info("deeplCount = " + deeplCount);
-        if (deeplCount == 0){
-            String filePath = "src/main/resources/com/japanese/apiWordCount.txt";
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8))) {
-                String line= reader.readLine();
-                log.info("apiWordCount line =" + line);
-
-                deeplCount = Long.parseLong(line);
-                }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        //deeplCount = 1;
     }
     public enum apiType{
         deepL, Google, Azure
     }
 
-    public String getDeepl(String enText, String source, String target, boolean addApiDict) throws Exception {
+    public String getDeepl(String enText, String source, String target, boolean addApiDict, HashMap<String,String> map) throws Exception {
         if (source.isEmpty())
             source = "en";
         if (target.isEmpty())
             target = "ja";
-        if (!japanesePlugin.getJapTransforms().knownAPI.containsKey(enText.toLowerCase())) {
+        if (!japanesePlugin.getJapTransforms().knownAPI.containsKey(enText.toLowerCase())) {//if not in known api
             log.info(enText + "\nNot in KnownDeepl dict");
             TextResult result;
             try {
@@ -98,6 +87,8 @@ public class ApiTranslate {
 
             updateCount(apiType.deepL, enText);
             updateKnown(enText, resultText, addApiDict);
+            if (addApiDict)
+                sendWebhook(enText, resultText, map);
 
             return resultText;
         } else {
@@ -118,13 +109,6 @@ public class ApiTranslate {
                     deeplCount += enText.length();
                 log.info("updated deepl count:" + deeplCount+"\nupdated deepl limit" + deeplLimit);
 
-                String filePath = "src/main/resources/com/japanese/apiWordCount.txt";
-                try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                        new FileOutputStream(filePath, true), StandardCharsets.UTF_8))) {
-                    writer.write(Long.toString(deeplCount));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
             }
         }
     }
@@ -138,6 +122,46 @@ public class ApiTranslate {
         try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(filePath, true), StandardCharsets.UTF_8))) {
             writer.write(en + "|" + jp + "\n");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    private void sendWebhook(String en, String jp, HashMap<String, String> map) throws IOException {
+        if (japanesePlugin.getJapTransforms().sentApiTranslate.contains(en+"|"+jp))
+            return;
+        String type;
+        if (map.equals(japanesePlugin.getJapTransforms().knownObject))
+            type = "deepl_Object";
+        else if (map.equals(japanesePlugin.getJapTransforms().knownNpc))
+            type = "deepl_NPC";
+        else if (map.equals(japanesePlugin.getJapTransforms().knownItemAndWidgets))
+            type = "deepl_ItemAndWidgets";
+        else if (map.equals(japanesePlugin.getJapTransforms().knownMenuOption))
+            type = "deepl_MenuOption";
+        else
+            type = "deepl_gameMsgDialogOther";
+        if (sendToWebhook(type + "|" + en + "|" + jp)) {
+            writeToSentFile(en + "|" + jp, "src/main/resources/com/japanese/webhookSent/sentAPITranslationMsg.txt");
+            japanesePlugin.getJapTransforms().sentApiTranslate.add(en+"|"+jp);
+        }
+    }
+
+    private boolean sendToWebhook(String content) {
+        DiscordWebhook webhook = japanesePlugin.getJapTransforms().webhook;
+        try {
+            webhook.setContent(content);
+            webhook.execute();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void writeToSentFile(String text, String filePath) throws IOException {
+        //String filePath = "src/main/resources/com/japanese/translations/KnownAPITranslations.csv";
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(filePath, true), StandardCharsets.UTF_8))) {
+            writer.write(text + "\n");
         } catch (Exception e) {
             e.printStackTrace();
         }

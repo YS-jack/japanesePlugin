@@ -55,8 +55,10 @@ public class JapWidgets {
                 && widget.getId() != ComponentID.CHATBOX_MESSAGE_LINES
                 //&& widget.getId() != ComponentID.CHATBOX_FRAME
         ){//
-            if (widget.getId() == ComponentID.CHATBOX_INPUT && japanesePlugin.config.selfConfig().equals(JapaneseConfig.ChatConfigSelf.ローマ字変換))
+            if (widget.getId() == ComponentID.CHATBOX_INPUT) {
                 japanesePlugin.getRomToJap().drawOverlay(widget);
+                return;
+            }
 
             if (widget.getId() == ComponentID.DIALOG_OPTION_OPTIONS){//dialog options are shown via overlay, so quest helper selection is visible
                 //log.info("found dialog option:" + widget.getParentId());

@@ -89,13 +89,19 @@ public class RomToJap {
         }
     }
 ///<img=43>sand in sand: <col=0000ff> hi hi </col><col=0000ff>*</col>
-    public void drawOverlay(Widget widget){
-        String playerName = japWidgets.removeTag(widget.getText().split(": <col=0000ff>")[0]);
-        String inputmsg = japWidgets.removeTag(widget.getText().split("<col=0000ff>")[1]);
-        inputCount = inputmsg.length();
+//Jackpal: <col=0000ff></col><col=0000ff>*</col>
+    public void drawOverlay(Widget widget) {
+        if (japanesePlugin.config.selfConfig().equals(JapaneseConfig.ChatConfigSelf.そのまま表示))
+            return;
+        //String playerName = japWidgets.removeTag(widget.getText().split(": <col=0000ff>")[0]);
+        String chatInput = widget.getText();
+
+        String inputmsg = japWidgets.removeTag(chatInput.split("<col=0000ff>")[1]);
         if (inputmsg.isEmpty()){
+            inputCount = 0;
             return;
         }
+        inputCount = inputmsg.length();
         String newMsg = romJpTransform(inputmsg, true);
         if (!newMsg.isEmpty())
             chatJpMsg = newMsg;
@@ -116,8 +122,9 @@ public class RomToJap {
     public String rom2Kat(String romMsg) {
         StringBuilder katBuilder = new StringBuilder();
         StringBuilder romBuilder = new StringBuilder();
-        String pattern = "n[,.!?;:#$%&()'\\s]$";
-        String pattern2 = ".+n[,.!?;:#$%&()'\\s]$";
+        String pattern = "n[,.!?;:#$%&()'\\s\\d]$";
+        String pattern2 = ".+n[,.!?;:#$%&()'\\s\\d]$";
+
         for (int i = 0; i < romMsg.length(); i++) {
             romBuilder.append(romMsg.charAt(i));
             String romBuffer = romBuilder.toString();
@@ -131,6 +138,11 @@ public class RomToJap {
                 if (char2char.containsKey(katCandidate)) {
                     String ch = char2char.get(katCandidate);
                     katBuilder.append(ch);
+                    romBuilder.setLength(0);
+                    continue;
+                }
+                if (romBuffer.equals("n") && i == romMsg.length() - 1){
+                    katBuilder.append("ん");
                     romBuilder.setLength(0);
                     continue;
                 }
@@ -245,9 +257,15 @@ public class RomToJap {
         boolean last;
         for (int i = startIndex; i < wordList.length; i++) {
             String word = wordList[i];
-            last = i == wordList.length - 1;
-            FourValues FVword = getMatch(word, last, chatInput);
-            changedList.add(FVword.written);
+            if (word.matches("^\\d+$") || word.matches("^を+$")){
+                changedList.add(word);
+                kanjKatCandidates.clear();
+            }
+            else {
+                last = i == wordList.length - 1;
+                FourValues FVword = getMatch(word, last, chatInput);
+                changedList.add(FVword.written);
+            }
         }
         List<String> sublistPrevJPList = prevJPList.subList(0, startIndex);
         String[] notChanged = sublistPrevJPList.toArray(new String[0]);
@@ -314,18 +332,18 @@ public class RomToJap {
         List<FourValues> matches;
         List<FourValues> newCandidates = new ArrayList<>();
 
-        matches = getAllMatches(word, 999);//get all exact matches
+        matches = getAllMatches(word, 50);//get all exact matches
         newCandidates.addAll(matches);
 
-        if (newCandidates.size() < 6) {//if not many candidates, get matches that begin with the last wordPart
+        if (newCandidates.size() < 30) {//if not many candidates, get matches that begin with the last wordPart
             // (the last wordPart might be in the middle of being typed
-            matches = getAllBeginningWith(word,5);
+            matches = getAllBeginningWith(word,Math.min(30-10-newCandidates.size(),10));
             newCandidates.addAll(matches);
         }
         newCandidates.sort(new compareFV());
-        if (newCandidates.size() < 15) {//if still not many candidates
+        if (newCandidates.size() < 40) {//if still not many candidates
             // (the last wordPart might be in the middle of being typed
-            int nWordsToAdd = 15 - newCandidates.size();
+            int nWordsToAdd = 40 - newCandidates.size();
             List<FourValues> containedAndExtra;
             containedAndExtra = getAllContaining(word, nWordsToAdd); // get all words that is contained within "wordPart"
             newCandidates.addAll(containedAndExtra);
@@ -397,28 +415,30 @@ public class RomToJap {
         int count = 0;
         for (int i = kata.length() - 1; i >= 0 && count < nToAdd; i--) {
             String substring = kata.substring(0,i);
-            for (FourValues entry: japCharDS)
+            for (int j = 0; j < japCharDS.size(); j++) {
+                FourValues entry = japCharDS.get(j);
                 if (entry.read.equals(substring)) {
                     FourValues addingFV = new FourValues(entry.written + kata.substring(i),
                             entry.written + kata.substring(i), notAvailable, entry.rank);
                     if (matches.isEmpty()) {
                         matches.add(addingFV);
                         count++;
-                    }
-                    else if (matches.get(matches.size() - 1).rank + 3 < addingFV.rank) {//only add few of the word is only different tense of the previous
+                    } else if (matches.get(matches.size() - 1).rank + 3 < addingFV.rank) {//only add few of the word is only different tense of the previous
                         count++;
-                        if(count > nToAdd)
+                        if (count > nToAdd)
                             break;
                         matches.add(addingFV);
                     }
                 }
+            }
         }
         return matches;
     }
     private String[] getWakatiGaki (String text) {
         // Regular expression pattern for splitting
         String regexPattern =
-                "([\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}]*\\d+)|" +
+                "(を+)|" +
+                        "([\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}]*\\d+)|" +
                         "([\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}]+ +)|" +
                         "([\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}]+)|"+
                         "([^\\p{IsAlphabetic}\\p{IsHiragana}\\p{IsKatakana}\\d ]+)";
