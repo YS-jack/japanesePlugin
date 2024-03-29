@@ -162,15 +162,15 @@ public class JapanesePlugin extends Plugin{
                 return japTransforms.knownNpc;
 
             case WIDGET_TARGET:
-            case GROUND_ITEM_FIRST_OPTION:
             case CC_OP:
             case CC_OP_LOW_PRIORITY:
+            case GROUND_ITEM_FIRST_OPTION:
             case GROUND_ITEM_SECOND_OPTION:
             case GROUND_ITEM_THIRD_OPTION:
             case GROUND_ITEM_FOURTH_OPTION:
             case GROUND_ITEM_FIFTH_OPTION:
             case EXAMINE_ITEM_GROUND:
-                log.info("menu target:" + target+", option:"+event.getOption()+", action type:" + action);
+                log.info("action type:" + action+"\tmenu target:" + target+"\toption:"+event.getOption());
                 return japTransforms.knownItemAndWidgets;
         }
         return null;
@@ -186,7 +186,7 @@ public class JapanesePlugin extends Plugin{
     }
 
 
-    @Subscribe
+    @Subscribe(priority = -0.1f)
     public void onClientTick(ClientTick clientTick) {
         //return;
         if (config.menuEntryConfig() == JapaneseConfig.jpEnChoice.英語)

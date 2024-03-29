@@ -192,7 +192,7 @@ public class ChatModifier {
         name = japWidgets.removeTag(name);
         String chatName = messageNode.getSender();
 
-        log.info("message = '" + message+"', name = '" + name + "', chat name = '" + chatName);
+        //log.info("message = '" + message+"', name = '" + name + "', chat name = '" + chatName);
 
         message = japWidgets.removeTag(message);//preprocess the text
         String colorHex = getChatColor(chatMessage);

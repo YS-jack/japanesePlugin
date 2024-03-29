@@ -95,8 +95,7 @@ public class JapWidgets {
 //                        writeToFile(widgetText + "|", dir + "skillGuideDump.txt");
 //                    }
                     //check for specific widget
-                    if (widgetText.toLowerCase().contains("hail, group iron man!"))
-                        log.info("found hail, group iron man!");
+
                     //log.info(widgetText);
                     if (getGrandNParent(widget,4) != null) {
                         if (getGrandNParent(widget, 4).getId() == ComponentID.SETTINGS_INIT) {
@@ -277,9 +276,7 @@ public class JapWidgets {
                     try {
                         if (removeTag(widget.getText()).isEmpty())
                             return;
-                        if(widget.getText().toLowerCase().contains("hail"))
-                            log.info("found hail gim");
-                        String stringToShow = getNewTextWithBr(widget, option);
+                        String stringToShow = getNewTextWithBr(widget, option, setbr);
                         widget.setText(stringToShow);
                         insertBrAfterTransform(widget);
                         stringTranslatingInThread.remove(textBr2Space);
@@ -291,22 +288,21 @@ public class JapWidgets {
                 });
                 thread.setDaemon(false);
                 thread.start();
-
-                //widget.setHidden(true);
             }
             return;
         }
-        String translatedTextWithColors = getNewTextWithBr(widget, option);
+        String translatedTextWithColors = getNewTextWithBr(widget, option, setbr);
         widget.setText(translatedTextWithColors);
-        insertBrAfterTransform(widget);
+        if (setbr)
+            insertBrAfterTransform(widget);
+        //                    translatedTextWithColors = changeWidgetTextsWithBr(widget);
+//                    widget.setText(translatedTextWithColors);
     }
 
-    private String getNewTextWithBr(Widget widget, transformOptions option) throws Exception {
-        String textSpaceNotBr = widget.getText().replace("<br>"," ").trim();
-        textSpaceNotBr = removeTag(textSpaceNotBr);
+    private String getNewTextWithBr(Widget widget, transformOptions option, boolean setbr) throws Exception {
+//        String textSpaceNotBr = widget.getText().replace("<br>"," ").trim();
+//        textSpaceNotBr = removeTag(textSpaceNotBr);
         String colorHex = getColorHex(widget);
-        if (textSpaceNotBr.toLowerCase().contains("hail, group iron man!"))
-            log.info("found the dialog");
 //        StringBuilder imgBuild = new StringBuilder();
 //        int lastStringLen = 0;
         ChatIconManager iconManager = japanesePlugin.getChatIconManager();
@@ -328,46 +324,67 @@ public class JapWidgets {
 //                imgBuild.append(textSpaceNotBr);
 //                continue;
 //            }
-        String enWithColors = "<col=" + colorHex + ">" + textSpaceNotBr;
-        //log.info("enWithColors = " + enWithColors);
-//        String w;
-        if (option != transformOptions.API) {
-            Widget grandParent = getGrandNParent(widget, 4);
-            if (grandParent != null) {//for setting
-                if (grandParent.getId() == ComponentID.SETTINGS_INIT) {
-                    HashMap<String, String> settingHash = japTransforms.knownSettingTranslation;
-//                    w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, settingHash);
-//                    imgBuild.append(w);
-//                        continue;
-                    return japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, settingHash);
-                }
-            }
-            grandParent = getGrandNParent(widget, 2);
-            if (grandParent != null) {//for chat buttons
-                if (grandParent.getId() == ComponentID.CHATBOX_BUTTONS || grandParent.getId() == ComponentID.SKILLS_CONTAINER) {
-                    HashMap<String, String> settingHash = japTransforms.knownChatButtonSkillTranslation;
-//                    w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, settingHash);
-//                    imgBuild.append(w);
-//                        continue;
-                    return japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, settingHash);
-                }
-            }
-            //add other screen if needed
-        }
 
+        if (setbr) {
+            String line = widget.getText().replace("<br>"," ").trim();
+            //line = removeTag(line);
+            String enWithColors = "<col=" + colorHex + ">" + line;
+            //log.info("enWithColors = " + enWithColors);
+//        String w;
+            if (option != transformOptions.API) {
+                Widget grandParent = getGrandNParent(widget, 4);
+                if (grandParent != null) {//for setting
+                    if (grandParent.getId() == ComponentID.SETTINGS_INIT) {
+                        HashMap<String, String> settingHash = japTransforms.knownSettingTranslation;
+//                    w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, settingHash);
+//                    imgBuild.append(w);
+//                        continue;
+                        return japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, settingHash);
+                    }
+                }
+                grandParent = getGrandNParent(widget, 2);
+                if (grandParent != null) {//for chat buttons
+                    if (grandParent.getId() == ComponentID.CHATBOX_BUTTONS) {
+                        HashMap<String, String> settingHash = japTransforms.knownChatButtonSkillTranslation;
+//                    w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, settingHash);
+//                    imgBuild.append(w);
+//                        continue;
+                        return japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, settingHash);
+                    }
+                }
+                //add other screen if needed
+            }
+            return japTransforms.getTransformWithColors(enWithColors, option, map, iconManager);
             //for non setting/chat widgets
 //            w = japTransforms.getTransformWithColors(enWithColors, option, map, iconManager);
+        } else {
+            String[] lineArray = widget.getText().split("<br>");
+            StringBuilder stringBuilder = new StringBuilder();
+            for (String line : lineArray) {
+                if (stringBuilder.length() > 0)
+                    stringBuilder.append("<br>");
+                //line = removeTag(line);
+                String enWithColors = "<col=" + colorHex + ">" + line;
 
-        return japTransforms.getTransformWithColors(enWithColors, option, map, iconManager);
-//            imgBuild.append(w);
-////        }
-////        }
-//        return imgBuild.toString();
+                if (option != transformOptions.API) {
+                    Widget grandParent = getGrandNParent(widget, 2);
+                    if (grandParent != null) {//for chat buttons
+                        if (grandParent.getId() == ComponentID.CHATBOX_BUTTONS || grandParent.getId() == ComponentID.SKILLS_CONTAINER) {
+                            HashMap<String, String> settingHash = japTransforms.knownChatButtonSkillTranslation;
+                            stringBuilder.append( japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, settingHash));
+                        }
+                    }
+                } else
+                    stringBuilder.append(japTransforms.getTransformWithColors(line, option, map, iconManager));
+            }
+            return stringBuilder.toString();
+        }
     }
     String getColorHex(Widget widget) {
-        int widgetColor = widget.getTextColor();
         String colorHex;
-        if (widget.getText().isBlank())
+        int widgetColor = widget.getTextColor();
+
+        if (widget.getText().isEmpty())//isBlank())
             colorHex = Colors.white.getHex();
         else
             colorHex = Colors.IntToHex(widgetColor);

@@ -24,3 +24,37 @@ statue
 statue
 armour crate
 armour crate
+daisies
+daisies
+daisies
+daisies
+daisies
+mushrooms
+pyre site
+bullrushes
+bullrushes
+bullrushes
+bullrushes
+bullrushes
+bullrushes
+rocks
+rocks
+rocks
+small rock
+waterlily
+waterlily
+barbarian anvil
+barbarian bed
+barbarian bed
+barbarian bed
+barbarian bed
+barbarian bed
+log raft
+bench
+bench
+bench
+bench
+bench
+drill
+drill
+drill

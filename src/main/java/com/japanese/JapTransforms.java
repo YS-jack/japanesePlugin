@@ -189,7 +189,7 @@ public class JapTransforms {
         return imgTagStrings.toString();
     }
     private String[][] getColorWordArray(String enWithColors, transformOptions transOpt, HashMap<String,String> specifiedMap, boolean addApiDict) throws Exception {
-        enWithColors = enWithColors.replace("</col>","");
+        enWithColors = enWithColors.replace("</col>","<col=0>");
         Pattern re = Pattern.compile("(?<=\\d)>|(?<=\\p{IsAlphabetic})>");
         int colorTagNum = re.split(enWithColors).length - 1;
         String[][] colorWords;// = {{"ffffff","White string"},{"ff0000","red"},...}
