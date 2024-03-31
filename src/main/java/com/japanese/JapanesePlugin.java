@@ -170,7 +170,7 @@ public class JapanesePlugin extends Plugin{
             case GROUND_ITEM_FOURTH_OPTION:
             case GROUND_ITEM_FIFTH_OPTION:
             case EXAMINE_ITEM_GROUND:
-                log.info("action type:" + action+"\tmenu target:" + target+"\toption:"+event.getOption());
+                //log.info("action type:" + action+"\tmenu target:" + target+"\toption:"+event.getOption());
                 return japTransforms.knownItemAndWidgets;
         }
         return null;
@@ -281,7 +281,7 @@ public class JapanesePlugin extends Plugin{
         spaceImageText = japTransforms.buildJapStringImage(space,japCharIds,chatIconManager);
 
         if (!config.webHookUrl().isEmpty())
-            japTransforms.webhook = new DiscordWebhook(config.webHookUrl());
+            japTransforms.webhook = new DiscordWebhook();
     }
 
     @Override
@@ -296,10 +296,10 @@ public class JapanesePlugin extends Plugin{
             if(change.getKey().equals("DeeplAPIOption") || change.getKey().equals("useDeepl")){
                 apiTranslate.apiCountInit();
             }
-            if(change.getKey().equals("webhookUrl")) {
-                if (!config.webHookUrl().isEmpty())
-                    japTransforms.webhook = new DiscordWebhook(config.webHookUrl());
-            }
+//            if(change.getKey().equals("webhookUrl")) {
+//                if (!config.webHookUrl().isEmpty())
+//                    japTransforms.webhook = new DiscordWebhook(config.webHookUrl());
+//            }
         }
     }
     @Provides

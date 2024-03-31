@@ -205,12 +205,15 @@ public class ChatModifier {
         if (option == transformOptions.API && !japanesePlugin.getJapTransforms().knownAPI.containsKey(message.toLowerCase())) {
             String finalName = name;
             Thread thread = new Thread(() -> {//process with new thread because games freezes while waiting for api response
+            HashMap<String, String> specific = getSpecificMap(chatMessage);
                 try {
                     String ret;
+
                     if (finalName.isEmpty())//not sent by player
-                        ret = jt.getTransformWithColors(enWithColors, option, map, iconManager, true);
+
+                        ret = jt.getTransformWithColors(enWithColors, option, map, iconManager, true, specific);
                     else // sent by player, so don't add to dict nor send webhook
-                        ret = jt.getTransformWithColors(enWithColors, option, map, iconManager, false);
+                        ret = jt.getTransformWithColors(enWithColors, option, map, iconManager, false, specific);
                     //translatingAPI = false;
                     String withBr = insertBr(ret, chatMessage);
 
@@ -226,7 +229,29 @@ public class ChatModifier {
             thread.start();
             return message;
         }else
-            return jt.getTransformWithColors(enWithColors, option, map, iconManager);
+            return jt.getTransformWithColors(enWithColors, option, map, iconManager, getSpecificMap(chatMessage));
+    }
+    private HashMap<String, String> getSpecificMap (ChatMessage chatMessage) {
+        switch(chatMessage.getType()) {
+            case PUBLICCHAT:
+            case CLAN_CHAT:
+            case CLAN_GUEST_CHAT:
+            case FRIENDSCHAT:
+            case CLAN_GIM_CHAT:
+            case MODCHAT:
+            case BROADCAST:
+            case TRADE:
+            case PRIVATECHAT:
+            case LOGINLOGOUTNOTIFICATION:
+            case PRIVATECHATOUT:
+            case MODPRIVATECHAT:
+            case TRADEREQ:
+            case CHALREQ_TRADE:
+            case TENSECTIMEOUT:
+                return null;
+            default:
+                return japanesePlugin.getJapTransforms().knownGameMsgAndDialog;
+        }
     }
     private transformOptions getChatConfig(ChatMessage chatMessage) {//todo:read from config
         String name = japWidgets.removeTag(chatMessage.getName());
@@ -270,10 +295,11 @@ public class ChatModifier {
             case FRIENDSCHAT:
                 return getChatsChatConfig(japanesePlugin.config.friendChatConfig());
             case CLAN_GIM_CHAT:
+
                 if (!Objects.equals(name, "null") && !name.isEmpty())
                     return getChatsChatConfig(japanesePlugin.config.gimConfig());
 
-            default:
+            default://if its examine, engine, etc
                 switch (japanesePlugin.config.gameMessageConfig()) {
                     case そのまま:
                         return transformOptions.doNothing;

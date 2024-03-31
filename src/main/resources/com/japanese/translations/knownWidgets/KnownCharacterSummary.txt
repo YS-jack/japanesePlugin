@@ -1,0 +1,14 @@
+Combat Level:|戦闘レベル
+Total Level:|合計レベル
+Total XP:|合計Xp:
+Quests Completed:|達成した　クエスト
+Achievements Completed:|達成した　タスク
+Combat Tasks Completed:|達成した　戦闘タスク
+Collections Logged:|アイテム　獲得率
+Time Played:|プレイ時間:
+days,|日
+days|日
+hours,|時間
+hours|時間
+minutes|分
+a minute|1分

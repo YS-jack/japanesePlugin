@@ -58,3 +58,94 @@ bench
 drill
 drill
 drill
+hardcore armour crate
+hardcore armour crate
+hardcore armour crate
+hardcore armour crate
+hardcore armour crate
+shelf
+shelf
+rockslide
+rockslide
+rockslide
+rockslide
+rockslide
+rockslide
+rockslide
+crate
+crate
+crate
+crate
+crate
+crate
+crate
+crate
+crate
+crate
+crate
+crate
+crate
+crate
+crate
+crate
+crate
+crate
+crate
+crate
+crate
+crate
+crate
+crate
+full fishing net
+barrel
+bank booth
+bank booth
+bank booth
+bank booth
+bank booth
+bank booth
+bank booth
+bank booth
+bank booth
+bank booth
+bank booth
+bank booth
+bank booth
+bank booth
+anvil
+rowboat
+rowboat
+rowboat
+rowboat
+rowboat
+rowboat
+rowboat
+rowboat
+rowboat
+rowboat
+rowboat
+rowboat
+workbench
+workbench
+silver rocks
+silver rocks
+silver rocks
+silver rocks
+silver rocks
+silver rocks
+tin rocks
+tin rocks
+tin rocks
+tin rocks
+tin rocks
+tin rocks
+iron rocks
+iron rocks
+iron rocks
+iron rocks
+iron rocks
+iron rocks
+iron rocks
+iron rocks
+iron rocks
+iron rocks

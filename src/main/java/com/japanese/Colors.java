@@ -55,25 +55,25 @@ enum Colors {
             return fromHex(red.getHex());
         }
         if (colorName.equals(black.getName())){
-            return fromHex(red.getHex());
+            return fromHex(black.getHex());
         }
         if (colorName.equals(blue.getName())){
-            return fromHex(red.getHex());
+            return fromHex(blue.getHex());
         }
         if (colorName.equals(lightblue.getName())){
-            return fromHex(red.getHex());
+            return fromHex(lightblue.getHex());
         }
         if (colorName.equals(yellow.getName())){
-            return fromHex(red.getHex());
+            return fromHex(yellow.getHex());
         }
         if (colorName.equals(orange.getName())){
-            return fromHex(red.getHex());
+            return fromHex(orange.getHex());
         }
         if (colorName.equals(white.getName())){
-            return fromHex(red.getHex());
+            return fromHex(white.getHex());
         }
         if (colorName.equals(green.getName())){
-            return fromHex(red.getHex());
+            return fromHex(green.getHex());
         }
         log.info("couldnt find color with the name : " + colorName);
         return fromHex(white.getHex());
@@ -82,6 +82,9 @@ enum Colors {
         int[] colorInts = new int[Colors.values().length];//number of colors
 
         for (int i = 0; i < Colors.values().length;i++) {
+            String colName = Colors.values()[i].hex;
+            if (hex.equals(colName))
+                return Colors.values()[i];
             colorInts[i] = hexToInt(Colors.values()[i].getHex());
         }
         int j = findClosest(hexToInt(hex),colorInts);

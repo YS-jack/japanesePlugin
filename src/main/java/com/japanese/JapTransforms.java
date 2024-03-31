@@ -20,16 +20,18 @@ public class JapTransforms {
     public HashMap<String, String> knownItemAndWidgets;
     public HashMap<String, String> knownNpc;
     public HashMap<String, String> knownObject;
+    public HashMap<String, String> knownGameMsgAndDialog;
     public HashMap<String, String> transliterationMap;
     public HashMap<String, String> knownSettingTranslation;
-    public HashMap<String, String> knownChatButtonSkillTranslation;
+    public HashMap<String, String> knownCharacterSummary;
+    public HashMap<String, String> knownSpecificWidgets;
     public HashMap<String, String> knownPlayerNames;
     private List<String> sentMenuOption = new ArrayList<>();
     private List<String> sentNpcName = new ArrayList<>();
     private List<String> sentItemAndWidgetsName = new ArrayList<>();
     private List<String> sentObjectName = new ArrayList<>();
     public List<String> sentApiTranslate = new ArrayList<>();
-
+    public List<String> sentDialog = new ArrayList<>();
     public DiscordWebhook webhook;
     @Inject
     private Client client;
@@ -58,6 +60,8 @@ public class JapTransforms {
         putToDictHash(knownNpc, transDataDir ,"KnownNpc.csv");
         knownObject = new HashMap<>();
         putToDictHash(knownObject, transDataDir ,"KnownObject.csv");
+        knownGameMsgAndDialog = new HashMap<>();
+        putToDictHash(knownGameMsgAndDialog, transDataDir, "KnownGameMsgAndDialog.csv");
 
         transliterationMap = new HashMap<>();
         putToDictHash(transliterationMap, transDataDir,"transliteration.csv");
@@ -65,12 +69,15 @@ public class JapTransforms {
         //specific translations
         knownSettingTranslation = new HashMap<>();
         putToDictHash(knownSettingTranslation, transDataDir, "knownWidgets/KnownSettingTranslation.csv");
-        knownChatButtonSkillTranslation = new HashMap<>();
-        putToDictHash(knownChatButtonSkillTranslation, transDataDir, "knownWidgets/widgetTranslations.csv");
+        knownCharacterSummary = new HashMap<>();
+        putToDictHash(knownCharacterSummary, transDataDir, "knownWidgets/KnownCharacterSummary.txt");
+        knownSpecificWidgets = new HashMap<>();
+        putToDictHash(knownSpecificWidgets, transDataDir, "knownWidgets/KnownChatbuttonSkillsSpellbook.csv");
+
 
         //add known translation maps to knownDirect
         knownDirect.putAll(knownSettingTranslation);
-        knownDirect.putAll(knownChatButtonSkillTranslation);
+        knownDirect.putAll(knownSpecificWidgets);
 
         String sentWebhookDir = "src/main/resources/com/japanese/webhookSent/";
 
@@ -79,7 +86,7 @@ public class JapTransforms {
         putSentToList(sentMenuOption,sentWebhookDir,"sentMenuOptions.txt");
         putSentToList(sentNpcName, sentWebhookDir, "sentNpcName.txt");
         putSentToList(sentObjectName, sentWebhookDir, "sentObjName.txt");
-
+        putSentToList(sentDialog,sentWebhookDir,"sentGameMsgAndDialog.txt");
         log.info("end of making hashmap for translations");
 //        knownDirect.entrySet().stream()
 //                .forEach(entry -> log.info(entry.getKey() + " => " + entry.getValue()));
@@ -151,6 +158,10 @@ public class JapTransforms {
         return getTWCchild(enWithColors, transOpt,hashMap, chatIconManager, null, addApiDict);
     }
     public String getTransformWithColors(String enWithColors, transformOptions transOpt,
+                                         HashMap<String, Integer> hashMap, ChatIconManager chatIconManager, boolean addApiDict, HashMap<String, String> map) throws Exception {
+        return getTWCchild(enWithColors, transOpt,hashMap, chatIconManager, map, addApiDict);
+    }
+    public String getTransformWithColors(String enWithColors, transformOptions transOpt,
                                          HashMap<String, Integer> hashMap, ChatIconManager chatIconManager, HashMap<String,String> map) throws Exception {
         return getTWCchild(enWithColors, transOpt,hashMap, chatIconManager, map, true);
     }
@@ -160,6 +171,8 @@ public class JapTransforms {
         if (enWithColors.contains("<img=")){//ignore if its already in japanese
             return enWithColors;
         }
+        if (japanesePlugin.getJapWidgets().removeTag(enWithColors).matches("^[\\d/\\-, ()]+$"))
+            return enWithColors;
         String[][] colorWords = getColorWordArray(enWithColors, transOpt, specifiedMap, addApiDict);// = {{"ffffff","White string"},{"ff0000","red"},...}
 
 
@@ -171,19 +184,25 @@ public class JapTransforms {
         StringBuilder imgTagStrings = new StringBuilder();
         for (int i = 0; i < colorWords.length; i++) {
             for (int j = 0; j < colorWords[i][1].length();) {
-                ////log.info("getTransformWithColors: the word is " + colorWords[i][1] + "codePointAt("+j+") = " + colorWords[i][1].codePointAt(j));
-                int codePoint = colorWords[i][1].codePointAt(j);
-                imgTagStrings.append("<img=");
-                String imgName = colorWords[i][0] + "--" + codePoint + ".png";
-                int hash = hashMap.getOrDefault(imgName, -99);
-                if (hash == -99) {
-                    String imgName2 = colorWords[i][0] + "--" + "?".codePointAt(0) + ".png";
-                    hash = hashMap.getOrDefault(imgName2, -99);
-                    //log.info("error creating hash for character : " + codePoint + ", with img name : " + imgName);
+                if (colorWords[i][1].matches("[\\d\\p{Punct}]+")) {
+                    imgTagStrings.append("<col=").append(Colors.fromName(colorWords[i][0]).getHex()).append(">");
+                    imgTagStrings.append(colorWords[i][1]);
+                    j = colorWords[i][1].length();
+                } else {
+                    ////log.info("getTransformWithColors: the word is " + colorWords[i][1] + "codePointAt("+j+") = " + colorWords[i][1].codePointAt(j));
+                    int codePoint = colorWords[i][1].codePointAt(j);
+                    imgTagStrings.append("<img=");
+                    String imgName = colorWords[i][0] + "--" + codePoint + ".png";
+                    int hash = hashMap.getOrDefault(imgName, -99);
+                    if (hash == -99) {
+                        String imgName2 = colorWords[i][0] + "--" + "?".codePointAt(0) + ".png";
+                        hash = hashMap.getOrDefault(imgName2, -99);
+                        //log.info("error creating hash for character : " + codePoint + ", with img name : " + imgName);
+                    }
+                    imgTagStrings.append(chatIconManager.chatIconIndex(hash));
+                    imgTagStrings.append(">");
+                    j += Character.isHighSurrogate(colorWords[i][1].charAt(j)) ? 2 : 1;
                 }
-                imgTagStrings.append(chatIconManager.chatIconIndex(hash));
-                imgTagStrings.append(">");
-                j += Character.isHighSurrogate(colorWords[i][1].charAt(j)) ? 2 : 1;
             }
         }
         return imgTagStrings.toString();
@@ -211,8 +230,8 @@ public class JapTransforms {
             for (int i = 0; i < colorTagNum; i++) {
                 colorWords[i][0] = colorArray[i];
                 colorWords[i][1] = transform(wordArray[i], transOpt, specifiedMap, addApiDict);
-                ////log.info("colorWords[" + i + "][0]" + colorWords[i][0] );
-                ////log.info("colorWords[" + i + "][1]" + colorWords[i][1] );
+                //log.info("colorWords[" + i + "][0]" + colorWords[i][0] );
+                //log.info("colorWords[" + i + "][1]" + colorWords[i][1] );
             }
 
         }
@@ -253,7 +272,7 @@ public class JapTransforms {
 
     private String transform(String enString, transformOptions transOpt, HashMap<String,String> specifiedMap, boolean addApiDict) throws Exception {
         String enStringLower = enString.toLowerCase();
-        String re = "^[^\\p{Alnum}]+$";
+        String re = "^[^\\p{Alpha}]+$";
         if (enString.matches(re))
             return enString;
 
@@ -275,9 +294,9 @@ public class JapTransforms {
 
         switch(transOpt) {
             case API:
-                if (japanesePlugin.getApiTranslate().deeplCount < japanesePlugin.getApiTranslate().deeplLimit - enString.length() - 5
-                && japanesePlugin.getApiTranslate().keyValid
-                && japanesePlugin.config.useDeepl())
+                if (japanesePlugin.getApiTranslate().deeplCount < japanesePlugin.getApiTranslate().deeplLimit - enString.length() - 5//doesnt exceed limit
+                && japanesePlugin.getApiTranslate().keyValid//api key is valid
+                && japanesePlugin.config.useDeepl())//config setting set to api translate
                     return japanesePlugin.getApiTranslate().getDeepl(enString, "en", "ja", addApiDict, specifiedMap);
             case wordToWord:
                 //log.info("option = " + transOpt);
@@ -308,11 +327,11 @@ public class JapTransforms {
             //1. use api translator on the whole sentence if enabled
               //todo
             //2.if api translation not enabled, split up into words and translate each of them and concat them
-            String[] wordArray = en.split("[ ,.;:!?]+");
+            String[] wordArray = en.split("(?=[ \\p{Punct}]+)|(?<=[ \\p{Punct}])");
             StringBuilder resultBuilder = new StringBuilder();
             for (String word : wordArray) {
                 word = word.trim();
-                if (word.matches("(\\d)")){//if its only a number, add the number and continue
+                if (word.matches("[\\d\\p{Punct}]+")){//if its only a number, add the number and continue
                     resultBuilder.append(word);
                     continue;
                 }
@@ -358,6 +377,8 @@ public class JapTransforms {
             return knownNpc.get(en);
         if (knownObject.containsKey(en))
             return knownObject.get(en);
+        if (knownGameMsgAndDialog.containsKey(en))
+            return knownGameMsgAndDialog.get(en);
 
         if (knownDirect.containsKey(en))
             return knownDirect.get(en);
@@ -400,7 +421,10 @@ public class JapTransforms {
                 sentMenuOption.add(enString);
                 writeToFile(enString, filePath + "sentMenuOptions.txt");
             }
-        } else if (map == japanesePlugin.getJapTransforms().knownItemAndWidgets && !japanesePlugin.getJapTransforms().sentItemAndWidgetsName.contains(enString)) {
+        } else if ((map == japanesePlugin.getJapTransforms().knownItemAndWidgets
+                || map == japanesePlugin.getJapTransforms().knownSettingTranslation
+                || map == japanesePlugin.getJapTransforms().knownSpecificWidgets)
+                && !japanesePlugin.getJapTransforms().sentItemAndWidgetsName.contains(enString)) {
             if (sendToWebhook("ItemAndWidgetsName|" + enString)) {
                 sentItemAndWidgetsName.add(enString);
                 writeToFile(enString, filePath + "sentItemAndWidgetsName.txt");
@@ -415,13 +439,17 @@ public class JapTransforms {
                 sentObjectName.add(enString);
                 writeToFile(enString, filePath + "sentObjName.txt");
             }
+        } else if (map == japanesePlugin.getJapTransforms().knownGameMsgAndDialog && !japanesePlugin.getJapTransforms().sentDialog.contains(enString)) {
+            if (sendToWebhook("Dialog|" + enString)) {
+                sentDialog.add(enString);
+                writeToFile(enString, filePath + "sentGameMsgAndDialog.txt");
+            }
         }
     }
 
-    private boolean sendToWebhook(String content) {
+    public boolean sendToWebhook(String content) {
         try {
-            webhook.setContent(content);
-            webhook.execute();
+            webhook.sendMessage(japanesePlugin.config.webHookUrl(),content);
             return true;
         } catch (Exception e) {
             return false;

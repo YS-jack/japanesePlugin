@@ -87,7 +87,7 @@ public class ApiTranslate {
 
             updateCount(apiType.deepL, enText);
             updateKnown(enText, resultText, addApiDict);
-            if (addApiDict)
+            if (addApiDict && map != null)
                 sendWebhook(enText, resultText, map);
 
             return resultText;
@@ -129,33 +129,39 @@ public class ApiTranslate {
     private void sendWebhook(String en, String jp, HashMap<String, String> map) throws IOException {
         if (japanesePlugin.getJapTransforms().sentApiTranslate.contains(en+"|"+jp))
             return;
-        String type;
-        if (map.equals(japanesePlugin.getJapTransforms().knownObject))
-            type = "deepl_Object";
-        else if (map.equals(japanesePlugin.getJapTransforms().knownNpc))
-            type = "deepl_NPC";
-        else if (map.equals(japanesePlugin.getJapTransforms().knownItemAndWidgets))
-            type = "deepl_ItemAndWidgets";
-        else if (map.equals(japanesePlugin.getJapTransforms().knownMenuOption))
-            type = "deepl_MenuOption";
-        else
-            type = "deepl_gameMsgDialogOther";
-        if (sendToWebhook(type + "|" + en + "|" + jp)) {
+        String type = getString(map);
+        if (japanesePlugin.getJapTransforms().sendToWebhook(type + "|" + en + "|" + jp)) {
             writeToSentFile(en + "|" + jp, "src/main/resources/com/japanese/webhookSent/sentAPITranslationMsg.txt");
             japanesePlugin.getJapTransforms().sentApiTranslate.add(en+"|"+jp);
         }
     }
 
-    private boolean sendToWebhook(String content) {
-        DiscordWebhook webhook = japanesePlugin.getJapTransforms().webhook;
-        try {
-            webhook.setContent(content);
-            webhook.execute();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    private String getString(HashMap<String, String> map) {
+        String type;
+        if (map == japanesePlugin.getJapTransforms().knownObject)
+            type = "deepl_Object";
+        else if (map == japanesePlugin.getJapTransforms().knownNpc)
+            type = "deepl_NPC";
+        else if (map == japanesePlugin.getJapTransforms().knownItemAndWidgets)
+            type = "deepl_ItemAndWidgets";
+        else if (map == japanesePlugin.getJapTransforms().knownMenuOption)
+            type = "deepl_MenuOption";
+        else if (map == japanesePlugin.getJapTransforms().knownGameMsgAndDialog)
+            type = "deepl_gameMsgDialogOther";
+        else type = null;
+        return type;
     }
+
+//    private boolean sendToWebhook(String content) {
+//        DiscordWebhook webhook = japanesePlugin.getJapTransforms().webhook;
+//        try {
+//            webhook.setContent(content);
+//            webhook.execute();
+//            return true;
+//        } catch (Exception e) {
+//            return false;
+//        }
+//    }
 
     private void writeToSentFile(String text, String filePath) throws IOException {
         //String filePath = "src/main/resources/com/japanese/translations/KnownAPITranslations.csv";
