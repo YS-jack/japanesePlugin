@@ -1,10 +1,15 @@
-# ルーンスケープを日本語でプレイ！
+# ルーンスケープを日本語でプレイ！(beta)
 このプラグインの機能はまとめると二つです。
 1. ゲーム内テキストを日本語で表示
 2. 日本語でチャット
 
 ゲーム内テキストは簡易的な翻訳、もしくはDeepLを使った翻訳が可能です。
 簡易的な翻訳は単純に単語ごとに和訳するだけであり、文法は全く考慮しないのでDeepLを使うことをおすすめします。
+
+### 大部分の翻訳は未完成です
+また、Menu Entry swapper など現在併用できないプラグインもあります。
+必要な場合は設定から不要な翻訳から☑を外してください。
+プラグイン自体をオフにすると再度オンにするときに時間がかかってしまいます。
 
 ## ルーンスケープの始め方
 Old School RuneScape で検索し、ダウンロード。
@@ -63,3 +68,6 @@ DeepLは使用開始日から一カ月間は500,000「文字」まで無料で�
    * プラグイン一覧に戻るアイコン
 7. もしDeepLの使用を停止したい場合は貼り付けたキーを消すか、「DeepLを使用」のチェックを外しましょう
 
+# English description
+This plugin translates most texts to Japanese, and allows you to chat in Japanese as well.
+Some translations have been disabled because of incomplete translations.
