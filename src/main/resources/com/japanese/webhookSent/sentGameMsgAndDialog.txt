@@ -8,3 +8,5 @@ you are not chatting in the channel of your iron group at the moment.
 to talk in your iron group's channel, start each line of chat with //// or /g.
 you have battlestaves waiting to be collected from zaff.
 you've repositioned one of the in-game interfaces. hold alt and drag to reposition the interface again, or alt and right click to reset.
+hail, group iron man! my name is tony, and i'm here to teach you everything you need to know about group iron men. what can i do for you?
+group iron tutor|hail, group iron man! my name is tony, and i'm here to teach you everything you need to know about group iron men. what can i do for you?

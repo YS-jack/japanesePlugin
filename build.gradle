@@ -22,7 +22,7 @@ dependencies {
 	testImplementation group: 'net.runelite', name:'client', version: runeLiteVersion
 	testImplementation group: 'net.runelite', name:'jshell', version: runeLiteVersion
 
-	implementation "com.deepl.api:deepl-java:1.4.0"
+	implementation 'com.deepl.api:deepl-java:1.4.0'
 	}
 
 group = 'com.japanese'

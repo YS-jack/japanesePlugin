@@ -1,3 +1,6 @@
 A messy bird.|厄介な鳥だ。
 
 A wooden barrel for storage.|貯蔵用の木製の樽。
+Hey there.|やあ。
+Group Iron tutor|グループ・アイアン・チューター
+Hail, Group Iron Man! My name is Tony, and I'm here to teach you everything you need to know about Group Iron Men. What can I do for you?|グループ・アイアンマン万歳！私の名前はトニー。グループ・アイアンマンについて知っておかなければならないことをすべて教えよう。私に何ができる？
