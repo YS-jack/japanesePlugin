@@ -303,4 +303,19 @@ public interface JapaneseConfig extends Config {
     )
     default String webHookUrl() {return "";}
 
+    @ConfigSection(
+            name = "その他",
+            description = "その他の設定",
+            position = 100
+    )
+    String otherSection = "other section";
+
+    @ConfigItem(
+            position = 100,
+            keyName = "mouseTooltip",
+            name = "マウス横の表示",
+            description = "マウスの横の表示の設定",
+            section = otherSection
+    )
+    default boolean mouseTooltip() {return true;}
 }

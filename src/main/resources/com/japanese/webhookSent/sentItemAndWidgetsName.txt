@@ -2482,3 +2482,75 @@ attack 2
 assault and battery
 assault and battery
 attack 6
+world 258
+world 1105
+swamp tar
+swamp tar
+pick
+pick
+pick
+pick
+pick
+pick
+pick
+pick
+pick
+pick
+pick
+pick
+pick
+pick
+pick
+pick
+pick
+pick
+world 531
+world 138
+world 70
+world 176
+world 1138
+world 524
+world 508
+<col=ff9040>fire rune</col>
+<col=ff9040>fire rune</col>
+<col=ff9040>fire rune</col>
+<col=ff9040>fire rune</col>
+<col=ff9040>fire rune</col>
+<col=ff9040>fire rune</col>
+world 330
+<col=ff9040>strawberry seed (2)
+<col=ff9040>strawberry seed (2)
+<col=ff9040>strawberry seed (2)
+<col=ff9040>strawberry seed (2)
+world 421
+<img=5960><img=10514><img=12904><img=10474><img=10459>
+water rune (402)
+water rune (402)
+water rune (402)
+water rune (402)
+water rune (402)
+water rune (402)
+water rune (402)
+water rune (402)
+water rune (402)
+water rune (402)
+water rune (402)
+water rune (402)
+water rune (402)
+water rune (402)
+water rune (402)
+water rune (402)
+water rune (402)
+water rune (402)
+water rune (402)
+half a summer pie
+half a summer pie
+half a summer pie
+half a summer pie
+half a summer pie
+half a summer pie
+half a summer pie
+half a summer pie
+half a summer pie
+<img=5960><img=10514><img=10967><img=10510>
+world 514

@@ -8,3 +8,7 @@ you are not chatting in the channel of your iron group at the moment.
 to talk in your iron group's channel, start each line of chat with //// or /g.
 you have battlestaves waiting to be collected from zaff.
 you've repositioned one of the in-game interfaces. hold alt and drag to reposition the interface again, or alt and right click to reset.
+attempting to quick-hop to world 389
+welcome to the grand exchange. would you like to trade now, or exchange item sets?
+grand exchange clerk|welcome to the grand exchange. would you like to trade now, or exchange item sets?
+the default held left click option for 'water rune' has been set to 'drop'.

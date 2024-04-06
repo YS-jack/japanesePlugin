@@ -133,3 +133,135 @@ mugger
 mugger
 mugger
 mugger
+giant rat
+giant rat
+giant rat
+giant rat
+giant rat
+giant rat
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+frog
+big frog
+big frog
+big frog
+big frog
+big frog
+big frog
+big frog
+big frog
+big frog
+big frog
+big frog
+big frog
+guard
+guard
+guard
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+grand exchange clerk
+banker
+banker
+banker
+banker
+banker
+banker
+banker
+banker
+<col=ffff00>grand exchange clerk
+<col=ffff00>grand exchange clerk
+<col=ffff00>grand exchange clerk
+<col=ffff00>grand exchange clerk
+<col=ffff00>banker
+<col=ffff00>grand exchange clerk
+<col=ffff00>banker
+<col=ffff00>hofuthand (weapons and armour)
+<col=ffff00>hofuthand (weapons and armour)
+<col=ffff00>hofuthand (weapons and armour)
+<col=ffff00>hofuthand (weapons and armour)
+<col=ffff00>hofuthand (weapons and armour)
+<col=ffff00>hofuthand (weapons and armour)
+<col=ffff00>hofuthand (weapons and armour)
+hofuthand (weapons and armour)
+hofuthand (weapons and armour)
+hofuthand (weapons and armour)
+<img=5960><img=10477><img=13087><img=10459>
+<img=5960><img=10477><img=13517><img=10451><img=10510>
+<img=5960><img=10477><img=13517><img=10451><img=10510>
+<img=5960><img=10474><img=10967><img=11442>
+relobo blinyo (logs)
+relobo blinyo (logs)
+relobo blinyo (logs)
+relobo blinyo (logs)
+relobo blinyo (logs)
+relobo blinyo (logs)
+relobo blinyo (logs)
+relobo blinyo (logs)
+relobo blinyo (logs)
+relobo blinyo (logs)
+relobo blinyo (logs)
+relobo blinyo (logs)
+relobo blinyo (logs)

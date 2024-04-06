@@ -12,3 +12,4 @@ hours,|時間
 hours|時間
 minutes|分
 a minute|1分
+Time Played:Click to reveal|プレイ時間:クリックで表示

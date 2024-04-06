@@ -270,7 +270,7 @@ public class JapTransforms {
         return  wordArray;
     }
 
-    private String transform(String enString, transformOptions transOpt, HashMap<String,String> specifiedMap, boolean addApiDict) throws Exception {
+    public String transform(String enString, transformOptions transOpt, HashMap<String,String> specifiedMap, boolean addApiDict) throws Exception {
         String enStringLower = enString.toLowerCase();
         String re = "^[^\\p{Alpha}]+$";
         if (enString.matches(re))

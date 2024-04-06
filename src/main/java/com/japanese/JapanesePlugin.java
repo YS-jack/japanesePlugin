@@ -52,6 +52,8 @@ public class JapanesePlugin extends Plugin{
     private KatKanjCandiOvl katKanjCandiOvl;
     @Inject
     private APICountOverlay apiCountOverlay;
+    @Inject
+    private MouseTooltipOverlay mouseTooltipOverlay;
     @Inject @Getter
     private JapWidgets japWidgets;
     @Inject @Getter
@@ -138,7 +140,7 @@ public class JapanesePlugin extends Plugin{
     protected String getCharPath(String colChar) {
         return "char/" + colChar;
     }
-    private HashMap<String, String> getMap(MenuEntry event){
+    public HashMap<String, String> getMap(MenuEntry event){
         String target = event.getTarget();
         MenuAction action = event.getType();
 //        if (action == MenuAction.WIDGET_TARGET || action == MenuAction.WIDGET_CLOSE
@@ -192,24 +194,25 @@ public class JapanesePlugin extends Plugin{
         if (config.menuEntryConfig() == JapaneseConfig.jpEnChoice.英語)
             return;
         MenuEntry[] event = client.getMenuEntries();
-        if (event.length == 1 && event[0].getOption().equals("Cancel")&&!client.isMenuOpen())
-            return;
-        boolean show = false;
-        if (event.length > 1 && !client.isMenuOpen()) {
-            for (MenuEntry e : event){
-                if (!e.getOption().equals("Walk here")
-                && !e.getOption().equals("Cancel")
-                && !e.getOption().equals("Examine")
-                ){
-                    show = true;
-                    break;
-                }
-            }
-            if (!show)
-                return;
-        }
+//        if (event.length == 1 && event[0].getOption().equals("Cancel")&&!client.isMenuOpen())
+//            return;
+//        boolean show = false;
+//        if (event.length > 1 && !client.isMenuOpen()) {
+//            for (MenuEntry e : event){
+//                if (!e.getOption().equals("Walk here")
+//                && !e.getOption().equals("Cancel")
+//                && !e.getOption().equals("Examine")
+//                ){
+//                    show = true;
+//                    break;
+//                }
+//            }
+//            if (!show)
+//                return;
+//        }
 //        if (show)
-        {
+
+        if (client.isMenuOpen()){
             {
                 try {
                     for (MenuEntry e : event) {
@@ -276,6 +279,7 @@ public class JapanesePlugin extends Plugin{
         overlayManager.add(katKanjCandiOvl);
         overlayManager.add(apiCountOverlay);
         overlayManager.add(chatOptionOverlay);
+        overlayManager.add(mouseTooltipOverlay);
 
         String[][] space = {{"blue"," "}};
         spaceImageText = japTransforms.buildJapStringImage(space,japCharIds,chatIconManager);
@@ -287,6 +291,11 @@ public class JapanesePlugin extends Plugin{
     @Override
     protected  void shutDown() throws  Exception
     {
+        overlayManager.remove(chatInputOverlay);
+        overlayManager.remove(katKanjCandiOvl);
+        overlayManager.remove(apiCountOverlay);
+        overlayManager.remove(chatOptionOverlay);
+        overlayManager.remove(mouseTooltipOverlay);
         log.info("end of plugin");
     }
 

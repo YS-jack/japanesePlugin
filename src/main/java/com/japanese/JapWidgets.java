@@ -50,6 +50,8 @@ public class JapWidgets {
     private int groupingTabId = 47644672;
     private int groupingTabId2 = 4980736;
     private int settingTabId = 7602179;
+    private int tradeScreenId = 21954562;
+    private int showLastSearchGEId = 10616884;
     public void changeWidgetTexts(Widget widgetExceptions) throws Exception { //widgetExceptions = parent widgets to ignore searching for texts
         dialogDisplayCount = 0;
         int localDialogCount = dialogDisplayCount;
@@ -71,6 +73,11 @@ public class JapWidgets {
                 && widget.getId() != settingTabId
                 && widget.getId() != ComponentID.EMOTES_WINDOW
                 && widget.getId() != ComponentID.MUSIC_CONTAINER
+                && widget.getId() != tradeScreenId
+                && widget.getId() != ComponentID.GRAND_EXCHANGE_WINDOW_CONTAINER
+                && widget.getId() != ComponentID.CHATBOX_GE_SEARCH_RESULTS
+                && widget.getId() != ComponentID.CHATBOX_FULL_INPUT
+                && widget.getId() != showLastSearchGEId
         ){//
             if (widget.getId() == ComponentID.CHATBOX_INPUT) {
                 japanesePlugin.getRomToJap().drawOverlay(widget);
@@ -373,7 +380,10 @@ public class JapWidgets {
                         enWithColors = "<col=" + Colors.orange.getHex() + ">" + "Time Played:";
 //                        + "<col="+ Colors.green.getHex() +">" + removeTag(line.split("Played:")[1]);
 //                        return japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, chSummary);
-                        if (line.contains("days")) {
+                        if (line.contains("Click to reveal")) {
+                            enWithColors =enWithColors + "Click to reveal";
+                            return japTransforms.getTransformWithColors(enWithColors, option, map, iconManager, chSummary);
+                        } else if (line.contains("days")) {
                             String days = line.split("(?=\\d day)")[1].split("day")[0].trim();
                             String hours = line.split("(?=\\d hour)")[1].split("hour")[0].trim();
                             String wordColDays = "<col=ff00>days,";
