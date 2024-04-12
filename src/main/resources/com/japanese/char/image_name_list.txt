@@ -6510,6 +6510,7 @@ blue--96.png
 blue--97.png
 blue--98.png
 blue--99.png
+image_name_list.txt
 red--100.png
 red--101.png
 red--102.png
