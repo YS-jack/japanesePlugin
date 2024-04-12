@@ -113,7 +113,7 @@ public class JapWidgets {
 
                 if (!widgetText.isEmpty() && !widgetText.isBlank() && !widgetText.contains("<img=")) {//if widgetText contains text
 //                    if (widget.getParent().getId() == 14024705 || widget.getParent().getId() == 14024714) { //parent of skill guide, or parent of element in list
-//                        String dir = "src/main/resources/com/japanese/dump/";
+//                        String dir = "/com/japanese/dump/";
 //                        if (widget.getText().matches("\\d{1,2}"))
 //                            return;
 //                        writeToFile(widgetText + "|", dir + "skillGuideDump.txt");
@@ -130,7 +130,7 @@ public class JapWidgets {
                             if (g6Parent != null) {//for writing to file
 //                                if (g6Parent.getId() == ComponentID.SETTINGS_INIT) {
 //                                    ///for dumping texts for translation ease
-//                                    String dir = "src/main/resources/com/japanese/dump/";
+//                                    String dir = "/com/japanese/dump/";
 //                                    writeToFile(widgetText + "|", dir + "settingsDump");
 //                                    if (widget.getText().matches("F\\d{1,2}") || widget.getText().equals("ESC"))
 //                                        return;

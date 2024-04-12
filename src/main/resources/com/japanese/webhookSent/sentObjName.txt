@@ -388,3 +388,17 @@ bank deposit box
 bank deposit box
 bank deposit box
 <img=5960><img=10477><img=13517><img=10451><img=10510>
+inconspicuous rocks (easy)
+inconspicuous rocks (easy)
+<img=5960><img=10514><img=11431><img=10472><img=10510>
+copper rocks
+copper rocks
+copper rocks
+<img=4484><img=7793><img=8714><img=7789>
+<img=4484><img=7793><img=8172><img=7789>
+gold rocks
+gold rocks
+gold rocks
+gold rocks
+gold rocks
+gold rocks

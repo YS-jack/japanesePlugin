@@ -75,7 +75,7 @@ public class JapanesePlugin extends Plugin{
 
     private void loadJapChar()
     {
-        String[] japCharArray = japChar.getCharList(); //list of all characters e.g.　black+JapChar.separator+面
+        String[] japCharArray = japChar.getCharList(); //list of all characters e.g.　black--3021.png
         for (String s : japCharArray) {
             String filePath = getCharPath(s);
             final BufferedImage image = ImageUtil.loadImageResource(getClass(), filePath);

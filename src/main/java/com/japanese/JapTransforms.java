@@ -44,7 +44,7 @@ public class JapTransforms {
     private ApiTranslate apiTranslate;
 
     public void initTransHash() throws Exception {
-        String transDataDir = "src/main/resources/com/japanese/translations/";
+        String transDataDir = "/com/japanese/translations/";
         knownAPI = new HashMap<>();
         putToDictHash(knownAPI, transDataDir, "KnownAPITranslations.csv");
         knownDirect = new HashMap<>();
@@ -79,7 +79,7 @@ public class JapTransforms {
         knownDirect.putAll(knownSettingTranslation);
         knownDirect.putAll(knownSpecificWidgets);
 
-        String sentWebhookDir = "src/main/resources/com/japanese/webhookSent/";
+        String sentWebhookDir = "/com/japanese/webhookSent/";
 
         putSentToList(sentApiTranslate, sentWebhookDir, "sentAPITranslationMsg.txt");
         putSentToList(sentItemAndWidgetsName, sentWebhookDir,"sentItemAndWidgetsName.txt");
@@ -88,13 +88,13 @@ public class JapTransforms {
         putSentToList(sentObjectName, sentWebhookDir, "sentObjName.txt");
         putSentToList(sentDialog,sentWebhookDir,"sentGameMsgAndDialog.txt");
         log.info("end of making hashmap for translations");
-//        knownDirect.entrySet().stream()
-//                .forEach(entry -> log.info(entry.getKey() + " => " + entry.getValue()));
+
     }
     private void putToDictHash(HashMap<String, String> dictHash, String dirName, String... dirArray) {
         for (String dir:dirArray) {
             String dir2 = dirName + dir;
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(dir2), StandardCharsets.UTF_8))) {
+            try (InputStream is = JapTransforms.class.getResourceAsStream(dir2);
+                 BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     String[] parts = line.split("\\|");
@@ -115,7 +115,8 @@ public class JapTransforms {
     private void putSentToList(List<String> list, String dirName, String... dirArray) {
         for (String dir:dirArray) {
             String dir2 = dirName + dir;
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(dir2), StandardCharsets.UTF_8))) {
+            try (InputStream is = JapTransforms.class.getResourceAsStream(dir2);
+                 BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     list.add(line.toLowerCase());
@@ -457,7 +458,6 @@ public class JapTransforms {
     }
 
     private void writeToFile(String text, String filePath) throws IOException {
-        //String filePath = "src/main/resources/com/japanese/translations/KnownAPITranslations.csv";
         try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(filePath, true), StandardCharsets.UTF_8))) {
             writer.write(text + "\n");
