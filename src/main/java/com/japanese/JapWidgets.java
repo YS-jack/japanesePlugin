@@ -52,6 +52,7 @@ public class JapWidgets {
     private int settingTabId = 7602179;
     private int tradeScreenId = 21954562;
     private int showLastSearchGEId = 10616884;
+    private int settingSearchBarID = 8781835;
     public void changeWidgetTexts(Widget widgetExceptions) throws Exception { //widgetExceptions = parent widgets to ignore searching for texts
         dialogDisplayCount = 0;
         int localDialogCount = dialogDisplayCount;
@@ -63,21 +64,23 @@ public class JapWidgets {
         //log.info("displayDialog=" + displayDialog);
     }
     private void changeEndChildTextAndRecord(Widget widget) throws Exception {//for collecting ids, only for development
+        int tempWidgetId = widget.getId();
         if(!widget.isHidden()
-                && widget.getId() != ComponentID.CHATBOX_MESSAGE_LINES
-                && widget.getId() != ComponentID.IGNORE_LIST_NAMES_CONTAINER
-                && widget.getId() != ComponentID.CLAN_GUEST_LAYER
-                && widget.getId() != ComponentID.CLAN_LAYER
-                && widget.getId() != groupingTabId
-                && widget.getId() != groupingTabId2
-                && widget.getId() != settingTabId
-                && widget.getId() != ComponentID.EMOTES_WINDOW
-                && widget.getId() != ComponentID.MUSIC_CONTAINER
-                && widget.getId() != tradeScreenId
-                && widget.getId() != ComponentID.GRAND_EXCHANGE_WINDOW_CONTAINER
-                && widget.getId() != ComponentID.CHATBOX_GE_SEARCH_RESULTS
-                && widget.getId() != ComponentID.CHATBOX_FULL_INPUT
-                && widget.getId() != showLastSearchGEId
+                && tempWidgetId != ComponentID.CHATBOX_MESSAGE_LINES
+                && tempWidgetId != settingSearchBarID
+                && tempWidgetId != ComponentID.IGNORE_LIST_NAMES_CONTAINER
+                && tempWidgetId != ComponentID.CLAN_GUEST_LAYER
+                && tempWidgetId != ComponentID.CLAN_LAYER
+                && tempWidgetId != groupingTabId
+                && tempWidgetId != groupingTabId2
+                && tempWidgetId != settingTabId
+                && tempWidgetId != ComponentID.EMOTES_WINDOW
+                && tempWidgetId != ComponentID.MUSIC_CONTAINER
+                && tempWidgetId != tradeScreenId
+                && tempWidgetId != ComponentID.GRAND_EXCHANGE_WINDOW_CONTAINER
+                && tempWidgetId != ComponentID.CHATBOX_GE_SEARCH_RESULTS
+                && tempWidgetId != ComponentID.CHATBOX_FULL_INPUT
+                && tempWidgetId != showLastSearchGEId
         ){//
             if (widget.getId() == ComponentID.CHATBOX_INPUT) {
                 japanesePlugin.getRomToJap().drawOverlay(widget);

@@ -1,6 +1,7 @@
 package com.japanese;
 
 import joptsimple.util.PathConverter;
+import lombok.extern.slf4j.Slf4j;
 import net.runelite.client.RuneLite;
 
 import java.io.*;
@@ -15,6 +16,7 @@ import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+@Slf4j
 public class FileManager {//downloads translations and japanese char images to external file
     public static final File COMMON_DIR = new File(RuneLite.RUNELITE_DIR.getPath() + File.separator + "Japanese_Plugin_resources");
     private  final String LOCAL_HASH_NAME = "hashListLocal.txt";
@@ -111,6 +113,7 @@ public class FileManager {//downloads translations and japanese char images to e
     }
 
     private  void downloadAndUpdateFile(String filePath) throws IOException {
+        log.info("updating file " + filePath);
         URL fileUrl = new URL(GITHUB_BASE_URL + "/repos/" + filePath.replace("\\","/"));
         Path localPath = Paths.get(COMMON_DIR.getPath(), filePath);
 
