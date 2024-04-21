@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
 
+import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.InterfaceID;
@@ -44,7 +45,7 @@ import net.runelite.client.ui.overlay.tooltip.TooltipManager;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+@Slf4j
 class MouseTooltipOverlay extends Overlay
 {
     /**
@@ -127,19 +128,13 @@ class MouseTooltipOverlay extends Overlay
         }
 
         // Trivial options that don't need to be highlighted, add more as they appear.
-        switch (option)
-        {
-            case "Walk here":
-            case "Cancel":
-            case "Continue":
-                return null;
-            case "Move":
-                // Hide overlay on sliding puzzle boxes
-                if (target.contains("Sliding piece"))
-                {
-                    return null;
-                }
-        }
+        String codeWalkHere = japanesePlugin.getJapTransforms().getCharImgTagsFromJapString("ここまで歩く", Colors.white);
+        String codeCancel = japanesePlugin.getJapTransforms().getCharImgTagsFromJapString("キャンセル", Colors.white);
+        String codeContinue = japanesePlugin.getJapTransforms().getCharImgTagsFromJapString("続ける", Colors.white);
+        String codeSlide = japanesePlugin.getJapTransforms().getCharImgTagsFromJapString("スライド", Colors.orange);
+
+        if (option.equals(codeWalkHere) || option.equals(codeCancel) || option.equals(codeContinue) || target.contains(codeSlide))
+            return null;
 
         if (WIDGET_MENU_ACTIONS.contains(type))
         {
@@ -165,108 +160,7 @@ class MouseTooltipOverlay extends Overlay
             return null;
         }
 
-        try {
-            String[] newOptionTarget = getNewMenuEntryString();
-            String newOption = newOptionTarget[0];
-            String newTarget = newOptionTarget[1];
-            tooltipManager.addFront(new Tooltip(newOption + (Strings.isNullOrEmpty(newTarget) ? "" : " " + newTarget)));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
+        tooltipManager.addFront(new Tooltip(option + (Strings.isNullOrEmpty(option) ? "" : " " + target)));
         return null;
-    }
-
-    private String[] getNewMenuEntryString() throws Exception {
-        MenuEntry[] menuEntries = client.getMenuEntries();
-        int last = menuEntries.length - 1;
-        MenuEntry event = menuEntries[last];
-        String target = event.getTarget();
-        String option = event.getOption();
-
-        String[] newOptTar = new String[2];
-        JapTransforms.transformOptions targetTranOption;
-        JapTransforms japTransforms = japanesePlugin.getJapTransforms();
-        if(target.isEmpty()) {//the event is for walk here(no target) or cancel
-            newOptTar[1] = "";
-            JapTransforms.transformOptions optionTranOption;
-            optionTranOption = JapTransforms.transformOptions.wordToWord;
-            //log.info("passing option to getTran : " + option );
-            HashMap<String,String> map = japTransforms.knownMenuOption;
-            //newOptTar[0] = japTransforms.getTransformWithColors(option, optionTranOption, japCharIds, chatIconManager, map);
-            if (option.matches(".*<col=.*"))
-                newOptTar[0] = getWithColCode(option, optionTranOption, map);
-            else
-                newOptTar[0] = japTransforms.transform(option,optionTranOption,map,true);
-        } else {
-            targetTranOption = JapTransforms.transformOptions.wordToWord;//todo get target translation method from config
-            if (event.getActor() instanceof Player){
-                //log.info("player :" + target + ", option:" + option);
-                targetTranOption = JapTransforms.transformOptions.doNothing;
-            } else if (Objects.equals(option, "Walk here") && !target.isBlank()) {
-                //log.info("for walk here > player :" + target + ", option:" + option);
-                targetTranOption = JapTransforms.transformOptions.doNothing;
-            }
-
-            //translating menu target
-            //log.info("passing target to getTran : " + target );
-            Widget geWidget = client.getWidget(ComponentID.GRAND_EXCHANGE_WINDOW_CONTAINER);
-            if (geWidget != null && !geWidget.isHidden())//dont change target name if opening ge widget
-                newOptTar[0] = target;
-            else {
-                HashMap<String, String> map = japanesePlugin.getMap(event);
-                //newOptTar[0] = japTransforms.getTransformWithColors(target.replace("(level-", "(レベル"),
-                //        targetTranOption, japCharIds, chatIconManager, map);
-                if (target.matches(".*<col=.*"))
-                    newOptTar[0] = getWithColCode(target.replace("(level-", "(レベル"), targetTranOption, map);
-                else
-                    newOptTar[0] = japTransforms.transform(target.replace("(level-", "(レベル"),targetTranOption,map,true);
-            }
-            //log.info("new option = " + newOptTar[1]);
-
-            //translating menu option
-            JapTransforms.transformOptions optionTranOption;
-            optionTranOption = JapTransforms.transformOptions.wordToWord; //todo get from config? might not need to if have all option translated in knownMenuOption
-            HashMap<String,String> map = japTransforms.knownMenuOption;
-            //log.info("passing option to getTran : " + option );
-            //newOptTar[1] = spaceImageText + //add space because for some reason the first letter disappears
-            //        japTransforms.getTransformWithColors(option, optionTranOption, japCharIds, chatIconManager,map);
-            if (target.matches(".*<col=.*"))
-                newOptTar[1] = getWithColCode(option, optionTranOption, map);
-            else
-                newOptTar[1] = japTransforms.transform(option,optionTranOption,map,true);
-        }
-        return newOptTar;
-    }
-
-    private String getWithColCode(String text, JapTransforms.transformOptions optionTranOption, HashMap<String,String> map) throws Exception {
-        Pattern pattern = Pattern.compile("(<col=.+>|</col>)");
-        Matcher matcher = pattern.matcher(text);
-
-        List<String> parts = new ArrayList<>();
-        int start = 0;
-        while (matcher.find()) {
-            if (start != matcher.start()) {
-                parts.add(text.substring(start, matcher.start()));
-            }
-            parts.add(matcher.group());
-            start = matcher.end();
-        }
-
-        // Add any remaining part of the string after the last match
-        if (start != text.length()) {
-            parts.add(text.substring(start));
-        }
-        StringBuilder stringBuilder = new StringBuilder();
-        for (String str : parts){
-            if (str.matches("(<col=.+>|</col>)"))
-                stringBuilder.append(str);
-            else {
-                String translation = japanesePlugin.getJapTransforms().transform(str,optionTranOption,map,true);
-                stringBuilder.append(translation);
-            }
-        }
-
-        return stringBuilder.toString();
     }
 }

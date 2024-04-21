@@ -3,6 +3,7 @@ package com.japanese;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
+import net.runelite.client.RuneLite;
 import net.runelite.client.game.ChatIconManager;
 
 import javax.inject.Inject;
@@ -39,12 +40,14 @@ public class JapTransforms {
     @Inject
     JapanesePlugin japanesePlugin;
     @Inject
+    FileManager fileManager;
+    @Inject
     private RomToJap romToJap;
     @Inject
     private ApiTranslate apiTranslate;
 
     public void initTransHash() throws Exception {
-        String transDataDir = "/com/japanese/translations/";
+        String transDataDir = FileManager.COMMON_DIR + "/translations/";
         knownAPI = new HashMap<>();
         putToDictHash(knownAPI, transDataDir, "KnownAPITranslations.csv");
         knownDirect = new HashMap<>();
@@ -79,7 +82,7 @@ public class JapTransforms {
         knownDirect.putAll(knownSettingTranslation);
         knownDirect.putAll(knownSpecificWidgets);
 
-        String sentWebhookDir = "/com/japanese/webhookSent/";
+        String sentWebhookDir = FileManager.COMMON_DIR + "/webhookSent/";
 
         putSentToList(sentApiTranslate, sentWebhookDir, "sentAPITranslationMsg.txt");
         putSentToList(sentItemAndWidgetsName, sentWebhookDir,"sentItemAndWidgetsName.txt");
@@ -93,8 +96,7 @@ public class JapTransforms {
     private void putToDictHash(HashMap<String, String> dictHash, String dirName, String... dirArray) {
         for (String dir:dirArray) {
             String dir2 = dirName + dir;
-            try (InputStream is = JapTransforms.class.getResourceAsStream(dir2);
-                 BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(dir2), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     String[] parts = line.split("\\|");
@@ -115,8 +117,7 @@ public class JapTransforms {
     private void putSentToList(List<String> list, String dirName, String... dirArray) {
         for (String dir:dirArray) {
             String dir2 = dirName + dir;
-            try (InputStream is = JapTransforms.class.getResourceAsStream(dir2);
-                 BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(dir2), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     list.add(line.toLowerCase());
@@ -416,7 +417,7 @@ public class JapTransforms {
         String url = japanesePlugin.config.webHookUrl();
         if (url.isEmpty())
             return;
-        String filePath = "src/main/resources/com/japanese/webhookSent/";
+        String filePath = FileManager.COMMON_DIR +"/webhookSent/";
         if (map == japanesePlugin.getJapTransforms().knownMenuOption && !japanesePlugin.getJapTransforms().sentMenuOption.contains(enString)) {
             if (sendToWebhook("MenuOption|" + enString)) {
                 sentMenuOption.add(enString);
@@ -464,5 +465,27 @@ public class JapTransforms {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public String getCharImgTagsFromJapString(String japString, Colors colors) {
+        StringBuilder imgTagStrings = new StringBuilder();
+        ChatIconManager chatIconManager = japanesePlugin.getChatIconManager();
+        HashMap<String, Integer> map = japanesePlugin.getJapCharIds();
+        for (int j = 0; j < japString.length();) {
+
+            int codePoint = japString.codePointAt(j);
+            String imgName = colors.getName() + "--" + codePoint + ".png";
+            int hash = map.getOrDefault(imgName, -99);
+            if (hash == -99) {
+                imgTagStrings.append("?");
+                j += Character.isHighSurrogate(japString.charAt(j)) ? 2 : 1;
+            }
+            imgTagStrings.append("<img=");
+            imgTagStrings.append(chatIconManager.chatIconIndex(hash));
+            imgTagStrings.append(">");
+            j += Character.isHighSurrogate(japString.charAt(j)) ? 2 : 1;
+
+        }
+        return imgTagStrings.toString();
     }
 }

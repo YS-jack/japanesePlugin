@@ -21,8 +21,8 @@ public class DiscordWebhook {
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println("Response status code: " + response.statusCode());
-            System.out.println("Response body: " + response.body());
+//            System.out.println("Response status code: " + response.statusCode());
+////            System.out.println("Response body: " + response.body());
         } catch (Exception e) {
             e.printStackTrace();
         }

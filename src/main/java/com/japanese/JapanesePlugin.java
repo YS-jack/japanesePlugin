@@ -1,6 +1,8 @@
 package com.japanese;
 
 import com.google.inject.Provides;
+
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
 
 import lombok.Getter;
@@ -20,6 +22,11 @@ import net.runelite.client.util.ImageUtil;
 
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.ProtectionDomain;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -30,7 +37,7 @@ import com.japanese.JapTransforms.transformOptions;
         name = "Japanese",
         description = "plugin to translate game texts into Japanese",
         tags = {"japan", "translate", "日本","にほ","niho","nippo"},
-        enabledByDefault = false
+        enabledByDefault = true
 )
 
 public class JapanesePlugin extends Plugin{
@@ -59,6 +66,8 @@ public class JapanesePlugin extends Plugin{
     @Inject @Getter
     private ApiTranslate apiTranslate;
     @Inject
+    private FileManager fileManager;
+    @Inject
     private ChatOptionOverlay chatOptionOverlay;
     @Inject
     private ChatModifier chatModifier;
@@ -71,16 +80,22 @@ public class JapanesePlugin extends Plugin{
     protected final HashMap<String,Integer> chatButtonsIds = new HashMap<>(); //button name (allSelected.png ...) <-> img Ids
     private HashMap<String,String> examineJpEnMap = new HashMap<>();
     public String dialogueText;
+    public String firstMenuOption = "";
+    public String firstMenuTarget = "";
     private String spaceImageText;
 
     private void loadJapChar()
     {
         String[] japCharArray = japChar.getCharList(); //list of all characters e.g.　black--3021.png
         for (String s : japCharArray) {
-            String filePath = getCharPath(s);
-            final BufferedImage image = ImageUtil.loadImageResource(getClass(), filePath);
-            final int charID = chatIconManager.registerChatIcon(image);
-            japCharIds.put(s, charID);
+            try {
+                String filePath = FileManager.COMMON_DIR.getPath() + File.separator + "char" + File.separator + s;
+                File externalCharImg = new File(filePath);
+                final BufferedImage image = ImageIO.read(externalCharImg);
+
+                final int charID = chatIconManager.registerChatIcon(image);
+                japCharIds.put(s, charID);
+            } catch (Exception e){log.info(String.valueOf(e));}
         }
         log.info("end of making character image hashmap");
     }
@@ -97,7 +112,7 @@ public class JapanesePlugin extends Plugin{
             HashMap<String,String> map = japTransforms.knownMenuOption;
             newOptTar[0] = japTransforms.getTransformWithColors(event.getOption(), optionTranOption, japCharIds, chatIconManager, map);
         } else {
-            targetTranOption = transformOptions.wordToWord;//todo get target translation method from config
+            targetTranOption = transformOptions.wordToWord;
             if (event.getActor() instanceof Player){
                 //log.info("player :" + event.getTarget() + ", option:" + event.getOption());
                 targetTranOption = transformOptions.doNothing;
@@ -137,9 +152,7 @@ public class JapanesePlugin extends Plugin{
         }
         return newOptTar;
     }
-    protected String getCharPath(String colChar) {
-        return "char/" + colChar;
-    }
+
     public HashMap<String, String> getMap(MenuEntry event){
         String target = event.getTarget();
         MenuAction action = event.getType();
@@ -188,54 +201,52 @@ public class JapanesePlugin extends Plugin{
     }
 
 
-    @Subscribe(priority = -0.1f)
-    public void onClientTick(ClientTick clientTick) {
-        //return;
+    @Subscribe
+    public void onMenuEntryAdded(MenuEntryAdded a){
+
         if (config.menuEntryConfig() == JapaneseConfig.jpEnChoice.英語)
             return;
         MenuEntry[] event = client.getMenuEntries();
-//        if (event.length == 1 && event[0].getOption().equals("Cancel")&&!client.isMenuOpen())
-//            return;
-//        boolean show = false;
-//        if (event.length > 1 && !client.isMenuOpen()) {
-//            for (MenuEntry e : event){
-//                if (!e.getOption().equals("Walk here")
-//                && !e.getOption().equals("Cancel")
-//                && !e.getOption().equals("Examine")
-//                ){
-//                    show = true;
-//                    break;
-//                }
-//            }
-//            if (!show)
-//                return;
-//        }
-//        if (show)
-
-        if (client.isMenuOpen()){
             {
-                try {
-                    for (MenuEntry e : event) {
-                        if (e.getOption().contains("<img=") || e.getTarget().contains("<img")) continue;
-                        String[] newOptTar = getNewMenuEntryString(e); //returns [newTarget, newOption]
-                        String newOption = newOptTar[0]; //String with multiple <img=...> which spells the new option's translation, with correct colours
-                        String newTarget = newOptTar[1];
+            try {
+                for (MenuEntry e : event) {
+                    if (e.getOption().contains("<img=") || e.getTarget().contains("<img")) continue;
+                    String[] newOptTar = getNewMenuEntryString(e); //returns [newTarget, newOption]
+                    String newOption = newOptTar[0]; //String with multiple <img=...> which spells the new option's translation, with correct colours
+                    String newTarget = newOptTar[1];
 
-                        if (newOption != null) {
-                            if (newTarget == null) {
-                                e.setOption(e.getOption().replace(e.getOption(), newOption));
-                            } else {
-                                e.setOption(e.getOption().replace(e.getOption(), newOption));
-                                e.setTarget(e.getTarget().replace(e.getTarget(), newTarget));
+                    if (newOption != null) {
+                        if (newTarget == null) {
+                            e.setOption(e.getOption().replace(e.getOption(), newOption));
+                        } else {
+                            e.setOption(e.getOption().replace(e.getOption(), newOption));
+                            e.setTarget(e.getTarget().replace(e.getTarget(), newTarget));
 
-                            }
                         }
                     }
-                } catch (Exception e) {
-                    //System.out.print(e.getMessage());
                 }
+            } catch (Exception e) {
+                //System.out.print(e.getMessage());
             }
         }
+    }
+
+    public String getRelativePath() {
+        Path relativePath = FileManager.COMMON_DIR.toPath();
+        try {
+            Path targetPath = FileManager.COMMON_DIR.toPath();
+
+            ProtectionDomain domain = FileManager.class.getProtectionDomain();
+            URI classLocation = domain.getCodeSource().getLocation().toURI();
+            Path basePath = Paths.get(classLocation);
+            System.out.println("Base path: " + basePath);
+            System.out.println("Target path: " + targetPath);
+            relativePath = basePath.relativize(targetPath);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return relativePath.toString();
     }
 
     @Subscribe
@@ -267,6 +278,7 @@ public class JapanesePlugin extends Plugin{
     protected void startUp() throws Exception
     {
         log.info("start of plugin");
+        fileManager.initFileManager();
         loadJapChar();
         japTransforms.initTransHash();
         romToJap.initRom2JpHash();

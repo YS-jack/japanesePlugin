@@ -97,7 +97,6 @@ public class ChatModifier {
                 case 簡易翻訳:
                     return transformOptions.wordToWord;
                 case DeepL翻訳:
-
                     return transformOptions.API;
             }
         }
@@ -253,7 +252,7 @@ public class ChatModifier {
                 return japanesePlugin.getJapTransforms().knownGameMsgAndDialog;
         }
     }
-    private transformOptions getChatConfig(ChatMessage chatMessage) {//todo:read from config
+    private transformOptions getChatConfig(ChatMessage chatMessage) {
         String name = japWidgets.removeTag(chatMessage.getName());
         if (isInStringArray(name, japanesePlugin.config.playerListDoNothing().split(",")))
             return transformOptions.doNothing;
