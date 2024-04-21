@@ -1287,3 +1287,4 @@ swap left click
 <img=6530><img=4577>
 <img=6541><img=4577>
 <img=6568><img=4577>
+<img=10216><img=10216><img=10260><img=10236><img=11752><img=10212>

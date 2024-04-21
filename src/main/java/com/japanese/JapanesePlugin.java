@@ -1,6 +1,8 @@
 package com.japanese;
 
 import com.google.inject.Provides;
+
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
 
 import lombok.Getter;
@@ -20,6 +22,11 @@ import net.runelite.client.util.ImageUtil;
 
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.ProtectionDomain;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -30,7 +37,7 @@ import com.japanese.JapTransforms.transformOptions;
         name = "Japanese",
         description = "plugin to translate game texts into Japanese",
         tags = {"japan", "translate", "日本","にほ","niho","nippo"},
-        enabledByDefault = false
+        enabledByDefault = true
 )
 
 public class JapanesePlugin extends Plugin{
@@ -59,6 +66,8 @@ public class JapanesePlugin extends Plugin{
     @Inject @Getter
     private ApiTranslate apiTranslate;
     @Inject
+    private FileManager fileManager;
+    @Inject
     private ChatOptionOverlay chatOptionOverlay;
     @Inject
     private ChatModifier chatModifier;
@@ -77,10 +86,14 @@ public class JapanesePlugin extends Plugin{
     {
         String[] japCharArray = japChar.getCharList(); //list of all characters e.g.　black--3021.png
         for (String s : japCharArray) {
-            String filePath = getCharPath(s);
-            final BufferedImage image = ImageUtil.loadImageResource(getClass(), filePath);
-            final int charID = chatIconManager.registerChatIcon(image);
-            japCharIds.put(s, charID);
+            try {
+                String filePath = fileManager.COMMON_DIR.getPath() + File.separator + "char" + File.separator + s;
+                File externalCharImg = new File(filePath);
+                final BufferedImage image = ImageIO.read(externalCharImg);
+
+                final int charID = chatIconManager.registerChatIcon(image);
+                japCharIds.put(s, charID);
+            } catch (Exception e){log.info(String.valueOf(e));}
         }
         log.info("end of making character image hashmap");
     }
@@ -137,9 +150,7 @@ public class JapanesePlugin extends Plugin{
         }
         return newOptTar;
     }
-    protected String getCharPath(String colChar) {
-        return "char/" + colChar;
-    }
+
     public HashMap<String, String> getMap(MenuEntry event){
         String target = event.getTarget();
         MenuAction action = event.getType();
@@ -238,6 +249,24 @@ public class JapanesePlugin extends Plugin{
         }
     }
 
+    public String getRelativePath() {
+        Path relativePath = FileManager.COMMON_DIR.toPath();
+        try {
+            Path targetPath = FileManager.COMMON_DIR.toPath();
+
+            ProtectionDomain domain = FileManager.class.getProtectionDomain();
+            URI classLocation = domain.getCodeSource().getLocation().toURI();
+            Path basePath = Paths.get(classLocation);
+            System.out.println("Base path: " + basePath);
+            System.out.println("Target path: " + targetPath);
+            relativePath = basePath.relativize(targetPath);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return relativePath.toString();
+    }
+
     @Subscribe
     private void onBeforeRender(BeforeRender event) throws Exception {
         //null to look through everything, otherwise specify widget parent not to search through for texts
@@ -267,6 +296,7 @@ public class JapanesePlugin extends Plugin{
     protected void startUp() throws Exception
     {
         log.info("start of plugin");
+        fileManager.initFileManager();
         loadJapChar();
         japTransforms.initTransHash();
         romToJap.initRom2JpHash();

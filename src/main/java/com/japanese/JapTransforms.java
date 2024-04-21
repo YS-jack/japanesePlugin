@@ -3,6 +3,7 @@ package com.japanese;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
+import net.runelite.client.RuneLite;
 import net.runelite.client.game.ChatIconManager;
 
 import javax.inject.Inject;
@@ -416,7 +417,7 @@ public class JapTransforms {
         String url = japanesePlugin.config.webHookUrl();
         if (url.isEmpty())
             return;
-        String filePath = "src/main/resources/com/japanese/webhookSent/";
+        String filePath = RuneLite.RUNELITE_DIR.getPath() + File.separator +"webhookSent/";
         if (map == japanesePlugin.getJapTransforms().knownMenuOption && !japanesePlugin.getJapTransforms().sentMenuOption.contains(enString)) {
             if (sendToWebhook("MenuOption|" + enString)) {
                 sentMenuOption.add(enString);
