@@ -89,7 +89,7 @@ public class JapanesePlugin extends Plugin{
         String[] japCharArray = japChar.getCharList(); //list of all characters e.g.　black--3021.png
         for (String s : japCharArray) {
             try {
-                String filePath = fileManager.COMMON_DIR.getPath() + File.separator + "char" + File.separator + s;
+                String filePath = FileManager.COMMON_DIR.getPath() + File.separator + "char" + File.separator + s;
                 File externalCharImg = new File(filePath);
                 final BufferedImage image = ImageIO.read(externalCharImg);
 
@@ -112,7 +112,7 @@ public class JapanesePlugin extends Plugin{
             HashMap<String,String> map = japTransforms.knownMenuOption;
             newOptTar[0] = japTransforms.getTransformWithColors(event.getOption(), optionTranOption, japCharIds, chatIconManager, map);
         } else {
-            targetTranOption = transformOptions.wordToWord;//todo get target translation method from config
+            targetTranOption = transformOptions.wordToWord;
             if (event.getActor() instanceof Player){
                 //log.info("player :" + event.getTarget() + ", option:" + event.getOption());
                 targetTranOption = transformOptions.doNothing;

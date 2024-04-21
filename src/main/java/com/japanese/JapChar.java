@@ -14,8 +14,7 @@ import java.util.List;
 
 @Slf4j
 public class JapChar {
-    public final File COMMON_DIR = new File(RuneLite.RUNELITE_DIR.getPath() + File.separator + "Japanese_Plugin_resources");
-    public final File charDir = new File(COMMON_DIR+ File.separator + "char");
+    public final File charDir = new File(FileManager.COMMON_DIR + File.separator + "char");
     @Getter
     private final String pathToChar = charDir.getPath();
     public String[] getCharList() {//get list of all characters( all colours * char)

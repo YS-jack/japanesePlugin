@@ -118,7 +118,7 @@ public class ApiTranslate {
         japanesePlugin.getJapTransforms().knownAPI.put(en.toLowerCase(), jp);
     }
     private void writeToFile(String en, String jp) throws IOException {
-        String filePath = "src/main/resources/com/japanese/translations/KnownAPITranslations.csv";
+        String filePath = FileManager.COMMON_DIR + "/translations/KnownAPITranslations.csv";
         try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(filePath, true), StandardCharsets.UTF_8))) {
             writer.write(en + "|" + jp + "\n");
@@ -131,7 +131,7 @@ public class ApiTranslate {
             return;
         String type = getString(map);
         if (japanesePlugin.getJapTransforms().sendToWebhook(type + "|" + en + "|" + jp)) {
-            writeToSentFile(en + "|" + jp, "src/main/resources/com/japanese/webhookSent/sentAPITranslationMsg.txt");
+            writeToSentFile(en + "|" + jp, FileManager.COMMON_DIR + "/webhookSent/sentAPITranslationMsg.txt");
             japanesePlugin.getJapTransforms().sentApiTranslate.add(en+"|"+jp);
         }
     }
@@ -152,19 +152,7 @@ public class ApiTranslate {
         return type;
     }
 
-//    private boolean sendToWebhook(String content) {
-//        DiscordWebhook webhook = japanesePlugin.getJapTransforms().webhook;
-//        try {
-//            webhook.setContent(content);
-//            webhook.execute();
-//            return true;
-//        } catch (Exception e) {
-//            return false;
-//        }
-//    }
-
-    private void writeToSentFile(String text, String filePath) throws IOException {
-        //String filePath = "src/main/resources/com/japanese/translations/KnownAPITranslations.csv";
+    private void writeToSentFile(String text, String filePath) {
         try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(filePath, true), StandardCharsets.UTF_8))) {
             writer.write(text + "\n");

@@ -80,6 +80,8 @@ class KatKanjCandiOvl extends Overlay //remove abstract when actually making ove
                     jp.append(numbering);
 
                     String word = jpMsg[i + j * candListMax].split("\\d")[0];
+                    if (i + j * candListMax == candSelectN)
+                        word = "" + word;//todo:find if its possible to change the color of one word in overlay
                     jp.append(word);
 
                     int w = panelWordLen[j] - jpMsg[i + j * candListMax].length();

@@ -639,7 +639,7 @@ public class JapWidgets {
         Matcher m = p.matcher(s);
         return m.matches();
     }
-    private void writeToFile(String line, String filePath) throws IOException {
+    private void writeToFile(String line, String filePath) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
                 writer.write(line);
                 writer.newLine(); // Writes a new line
