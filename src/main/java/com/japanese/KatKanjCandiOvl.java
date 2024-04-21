@@ -58,7 +58,7 @@ class KatKanjCandiOvl extends Overlay //remove abstract when actually making ove
             }
             panelWidth += panelWordLen[j] * japCharSize;
         }
-        panelWidth += japCharSize*2*panelN + enCharSize*3*panelN + enCharSize*2*(panelN-1);
+        panelWidth += japCharSize*panelN + enCharSize*3*panelN + enCharSize*2*(panelN-1);
         //if (panelN > 1)
          //   panelWidth += japCharSize*(panelN-1);
         for(int i = 0; i < candListMax; i++) {
@@ -66,13 +66,19 @@ class KatKanjCandiOvl extends Overlay //remove abstract when actually making ove
             String numbering;
 
             for (int j = 0; j < panelN; j++) {
+                if (i + j * candListMax == candSelectN)
+                    jp.append("<col=00ffff>");
+                else
+                    jp.append("<col=ffffff>");
 
                 if (i + j * candListMax < jpMsg.length) {
                     numbering = Integer.toString(i + j * candListMax) + "  ";
-                    if (i + j * candListMax == candSelectN) 
-                        numbering = "＞" + numbering;
-                    else
-                        numbering = "＿" + numbering;
+                    if (i+j*candListMax < 10)
+                        numbering = " " + numbering;
+//                    if (i + j * candListMax == candSelectN)
+//                        numbering = "＞" + numbering;
+//                    else
+//                        numbering = "＿" + numbering;
                     if (j > 0) {
                         jp.append("　");
 
@@ -80,8 +86,6 @@ class KatKanjCandiOvl extends Overlay //remove abstract when actually making ove
                     jp.append(numbering);
 
                     String word = jpMsg[i + j * candListMax].split("\\d")[0];
-                    if (i + j * candListMax == candSelectN)
-                        word = "" + word;//todo:find if its possible to change the color of one word in overlay
                     jp.append(word);
 
                     int w = panelWordLen[j] - jpMsg[i + j * candListMax].length();
@@ -107,5 +111,17 @@ class KatKanjCandiOvl extends Overlay //remove abstract when actually making ove
                 string.substring(string.length() / 2)       // Second half
         };
         return ret;
+    }
+
+    public static String toFullWidth(String input) {
+        StringBuilder fullWidthForm = new StringBuilder();
+        for (char c : input.toCharArray()) {
+            if (c >= '0' && c <= '9') { // 半角数字の範囲をチェック
+                fullWidthForm.append((char) (c - '0' + '０')); // '０' は全角の '0'
+            } else {
+                fullWidthForm.append(c); // 数字以外はそのまま追加
+            }
+        }
+        return fullWidthForm.toString();
     }
 }
