@@ -29,19 +29,18 @@ public class RomToJap {
     private String notAvailable = "nan";
 
     public void initRom2JpHash() throws Exception {
-        String wordsDir = "/com/japanese/romToJap/romJap.csv";
+        String wordsDir = FileManager.COMMON_DIR + "/romToJap/romJap.csv";
         putWordToHash(wordsDir);
 
-        String charDir = "/com/japanese/romToJap/romJapChar.csv";
+        String charDir = FileManager.COMMON_DIR + "/romToJap/romJapChar.csv";
         char2char = new HashMap<>();
         putCharToHash(char2char, charDir);
 
         log.info("end of init Rom2JP hash");
     }
     private void putWordToHash(String dirName) {
-        try (InputStream is = JapTransforms.class.getResourceAsStream(dirName);
-                BufferedReader reader = new BufferedReader(new InputStreamReader
-                (is, StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader
+                (new FileInputStream(dirName), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
@@ -58,9 +57,8 @@ public class RomToJap {
         }
     }
     private void putCharToHash(HashMap<String, String> hash, String dirName) {
-        try (InputStream is = JapTransforms.class.getResourceAsStream(dirName);
-                BufferedReader reader = new BufferedReader(new InputStreamReader
-                (is, StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader
+                (new FileInputStream(dirName), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split("\\|");

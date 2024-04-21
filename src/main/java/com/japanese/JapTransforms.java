@@ -40,12 +40,14 @@ public class JapTransforms {
     @Inject
     JapanesePlugin japanesePlugin;
     @Inject
+    FileManager fileManager;
+    @Inject
     private RomToJap romToJap;
     @Inject
     private ApiTranslate apiTranslate;
 
     public void initTransHash() throws Exception {
-        String transDataDir = "/com/japanese/translations/";
+        String transDataDir = FileManager.COMMON_DIR + "/translations/";
         knownAPI = new HashMap<>();
         putToDictHash(knownAPI, transDataDir, "KnownAPITranslations.csv");
         knownDirect = new HashMap<>();
@@ -80,7 +82,7 @@ public class JapTransforms {
         knownDirect.putAll(knownSettingTranslation);
         knownDirect.putAll(knownSpecificWidgets);
 
-        String sentWebhookDir = "/com/japanese/webhookSent/";
+        String sentWebhookDir = FileManager.COMMON_DIR + "/webhookSent/";
 
         putSentToList(sentApiTranslate, sentWebhookDir, "sentAPITranslationMsg.txt");
         putSentToList(sentItemAndWidgetsName, sentWebhookDir,"sentItemAndWidgetsName.txt");
@@ -94,8 +96,7 @@ public class JapTransforms {
     private void putToDictHash(HashMap<String, String> dictHash, String dirName, String... dirArray) {
         for (String dir:dirArray) {
             String dir2 = dirName + dir;
-            try (InputStream is = JapTransforms.class.getResourceAsStream(dir2);
-                 BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(dir2), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     String[] parts = line.split("\\|");
@@ -116,8 +117,7 @@ public class JapTransforms {
     private void putSentToList(List<String> list, String dirName, String... dirArray) {
         for (String dir:dirArray) {
             String dir2 = dirName + dir;
-            try (InputStream is = JapTransforms.class.getResourceAsStream(dir2);
-                 BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(dir2), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     list.add(line.toLowerCase());
@@ -417,7 +417,7 @@ public class JapTransforms {
         String url = japanesePlugin.config.webHookUrl();
         if (url.isEmpty())
             return;
-        String filePath = RuneLite.RUNELITE_DIR.getPath() + File.separator +"webhookSent/";
+        String filePath = FileManager.COMMON_DIR +"/webhookSent/";
         if (map == japanesePlugin.getJapTransforms().knownMenuOption && !japanesePlugin.getJapTransforms().sentMenuOption.contains(enString)) {
             if (sendToWebhook("MenuOption|" + enString)) {
                 sentMenuOption.add(enString);
