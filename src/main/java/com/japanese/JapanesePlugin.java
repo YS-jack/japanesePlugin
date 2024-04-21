@@ -80,6 +80,8 @@ public class JapanesePlugin extends Plugin{
     protected final HashMap<String,Integer> chatButtonsIds = new HashMap<>(); //button name (allSelected.png ...) <-> img Ids
     private HashMap<String,String> examineJpEnMap = new HashMap<>();
     public String dialogueText;
+    public String firstMenuOption = "";
+    public String firstMenuTarget = "";
     private String spaceImageText;
 
     private void loadJapChar()
@@ -199,52 +201,32 @@ public class JapanesePlugin extends Plugin{
     }
 
 
-    @Subscribe(priority = -0.1f)
-    public void onClientTick(ClientTick clientTick) {
-        //return;
+    @Subscribe
+    public void onMenuEntryAdded(MenuEntryAdded a){
+
         if (config.menuEntryConfig() == JapaneseConfig.jpEnChoice.英語)
             return;
         MenuEntry[] event = client.getMenuEntries();
-//        if (event.length == 1 && event[0].getOption().equals("Cancel")&&!client.isMenuOpen())
-//            return;
-//        boolean show = false;
-//        if (event.length > 1 && !client.isMenuOpen()) {
-//            for (MenuEntry e : event){
-//                if (!e.getOption().equals("Walk here")
-//                && !e.getOption().equals("Cancel")
-//                && !e.getOption().equals("Examine")
-//                ){
-//                    show = true;
-//                    break;
-//                }
-//            }
-//            if (!show)
-//                return;
-//        }
-//        if (show)
-
-        if (client.isMenuOpen()){
             {
-                try {
-                    for (MenuEntry e : event) {
-                        if (e.getOption().contains("<img=") || e.getTarget().contains("<img")) continue;
-                        String[] newOptTar = getNewMenuEntryString(e); //returns [newTarget, newOption]
-                        String newOption = newOptTar[0]; //String with multiple <img=...> which spells the new option's translation, with correct colours
-                        String newTarget = newOptTar[1];
+            try {
+                for (MenuEntry e : event) {
+                    if (e.getOption().contains("<img=") || e.getTarget().contains("<img")) continue;
+                    String[] newOptTar = getNewMenuEntryString(e); //returns [newTarget, newOption]
+                    String newOption = newOptTar[0]; //String with multiple <img=...> which spells the new option's translation, with correct colours
+                    String newTarget = newOptTar[1];
 
-                        if (newOption != null) {
-                            if (newTarget == null) {
-                                e.setOption(e.getOption().replace(e.getOption(), newOption));
-                            } else {
-                                e.setOption(e.getOption().replace(e.getOption(), newOption));
-                                e.setTarget(e.getTarget().replace(e.getTarget(), newTarget));
+                    if (newOption != null) {
+                        if (newTarget == null) {
+                            e.setOption(e.getOption().replace(e.getOption(), newOption));
+                        } else {
+                            e.setOption(e.getOption().replace(e.getOption(), newOption));
+                            e.setTarget(e.getTarget().replace(e.getTarget(), newTarget));
 
-                            }
                         }
                     }
-                } catch (Exception e) {
-                    //System.out.print(e.getMessage());
                 }
+            } catch (Exception e) {
+                //System.out.print(e.getMessage());
             }
         }
     }

@@ -466,4 +466,26 @@ public class JapTransforms {
             e.printStackTrace();
         }
     }
+
+    public String getCharImgTagsFromJapString(String japString, Colors colors) {
+        StringBuilder imgTagStrings = new StringBuilder();
+        ChatIconManager chatIconManager = japanesePlugin.getChatIconManager();
+        HashMap<String, Integer> map = japanesePlugin.getJapCharIds();
+        for (int j = 0; j < japString.length();) {
+
+            int codePoint = japString.codePointAt(j);
+            String imgName = colors.getName() + "--" + codePoint + ".png";
+            int hash = map.getOrDefault(imgName, -99);
+            if (hash == -99) {
+                imgTagStrings.append("?");
+                j += Character.isHighSurrogate(japString.charAt(j)) ? 2 : 1;
+            }
+            imgTagStrings.append("<img=");
+            imgTagStrings.append(chatIconManager.chatIconIndex(hash));
+            imgTagStrings.append(">");
+            j += Character.isHighSurrogate(japString.charAt(j)) ? 2 : 1;
+
+        }
+        return imgTagStrings.toString();
+    }
 }

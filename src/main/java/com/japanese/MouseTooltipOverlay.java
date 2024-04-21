@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
 
+import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.InterfaceID;
@@ -44,7 +45,7 @@ import net.runelite.client.ui.overlay.tooltip.TooltipManager;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+@Slf4j
 class MouseTooltipOverlay extends Overlay
 {
     /**
@@ -127,19 +128,13 @@ class MouseTooltipOverlay extends Overlay
         }
 
         // Trivial options that don't need to be highlighted, add more as they appear.
-        switch (option)
-        {
-            case "Walk here":
-            case "Cancel":
-            case "Continue":
-                return null;
-            case "Move":
-                // Hide overlay on sliding puzzle boxes
-                if (target.contains("Sliding piece"))
-                {
-                    return null;
-                }
-        }
+        String codeWalkHere = japanesePlugin.getJapTransforms().getCharImgTagsFromJapString("ここまで歩く", Colors.white);
+        String codeCancel = japanesePlugin.getJapTransforms().getCharImgTagsFromJapString("キャンセル", Colors.white);
+        String codeContinue = japanesePlugin.getJapTransforms().getCharImgTagsFromJapString("続ける", Colors.white);
+        String codeSlide = japanesePlugin.getJapTransforms().getCharImgTagsFromJapString("スライド", Colors.orange);
+
+        if (option.equals(codeWalkHere) || option.equals(codeCancel) || option.equals(codeContinue) || target.contains(codeSlide))
+            return null;
 
         if (WIDGET_MENU_ACTIONS.contains(type))
         {
@@ -165,14 +160,16 @@ class MouseTooltipOverlay extends Overlay
             return null;
         }
 
-        try {
-            String[] newOptionTarget = getNewMenuEntryString();
-            String newOption = newOptionTarget[0];
-            String newTarget = newOptionTarget[1];
-            tooltipManager.addFront(new Tooltip(newOption + (Strings.isNullOrEmpty(newTarget) ? "" : " " + newTarget)));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        tooltipManager.addFront(new Tooltip(option + (Strings.isNullOrEmpty(option) ? "" : " " + target)));
+
+//        try {
+//            String[] newOptionTarget = getNewMenuEntryString();
+//            String newOption = newOptionTarget[0];
+//            String newTarget = newOptionTarget[1];
+//            tooltipManager.addFront(new Tooltip(newOption + (Strings.isNullOrEmpty(newTarget) ? "" : " " + newTarget)));
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
 
         return null;
     }
