@@ -627,10 +627,13 @@ public class JapWidgets {
                 }
             }
         } // for every other widgets, such as interfaces, buttons, etc
-        if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.jpEnChoice.日本語)
+        if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.GameTextProcessChoice.簡易翻訳)
             return transformOptions.wordToWord;
-
-        if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.jpEnChoice.英語)
+        if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.GameTextProcessChoice.DeepL翻訳) {
+            if (japanesePlugin.getApiTranslate().deeplCount < japanesePlugin.getApiTranslate().deeplLimit - 500)
+                return transformOptions.API;
+        }
+        if (japanesePlugin.config.widgetTextConfig() == JapaneseConfig.GameTextProcessChoice.そのまま)
             return transformOptions.doNothing;
         else {
             japTransforms.messageIngame("開発者に報告してください：JapWidgets getWidgetTransformConfig エラー", "red");

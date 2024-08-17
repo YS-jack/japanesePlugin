@@ -7,9 +7,10 @@ import net.runelite.client.config.ConfigSection;
 
 @ConfigGroup(JapaneseConfig.GROUP)
 public interface JapaneseConfig extends Config {
+    String config_1_name = "API無し・キー欄未記入時";
     String GROUP = "日本語翻訳";
     @ConfigSection(
-            name = "API無し・キー欄未記入時",
+            name = config_1_name,
             description = "APIキーが使えない場合の設定",
             position = 1
     )
@@ -27,7 +28,7 @@ public interface JapaneseConfig extends Config {
                     "DeepL翻訳を使用する場合はアカウント作成・APIキー取得が必要。",
             section = translateMethodSection
     )
-    default TranslatorConfig translatorOption() {return TranslatorConfig.簡易翻訳;}
+    default TranslatorConfig translatorOption() {return TranslatorConfig.翻訳しない;}
 
     @ConfigSection(
             name = "DeepLのAPI設定ラン",
@@ -36,7 +37,7 @@ public interface JapaneseConfig extends Config {
     )
     String APIOptions = "APIキーの設定欄";
 
-//    enum NoAPIConfig
+    //    enum NoAPIConfig
 //    {
 //        簡易翻訳,
 //        翻訳しない,
@@ -62,7 +63,7 @@ public interface JapaneseConfig extends Config {
 
     default String DeeplApiKey() {return "DeepLのアカウント作成後、キーを取得";}
 
-//    @ConfigItem(
+    //    @ConfigItem(
 //            position = 4,
 //            keyName = "AzureAPIOption",
 //            name = "Azure AIのAPIキー",
@@ -86,7 +87,7 @@ public interface JapaneseConfig extends Config {
             section = APIOptions
     )
     default boolean DeeplAPICount() {return true;}
-//    @ConfigItem(
+    //    @ConfigItem(
 //            position = 5,
 //            keyName = "AzureTranslateCount",
 //            name = "Azureの翻訳文字数を表示",
@@ -128,7 +129,7 @@ public interface JapaneseConfig extends Config {
             description = "NPCとの会話の翻訳設定",
             section = gameTransformChoice
     )
-    default GameTextProcessChoice npcDialogueConfig() {return GameTextProcessChoice.簡易翻訳;}
+    default GameTextProcessChoice npcDialogueConfig() {return GameTextProcessChoice.そのまま;}
     @ConfigItem(
             position = 42,
             keyName = "MenuEntryConfig",
@@ -136,7 +137,7 @@ public interface JapaneseConfig extends Config {
             description = "マウスを置いたり右クリックすると表示されるテキストの翻訳設定",
             section = gameTransformChoice
     )
-    default jpEnChoice menuEntryConfig() {return jpEnChoice.日本語;}
+    default jpEnChoice menuEntryConfig() {return jpEnChoice.英語;}
     @ConfigItem(
             position = 41,
             keyName = "GameMessageConfig",
@@ -144,7 +145,7 @@ public interface JapaneseConfig extends Config {
             description = "チャットボックス内に表示される、発言以外の文章の翻訳設定",
             section = gameTransformChoice
     )
-    default GameTextProcessChoice gameMessageConfig() {return GameTextProcessChoice.簡易翻訳;}
+    default GameTextProcessChoice gameMessageConfig() {return GameTextProcessChoice.そのまま;}
     @ConfigItem(
             position = 43,
             keyName = "OtherMessageConfig",
@@ -152,7 +153,9 @@ public interface JapaneseConfig extends Config {
             description = "ボタン、クエストダイアログ等のテキストの翻訳設定",
             section = gameTransformChoice
     )
-    default jpEnChoice widgetTextConfig() {return jpEnChoice.日本語;}
+    //default jpEnChoice widgetTextConfig() {return jpEnChoice.英語;}
+    default  GameTextProcessChoice widgetTextConfig() {return GameTextProcessChoice.簡易翻訳;}
+
     //    @ConfigItem(
 //            position = 41,
 //            keyName = "DialogOvlConfig",
@@ -204,7 +207,7 @@ public interface JapaneseConfig extends Config {
             description = "友達の発言の翻訳・変換設定",
             section = chatTransformChoice
     )
-    default ChatConfig friendConfig() {return ChatConfig.そのまま表示;}
+    default ChatConfig friendConfig() {return ChatConfig.ローマ字変換;}
     @ConfigItem(
             position = 62,
             keyName = "PublicConfig",
@@ -212,7 +215,7 @@ public interface JapaneseConfig extends Config {
             description = "公開チャットの発言の翻訳・変換設定",
             section = chatTransformChoice
     )
-    default ChatConfig publicConfig() {return ChatConfig.簡易翻訳;}
+    default ChatConfig publicConfig() {return ChatConfig.そのまま表示;}
 
     @ConfigItem(
             position = 63,
@@ -237,7 +240,7 @@ public interface JapaneseConfig extends Config {
             description = "フレンドチャットにいるメンバーの発言の翻訳・変換設定",
             section = chatTransformChoice
     )
-    default ChatConfig friendChatConfig() {return ChatConfig.簡易翻訳;}
+    default ChatConfig friendChatConfig() {return ChatConfig.ローマ字変換;}
     @ConfigItem(
             position = 66,
             keyName = "GIMConfig",
